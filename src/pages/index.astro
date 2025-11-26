@@ -1,8 +1,89 @@
 ---
-import Welcome from "../components/Welcome.astro";
-import Layout from "../layouts/Layout.astro";
+import Layout from '../layouts/Layout.astro';
+import { DashboardSummary } from '../components/DashboardSummary';
+import { ExpensePieChart } from '../components/ExpensePieChart';
+import { RecentExpensesList } from '../components/RecentExpensesList';
+import { NavBar } from '../components/NavBar';
+import type { DashboardSummaryDTO, ExpenseListDTO } from '../types';
+
+// Server-side data fetching
+let dashboardData: DashboardSummaryDTO | undefined;
+let expensesData: ExpenseListDTO | undefined;
+let error: string | null = null;
+
+try {
+  const supabase = Astro.locals.supabase;
+  
+  // Check authentication (temporarily disabled for testing)
+  // const { data: { session } } = await supabase.auth.getSession();
+  //
+  // if (!session) {
+  //   return Astro.redirect('/login');
+  // }
+
+  // Fetch dashboard summary
+  const summaryResponse = await fetch(`${Astro.url.origin}/api/dashboard/summary`, {
+    headers: {
+      'Cookie': Astro.request.headers.get('Cookie') || '',
+    },
+  });
+
+  if (summaryResponse.ok) {
+    dashboardData = await summaryResponse.json();
+  }
+
+  // Fetch recent expenses
+  const expensesResponse = await fetch(`${Astro.url.origin}/api/expenses?limit=10&sort=expense_date.desc`, {
+    headers: {
+      'Cookie': Astro.request.headers.get('Cookie') || '',
+    },
+  });
+
+  if (expensesResponse.ok) {
+    expensesData = await expensesResponse.json();
+  }
+} catch (err) {
+  console.error('Error fetching dashboard data:', err);
+  error = 'Failed to load dashboard data';
+}
 ---
 
-<Layout>
-  <Welcome />
+<Layout title="Dashboard - Paragoniusz">
+  <main class="container mx-auto px-4 py-8 pb-24 max-w-7xl">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold tracking-tight">Dashboard</h1>
+      <p class="text-muted-foreground mt-2">
+        Overview of your monthly expenses
+      </p>
+    </div>
+
+    {error ? (
+      <div class="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive" role="alert">
+        <p class="font-semibold">Error loading dashboard</p>
+        <p class="text-sm mt-1">{error}</p>
+      </div>
+    ) : (
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <!-- Dashboard Summary -->
+        <div class="md:col-span-2 lg:col-span-1">
+          <DashboardSummary client:load initialData={dashboardData} />
+        </div>
+
+        <!-- Expense Pie Chart -->
+        <div class="md:col-span-2 lg:col-span-2">
+          <ExpensePieChart 
+            client:load 
+            categories={dashboardData?.categories || []} 
+            isLoading={!dashboardData}
+          />
+        </div>
+
+        <!-- Recent Expenses List -->
+        <div class="md:col-span-2 lg:col-span-3">
+          <RecentExpensesList client:load initialData={expensesData} />
+        </div>
+      </div>
+    )}
+  </main>
+  <NavBar client:load />
 </Layout>

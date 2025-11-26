@@ -1,0 +1,14 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { ScanExpenseContainer } from '../../components/ScanExpense/ScanExpenseContainer';
+
+// TODO: Re-enable authentication check when login is ready
+// const session = Astro.cookies.get('sb-access-token');
+// if (!session) {
+//   return Astro.redirect('/login');
+// }
+---
+
+<Layout title="Scan Receipt - Paragoniusz">
+  <ScanExpenseContainer client:load />
+</Layout>

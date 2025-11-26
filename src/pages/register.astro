@@ -1,0 +1,28 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { RegisterForm } from '../components/RegisterForm/RegisterForm';
+import { getCurrentSession } from '../lib/services/auth.service';
+
+// Check if user is already authenticated
+const session = await getCurrentSession();
+
+// If already logged in, redirect to dashboard
+if (session) {
+  return Astro.redirect('/');
+}
+---
+
+<Layout title="Create Account - Paragoniusz">
+  <main class="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+    <div class="w-full max-w-md">
+      <RegisterForm client:load />
+    </div>
+  </main>
+</Layout>
+
+<style>
+  main {
+    display: flex;
+    flex-direction: column;
+  }
+</style>

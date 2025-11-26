@@ -1,0 +1,20 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { SettingsContainer } from '../components/Settings/SettingsContainer';
+
+// Check authentication
+const { data: { session } } = await Astro.locals.supabase.auth.getSession();
+
+if (!session) {
+  return Astro.redirect('/login');
+}
+---
+
+<Layout title="Settings">
+  <div class="container mx-auto px-4 py-8 pb-24">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-3xl font-bold mb-6">Settings</h1>
+      <SettingsContainer client:load />
+    </div>
+  </div>
+</Layout>
