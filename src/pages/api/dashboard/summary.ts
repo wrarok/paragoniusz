@@ -20,7 +20,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
   try {
     // TODO: Authentication will be implemented later
     // For now, using a hardcoded user ID for testing
-    const userId = 'a33573a0-3562-495e-b3c4-d898d0b54241';
+    const userId = '1266a5e6-1684-4609-a2b3-8c29737efb8b';
 
     // Parse and validate query parameters
     const url = new URL(request.url);

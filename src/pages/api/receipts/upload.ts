@@ -32,7 +32,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   try {
     // TODO: Get user ID from authenticated session
     // For MVP, using hardcoded user ID
-    const userId = 'a33573a0-3562-495e-b3c4-d898d0b54241';
+    const userId = '1266a5e6-1684-4609-a2b3-8c29737efb8b';
 
     // Parse multipart form data
     const formData = await request.formData();

@@ -1,9 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { CheckCircle2, AlertCircle, Calendar, DollarSign } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { CheckCircle2, AlertCircle, Calendar, DollarSign, Edit2 } from 'lucide-react';
 import { ExpenseVerificationItem } from './ExpenseVerificationItem';
 import type { CategoryDTO } from '../../types';
 import type { EditableExpense } from '../../types/scan-flow.types';
@@ -16,6 +18,7 @@ type ExpenseVerificationListProps = {
   currency: string;
   onUpdateExpense: (id: string, updates: Partial<EditableExpense>) => void;
   onRemoveExpense: (id: string) => void;
+  onUpdateReceiptDate: (newDate: string) => void;
   onSave: () => Promise<void>;
   onCancel: () => void;
   isSaving: boolean;
@@ -29,10 +32,13 @@ export function ExpenseVerificationList({
   currency,
   onUpdateExpense,
   onRemoveExpense,
+  onUpdateReceiptDate,
   onSave,
   onCancel,
   isSaving,
 }: ExpenseVerificationListProps) {
+  const [isEditingDate, setIsEditingDate] = useState(false);
+  const [editedDate, setEditedDate] = useState(receiptDate);
   const validation = useMemo(() => {
     if (expenses.length === 0) {
       return {
@@ -113,12 +119,61 @@ export function ExpenseVerificationList({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-              <Calendar className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="text-xs text-muted-foreground">Receipt Date</p>
-                <p className="text-sm font-medium">{formatDate(receiptDate)}</p>
-              </div>
+            <div className="p-3 bg-muted rounded-lg">
+              {isEditingDate ? (
+                <div className="space-y-2">
+                  <Label htmlFor="receipt-date" className="text-xs text-muted-foreground">
+                    Receipt Date
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="receipt-date"
+                      type="date"
+                      value={editedDate}
+                      onChange={(e) => setEditedDate(e.target.value)}
+                      className="h-8 text-sm"
+                    />
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        onUpdateReceiptDate(editedDate);
+                        setIsEditingDate(false);
+                      }}
+                      className="h-8 px-2"
+                    >
+                      ✓
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setEditedDate(receiptDate);
+                        setIsEditingDate(false);
+                      }}
+                      className="h-8 px-2"
+                    >
+                      ✕
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <Calendar className="h-5 w-5 text-muted-foreground" />
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground">Receipt Date</p>
+                    <p className="text-sm font-medium">{formatDate(receiptDate)}</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setIsEditingDate(true)}
+                    className="h-8 w-8 p-0"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
               <DollarSign className="h-5 w-5 text-muted-foreground" />

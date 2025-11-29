@@ -305,6 +305,18 @@ export function useScanExpenseFlow() {
   );
 
   /**
+   * Update the receipt date
+   */
+  const updateReceiptDate = useCallback((newDate: string) => {
+    setState((prev) => ({
+      ...prev,
+      processedData: prev.processedData
+        ? { ...prev.processedData, receipt_date: newDate }
+        : null,
+    }));
+  }, []);
+
+  /**
    * Remove an expense from the verification list
    */
   const removeExpense = useCallback((id: string) => {
@@ -409,6 +421,7 @@ export function useScanExpenseFlow() {
     grantAIConsent,
     uploadFile,
     updateExpense,
+    updateReceiptDate,
     removeExpense,
     saveExpenses,
     resetFlow,

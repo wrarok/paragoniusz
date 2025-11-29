@@ -73,17 +73,17 @@ export class ReceiptService {
   }
 
   /**
-   * Process receipt image using mock AI service
+   * Process receipt image using OpenRouter AI service via Edge Function
    *
-   * This method simulates AI processing of a receipt image. In production,
-   * this would call a Supabase Edge Function that communicates with OpenRouter.ai.
+   * This method calls the Supabase Edge Function that communicates with OpenRouter.ai
+   * to extract structured data from receipt images.
    *
    * Flow:
    * 1. Verify AI consent from user profile
    * 2. Verify file ownership (user_id in path matches authenticated user)
-   * 3. Check file exists in storage
-   * 4. Simulate AI processing with mock data
-   * 5. Delete receipt file after processing (per PRD 3.4)
+   * 3. Call Edge Function to process receipt with OpenRouter
+   * 4. Transform AI response (individual items) to grouped expenses by category
+   * 5. Map AI-suggested categories to database category IDs
    *
    * @param filePath - Path to receipt file in storage (receipts/{user_id}/{uuid}.ext)
    * @param userId - Authenticated user ID
@@ -94,6 +94,8 @@ export class ReceiptService {
     filePath: string,
     userId: string
   ): Promise<ProcessReceiptResponseDTO> {
+    const startTime = Date.now();
+
     // Step 1: Verify AI consent
     const { data: profile, error: profileError } = await this.supabase
       .from('profiles')
@@ -116,70 +118,170 @@ export class ReceiptService {
       throw new Error('FORBIDDEN');
     }
 
-    // Step 3: Check file exists in storage
-    // Use exists() method which is more reliable than list()
-    const { data: fileExists, error: storageError } = await this.supabase.storage
-      .from('receipts')
-      .download(filePath);
-
-    if (storageError || !fileExists) {
-      throw new Error('FILE_NOT_FOUND');
-    }
-
-    // Step 4: Simulate AI processing with mock data
-    // In production, this would call the Edge Function
-    const startTime = Date.now();
-
-    // Fetch categories for mock response
+    // Step 3: Fetch all categories for mapping AI suggestions
     const { data: categories, error: categoriesError } = await this.supabase
       .from('categories')
-      .select('id, name')
-      .limit(3);
+      .select('id, name');
 
     if (categoriesError || !categories || categories.length === 0) {
       throw new Error('Failed to fetch categories');
     }
 
-    // Simulate processing delay (1-2 seconds)
-    await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 1000));
+    // Step 4: Call Edge Function to process receipt
+    // Get the current session to pass auth token
+    const { data: { session } } = await this.supabase.auth.getSession();
+    
+    const { data: edgeFunctionData, error: edgeFunctionError } = await this.supabase.functions.invoke(
+      'process-receipt',
+      {
+        body: { file_path: filePath },
+        headers: session ? {
+          Authorization: `Bearer ${session.access_token}`
+        } : undefined,
+      }
+    );
+
+    if (edgeFunctionError) {
+      // Map Edge Function errors to our error codes
+      if (edgeFunctionError.message?.includes('Rate limit')) {
+        throw new Error('RATE_LIMIT_EXCEEDED');
+      }
+      if (edgeFunctionError.message?.includes('timeout')) {
+        throw new Error('PROCESSING_TIMEOUT');
+      }
+      throw new Error(`AI processing failed: ${edgeFunctionError.message}`);
+    }
+
+    if (!edgeFunctionData) {
+      throw new Error('No data returned from AI processing');
+    }
+
+    // Step 5: Transform OpenRouter response to our DTO format
+    // OpenRouter returns: { items: [{name, amount, category}], total, date }
+    // We need: { expenses: [{category_id, category_name, amount, items[]}], total_amount, currency, receipt_date }
+    
+    const aiResponse = edgeFunctionData as {
+      items: Array<{ name: string; amount: number; category: string }>;
+      total: number;
+      date: string;
+    };
+
+    // Group items by AI-suggested category
+    const groupedByCategory = this.groupItemsByCategory(aiResponse.items);
+
+    // Map AI categories to database categories and build expenses array
+    const expenses = await this.mapCategoriesToExpenses(groupedByCategory, categories);
 
     const processingTime = Date.now() - startTime;
 
-    // Generate mock response with realistic data
-    const mockResponse: ProcessReceiptResponseDTO = {
-      expenses: [
-        {
-          category_id: categories[0].id,
-          category_name: categories[0].name,
-          amount: '35.50',
-          items: [
-            'Milk 2L - 5.50',
-            'Bread - 4.00',
-            'Eggs 10pcs - 12.00',
-            'Cheese 200g - 14.00',
-          ],
-        },
-        {
-          category_id: categories[1]?.id || categories[0].id,
-          category_name: categories[1]?.name || categories[0].name,
-          amount: '15.20',
-          items: ['Dish soap - 8.50', 'Paper towels - 6.70'],
-        },
-      ],
-      total_amount: '50.70',
+    return {
+      expenses,
+      total_amount: aiResponse.total.toFixed(2),
       currency: 'PLN',
-      receipt_date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+      receipt_date: aiResponse.date,
       processing_time_ms: processingTime,
     };
+  }
 
-    // Step 5: Delete receipt file after successful processing
-    // This is non-blocking - we log errors but don't fail the request
-    try {
-      await this.supabase.storage.from('receipts').remove([filePath]);
-    } catch (deleteError) {
-      console.warn('Failed to delete receipt file:', deleteError);
+  /**
+   * Groups receipt items by their AI-suggested category
+   * 
+   * @param items - Array of items from OpenRouter response
+   * @returns Map of category name to items
+   * @private
+   */
+  private groupItemsByCategory(
+    items: Array<{ name: string; amount: number; category: string }>
+  ): Map<string, Array<{ name: string; amount: number }>> {
+    const grouped = new Map<string, Array<{ name: string; amount: number }>>();
+
+    for (const item of items) {
+      const categoryName = item.category;
+      const existing = grouped.get(categoryName) || [];
+      existing.push({ name: item.name, amount: item.amount });
+      grouped.set(categoryName, existing);
     }
 
-    return mockResponse;
+    return grouped;
+  }
+
+  /**
+   * Maps AI-suggested categories to database categories and builds expense DTOs
+   * 
+   * Uses fuzzy matching to find the best database category for each AI suggestion.
+   * Falls back to "Inne" (Other) category if no good match is found.
+   * 
+   * @param groupedItems - Items grouped by AI-suggested category
+   * @param dbCategories - Available database categories
+   * @returns Array of expense DTOs with category IDs and grouped items
+   * @private
+   */
+  private async mapCategoriesToExpenses(
+    groupedItems: Map<string, Array<{ name: string; amount: number }>>,
+    dbCategories: Array<{ id: string; name: string }>
+  ): Promise<ProcessReceiptResponseDTO['expenses']> {
+    const expenses: ProcessReceiptResponseDTO['expenses'] = [];
+
+    for (const [aiCategoryName, items] of groupedItems.entries()) {
+      // Find best matching database category
+      const matchedCategory = this.findBestCategoryMatch(aiCategoryName, dbCategories);
+
+      // Calculate total amount for this category
+      const categoryTotal = items.reduce((sum, item) => sum + item.amount, 0);
+
+      // Format items as strings with amounts
+      const formattedItems = items.map(
+        (item) => `${item.name} - ${item.amount.toFixed(2)}`
+      );
+
+      expenses.push({
+        category_id: matchedCategory.id,
+        category_name: matchedCategory.name,
+        amount: categoryTotal.toFixed(2),
+        items: formattedItems,
+      });
+    }
+
+    return expenses;
+  }
+
+  /**
+   * Finds the best matching database category for an AI-suggested category name
+   * 
+   * Uses simple string matching (case-insensitive, partial matches).
+   * Falls back to "Inne" (Other) category if no match is found.
+   * 
+   * @param aiCategoryName - Category name suggested by AI
+   * @param dbCategories - Available database categories
+   * @returns Best matching database category
+   * @private
+   */
+  private findBestCategoryMatch(
+    aiCategoryName: string,
+    dbCategories: Array<{ id: string; name: string }>
+  ): { id: string; name: string } {
+    const normalizedAiName = aiCategoryName.toLowerCase().trim();
+
+    // Try exact match first
+    const exactMatch = dbCategories.find(
+      (cat) => cat.name.toLowerCase() === normalizedAiName
+    );
+    if (exactMatch) return exactMatch;
+
+    // Try partial match (AI category contains DB category name or vice versa)
+    const partialMatch = dbCategories.find(
+      (cat) =>
+        normalizedAiName.includes(cat.name.toLowerCase()) ||
+        cat.name.toLowerCase().includes(normalizedAiName)
+    );
+    if (partialMatch) return partialMatch;
+
+    // Fallback to "Inne" (Other) category
+    const otherCategory = dbCategories.find(
+      (cat) => cat.name.toLowerCase() === 'inne' || cat.name.toLowerCase() === 'other'
+    );
+
+    // If no "Inne" category exists, use the first category as ultimate fallback
+    return otherCategory || dbCategories[0];
   }
 }

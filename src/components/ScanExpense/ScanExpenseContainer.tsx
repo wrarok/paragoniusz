@@ -15,6 +15,7 @@ export function ScanExpenseContainer() {
     grantAIConsent,
     uploadFile,
     updateExpense,
+    updateReceiptDate,
     removeExpense,
     saveExpenses,
     resetFlow,
@@ -79,6 +80,7 @@ export function ScanExpenseContainer() {
             totalAmount={state.processedData.total_amount}
             currency={state.processedData.currency}
             onUpdateExpense={updateExpense}
+            onUpdateReceiptDate={updateReceiptDate}
             onRemoveExpense={removeExpense}
             onSave={saveExpenses}
             onCancel={resetFlow}

@@ -182,7 +182,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     // TODO: Get user_id from authenticated user when auth is implemented
     // For now, use a placeholder
-    const userId = 'a33573a0-3562-495e-b3c4-d898d0b54241'; // Temporary placeholder
+    const userId = '1266a5e6-1684-4609-a2b3-8c29737efb8b'; // Temporary placeholder
 
     // Create expense using service layer
     const expense = await createExpense(supabase, userId, validatedData);
