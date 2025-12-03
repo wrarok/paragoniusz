@@ -8,8 +8,8 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({
-  message = "You haven't added any expenses yet",
-  ctaText = 'Add Your First Expense',
+  message = "Nie dodałeś jeszcze żadnych wydatków",
+  ctaText = 'Dodaj swój pierwszy wydatek',
   onCtaClick,
 }: EmptyStateProps) {
   return (
@@ -17,7 +17,7 @@ export function EmptyState({
       <div className="rounded-full bg-muted p-6 mb-4">
         <PlusCircle className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
       </div>
-      <h3 className="text-lg font-semibold mb-2">No Expenses Found</h3>
+      <h3 className="text-lg font-semibold mb-2">Nie znaleziono wydatków</h3>
       <p className="text-muted-foreground mb-6 max-w-sm">{message}</p>
       {onCtaClick && (
         <Button onClick={onCtaClick} size="lg">

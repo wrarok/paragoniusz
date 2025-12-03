@@ -7,12 +7,12 @@ import type { LoginLinkProps } from '../../types/auth.types';
 export function LoginLink({ className = '' }: LoginLinkProps) {
   return (
     <div className={`text-center text-sm ${className}`}>
-      <span className="text-muted-foreground">Already have an account? </span>
+      <span className="text-muted-foreground">Masz już konto? </span>
       <a
         href="/login"
         className="font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
-        Sign in
+        Zaloguj się
       </a>
     </div>
   );

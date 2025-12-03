@@ -20,9 +20,9 @@ export function AIAddButton({ onClick, disabled = false }: AIAddButtonProps) {
           <Sparkles className="h-5 w-5 text-primary" aria-hidden="true" />
         </div>
         <div className="flex-1 text-left">
-          <div className="font-semibold">Scan Receipt (AI)</div>
+          <div className="font-semibold">Zeskanuj paragon (AI)</div>
           <div className="text-xs text-muted-foreground">
-            Let AI extract expenses from receipt
+            Pozwól AI wydobyć wydatki z paragonu
           </div>
         </div>
       </div>

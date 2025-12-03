@@ -48,7 +48,7 @@ export function CategorySelect({
         id={labelId}
         className="block text-sm font-medium text-gray-900 dark:text-gray-100"
       >
-        Category <span className="text-red-600 dark:text-red-400">*</span>
+        Kategoria <span className="text-red-600 dark:text-red-400">*</span>
       </label>
 
       <Select
@@ -65,7 +65,7 @@ export function CategorySelect({
           aria-describedby={error ? errorId : undefined}
           aria-labelledby={labelId}
         >
-          <SelectValue placeholder="Select a category">
+          <SelectValue placeholder="Wybierz kategorię">
             {selectedCategory?.name}
           </SelectValue>
         </SelectTrigger>
@@ -73,7 +73,7 @@ export function CategorySelect({
         <SelectContent>
           {categories.length === 0 ? (
             <div className="px-2 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
-              No categories available
+              Brak dostępnych kategorii
             </div>
           ) : (
             categories.map((category) => (

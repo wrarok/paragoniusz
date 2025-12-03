@@ -1,7 +1,6 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { ProfileService } from '../../../lib/services/profile.service';
-import { DEFAULT_USER_ID } from '../../../db/supabase.client';
 import type { ProfileDTO, APIErrorResponse, UpdateProfileCommand } from '../../../types';
 
 /**
@@ -38,11 +37,25 @@ const UpdateProfileSchema = z.object({
  * - 404 Not Found: Profile not found
  * - 500 Internal Server Error: Unexpected server error
  */
-export const GET: APIRoute = async ({ locals, url }) => {
+export const GET: APIRoute = async ({ locals }) => {
   try {
-    // TODO: Replace with actual authentication
-    // For now, use DEFAULT_USER_ID or get user_id from query parameter for testing
-    const userId = url.searchParams.get('user_id') || DEFAULT_USER_ID;
+    // Check if user is authenticated
+    if (!locals.user) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            code: 'UNAUTHORIZED',
+            message: 'User must be authenticated'
+          }
+        } satisfies APIErrorResponse),
+        {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    const userId = locals.user.id;
 
     // Retrieve profile using service layer
     const profileService = new ProfileService(locals.supabase);
@@ -124,11 +137,25 @@ export const GET: APIRoute = async ({ locals, url }) => {
  * - 404 Not Found: Profile not found
  * - 500 Internal Server Error: Unexpected server error
  */
-export const PATCH: APIRoute = async ({ request, locals, url }) => {
+export const PATCH: APIRoute = async ({ request, locals }) => {
   try {
-    // TODO: Replace with actual authentication
-    // For now, use DEFAULT_USER_ID or get user_id from query parameter for testing
-    const userId = url.searchParams.get('user_id') || DEFAULT_USER_ID;
+    // Check if user is authenticated
+    if (!locals.user) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            code: 'UNAUTHORIZED',
+            message: 'User must be authenticated'
+          }
+        } satisfies APIErrorResponse),
+        {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    const userId = locals.user.id;
 
     // Parse and validate request body
     let body: unknown;
@@ -244,15 +271,32 @@ export const PATCH: APIRoute = async ({ request, locals, url }) => {
  * - 401 Unauthorized: Authentication required or invalid token
  * - 500 Internal Server Error: Failed to delete user account
  */
-export const DELETE: APIRoute = async ({ locals, url }) => {
+export const DELETE: APIRoute = async ({ locals, cookies }) => {
   try {
-    // TODO: Replace with actual authentication
-    // For now, use DEFAULT_USER_ID or get user_id from query parameter for testing
-    const userId = url.searchParams.get('user_id') || DEFAULT_USER_ID;
+    // Check if user is authenticated
+    if (!locals.user) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            code: 'UNAUTHORIZED',
+            message: 'User must be authenticated'
+          }
+        } satisfies APIErrorResponse),
+        {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    const userId = locals.user.id;
 
     // Delete the user account using service layer
     const profileService = new ProfileService(locals.supabase);
     await profileService.deleteProfile(userId);
+
+    // Sign out the user to clear session cookies
+    await locals.supabase.auth.signOut();
 
     // Return 204 No Content on successful deletion
     return new Response(null, { status: 204 });

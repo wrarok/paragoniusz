@@ -83,7 +83,7 @@ export function ExpensePieChart({ categories: initialCategories, isLoading: init
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Expense Distribution</CardTitle>
+          <CardTitle>Rozkład wydatków</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-64 text-destructive" role="alert">
@@ -98,11 +98,11 @@ export function ExpensePieChart({ categories: initialCategories, isLoading: init
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Expense Distribution</CardTitle>
+          <CardTitle>Rozkład wydatków</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-64 text-muted-foreground">
-            No expense data available
+            Brak danych o wydatkach
           </div>
         </CardContent>
       </Card>
@@ -144,7 +144,7 @@ export function ExpensePieChart({ categories: initialCategories, isLoading: init
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Expense Distribution</CardTitle>
+        <CardTitle>Rozkład wydatków</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>

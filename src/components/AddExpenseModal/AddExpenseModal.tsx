@@ -38,15 +38,15 @@ export function AddExpenseModal({
         aria-describedby="add-expense-description"
       >
         <DialogHeader>
-          <DialogTitle>Add Expense</DialogTitle>
+          <DialogTitle>Dodaj wydatek</DialogTitle>
           <p id="add-expense-description" className="sr-only">
-            Choose how you want to add your expense: manually or by scanning a receipt with AI
+            Wybierz sposób dodawania wydatku: ręcznie lub skanując paragon z pomocą AI
           </p>
         </DialogHeader>
 
         <div className="py-4">
           {/* Loading State */}
-          {isLoading && <LoadingState message="Loading your profile..." />}
+          {isLoading && <LoadingState message="Ładowanie profilu..." />}
 
           {/* Error State */}
           {!isLoading && error && (

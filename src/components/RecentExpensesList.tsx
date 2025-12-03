@@ -21,7 +21,7 @@ export function RecentExpensesList({ initialData, limit = 10 }: RecentExpensesLi
       const result = await deleteExpense(expenseId);
       if (!result.success && result.error) {
         // Error is already logged in the hook
-        alert(`Failed to delete expense: ${result.error}`);
+        alert(`Nie udało się usunąć wydatku: ${result.error}`);
       }
     },
     [deleteExpense]
@@ -32,8 +32,7 @@ export function RecentExpensesList({ initialData, limit = 10 }: RecentExpensesLi
   }, []);
 
   const handleAddExpense = useCallback(() => {
-    // TODO: Navigate to add expense page when implemented
-    console.log('Navigate to add expense page');
+    window.location.href = '/expenses/new';
   }, []);
 
   if (isLoading) {
@@ -44,7 +43,7 @@ export function RecentExpensesList({ initialData, limit = 10 }: RecentExpensesLi
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Recent Expenses</CardTitle>
+          <CardTitle>Ostatnie wydatki</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-sm text-destructive" role="alert">
@@ -59,12 +58,12 @@ export function RecentExpensesList({ initialData, limit = 10 }: RecentExpensesLi
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Recent Expenses</CardTitle>
+          <CardTitle>Ostatnie wydatki</CardTitle>
         </CardHeader>
         <CardContent>
           <EmptyState
-            message="Start tracking your expenses by adding your first one"
-            ctaText="Add Your First Expense"
+            message="Zacznij śledzić swoje wydatki, dodając pierwszy"
+            ctaText="Dodaj pierwszy wydatek"
             onCtaClick={handleAddExpense}
           />
         </CardContent>
@@ -75,7 +74,7 @@ export function RecentExpensesList({ initialData, limit = 10 }: RecentExpensesLi
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recent Expenses</CardTitle>
+        <CardTitle>Ostatnie wydatki</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {expenses.map((expense) => (
@@ -89,7 +88,7 @@ export function RecentExpensesList({ initialData, limit = 10 }: RecentExpensesLi
               onClick={loadMore}
               disabled={isLoadingMore}
             >
-              {isLoadingMore ? 'Loading...' : 'Show More'}
+              {isLoadingMore ? 'Ładowanie...' : 'Pokaż więcej'}
             </Button>
           </div>
         )}

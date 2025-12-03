@@ -43,7 +43,7 @@ export function ExpenseVerificationList({
     if (expenses.length === 0) {
       return {
         isValid: false,
-        errors: ['At least one expense is required'],
+        errors: ['Wymagany jest co najmniej jeden wydatek'],
       };
     }
 
@@ -63,11 +63,11 @@ export function ExpenseVerificationList({
     });
 
     if (hasInvalidAmount) {
-      errors.push('All expenses must have valid amounts greater than 0');
+      errors.push('Wszystkie wydatki muszą mieć prawidłową kwotę większą niż 0');
     }
 
     if (hasInvalidCategory) {
-      errors.push('All expenses must have a category selected');
+      errors.push('Wszystkie wydatki muszą mieć wybraną kategorię');
     }
 
     return {
@@ -86,7 +86,7 @@ export function ExpenseVerificationList({
   const formatDate = (dateString: string): string => {
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
+      return date.toLocaleDateString('pl-PL', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -98,7 +98,7 @@ export function ExpenseVerificationList({
 
   const formatCurrency = (amount: number, currencyCode: string): string => {
     try {
-      return new Intl.NumberFormat('en-US', {
+      return new Intl.NumberFormat('pl-PL', {
         style: 'currency',
         currency: currencyCode,
       }).format(amount);
@@ -112,9 +112,9 @@ export function ExpenseVerificationList({
       {/* Receipt Summary Header */}
       <Card>
         <CardHeader>
-          <CardTitle>Verify Extracted Expenses</CardTitle>
+          <CardTitle>Zweryfikuj wyodrębnione wydatki</CardTitle>
           <CardDescription>
-            Review and edit the expenses extracted from your receipt
+            Przejrzyj i edytuj wydatki wyodrębnione z paragonu
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -123,7 +123,7 @@ export function ExpenseVerificationList({
               {isEditingDate ? (
                 <div className="space-y-2">
                   <Label htmlFor="receipt-date" className="text-xs text-muted-foreground">
-                    Receipt Date
+                    Data paragonu
                   </Label>
                   <div className="flex gap-2">
                     <Input
@@ -161,7 +161,7 @@ export function ExpenseVerificationList({
                 <div className="flex items-center gap-3">
                   <Calendar className="h-5 w-5 text-muted-foreground" />
                   <div className="flex-1">
-                    <p className="text-xs text-muted-foreground">Receipt Date</p>
+                    <p className="text-xs text-muted-foreground">Data paragonu</p>
                     <p className="text-sm font-medium">{formatDate(receiptDate)}</p>
                   </div>
                   <Button
@@ -178,7 +178,7 @@ export function ExpenseVerificationList({
             <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
               <DollarSign className="h-5 w-5 text-muted-foreground" />
               <div>
-                <p className="text-xs text-muted-foreground">Original Total</p>
+                <p className="text-xs text-muted-foreground">Suma oryginalna</p>
                 <p className="text-sm font-medium">
                   {formatCurrency(parseFloat(totalAmount), currency)}
                 </p>
@@ -191,7 +191,7 @@ export function ExpenseVerificationList({
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                <p className="font-medium mb-1">Please fix the following issues:</p>
+                <p className="font-medium mb-1">Napraw następujące problemy:</p>
                 <ul className="list-disc list-inside space-y-0.5">
                   {validation.errors.map((error, index) => (
                     <li key={index}>{error}</li>
@@ -206,7 +206,7 @@ export function ExpenseVerificationList({
             <Alert className="border-green-500 bg-green-50 dark:bg-green-950">
               <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
               <AlertDescription className="text-green-800 dark:text-green-200">
-                All expenses are valid and ready to save
+                Wszystkie wydatki są prawidłowe i gotowe do zapisania
               </AlertDescription>
             </Alert>
           )}
@@ -217,11 +217,11 @@ export function ExpenseVerificationList({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">
-            Expenses ({expenses.length})
+            Wydatki ({expenses.length})
           </h3>
           {expenses.length > 0 && (
             <p className="text-sm text-muted-foreground">
-              Calculated Total: {formatCurrency(calculatedTotal, currency)}
+              Obliczona suma: {formatCurrency(calculatedTotal, currency)}
             </p>
           )}
         </div>
@@ -230,7 +230,7 @@ export function ExpenseVerificationList({
           <Card>
             <CardContent className="py-12 text-center">
               <p className="text-muted-foreground">
-                No expenses to display. All items have been removed.
+                Brak wydatków do wyświetlenia. Wszystkie elementy zostały usunięte.
               </p>
             </CardContent>
           </Card>
@@ -254,7 +254,7 @@ export function ExpenseVerificationList({
         <CardContent className="pt-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between text-lg font-semibold">
-              <span>Total Amount:</span>
+              <span>Łączna kwota:</span>
               <span>{formatCurrency(calculatedTotal, currency)}</span>
             </div>
 
@@ -262,12 +262,12 @@ export function ExpenseVerificationList({
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  The calculated total differs from the original receipt total by{' '}
+                  Obliczona suma różni się od oryginalnej sumy z paragonu o{' '}
                   {formatCurrency(
                     Math.abs(calculatedTotal - parseFloat(totalAmount)),
                     currency
                   )}
-                  . Please verify your amounts.
+                  . Sprawdź kwoty.
                 </AlertDescription>
               </Alert>
             )}
@@ -275,9 +275,9 @@ export function ExpenseVerificationList({
             <Separator />
 
             <div className="text-sm text-muted-foreground space-y-1">
-              <p>• All expenses will be saved with the receipt date: {formatDate(receiptDate)}</p>
-              <p>• Expenses marked as "Edited" will be flagged as modified from AI suggestions</p>
-              <p>• You can edit these expenses later from the dashboard</p>
+              <p>• Wszystkie wydatki zostaną zapisane z datą paragonu: {formatDate(receiptDate)}</p>
+              <p>• Wydatki oznaczone jako "Edytowane" będą oflagowane jako zmodyfikowane z sugestii AI</p>
+              <p>• Możesz edytować te wydatki później z panelu głównego</p>
             </div>
           </div>
         </CardContent>
@@ -288,14 +288,14 @@ export function ExpenseVerificationList({
             disabled={isSaving}
             className="w-full sm:w-auto"
           >
-            Cancel
+            Anuluj
           </Button>
           <Button
             onClick={onSave}
             disabled={!validation.isValid || isSaving || expenses.length === 0}
             className="w-full sm:flex-1"
           >
-            {isSaving ? 'Saving...' : `Save ${expenses.length} Expense${expenses.length !== 1 ? 's' : ''}`}
+            {isSaving ? 'Zapisywanie...' : `Zapisz ${expenses.length} ${expenses.length === 1 ? 'wydatek' : expenses.length < 5 ? 'wydatki' : 'wydatków'}`}
           </Button>
         </CardFooter>
       </Card>

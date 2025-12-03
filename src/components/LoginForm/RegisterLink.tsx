@@ -6,12 +6,12 @@ import type { RegisterLinkProps } from '../../types/auth.types';
 export function RegisterLink({ className = '' }: RegisterLinkProps) {
   return (
     <div className={`text-center text-sm ${className}`}>
-      <span className="text-gray-600">Don't have an account? </span>
+      <span className="text-gray-600">Nie masz konta? </span>
       <a
         href="/register"
         className="font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
-        Register
+        Zarejestruj się
       </a>
     </div>
   );

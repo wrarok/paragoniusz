@@ -4,22 +4,30 @@ import { DashboardSummary } from '../components/DashboardSummary';
 import { ExpensePieChart } from '../components/ExpensePieChart';
 import { RecentExpensesList } from '../components/RecentExpensesList';
 import { NavBar } from '../components/NavBar';
+import { createSupabaseServerInstance } from '../db/supabase.server';
 import type { DashboardSummaryDTO, ExpenseListDTO } from '../types';
 
 // Server-side data fetching
 let dashboardData: DashboardSummaryDTO | undefined;
 let expensesData: ExpenseListDTO | undefined;
 let error: string | null = null;
+let userEmail: string | undefined;
 
 try {
-  const supabase = Astro.locals.supabase;
+  // Check authentication using SSR client
+  const supabase = createSupabaseServerInstance({
+    headers: Astro.request.headers,
+    cookies: Astro.cookies
+  });
   
-  // Check authentication (temporarily disabled for testing)
-  // const { data: { session } } = await supabase.auth.getSession();
-  //
-  // if (!session) {
-  //   return Astro.redirect('/login');
-  // }
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (!session) {
+    return Astro.redirect('/login');
+  }
+
+  // Get user email for NavBar
+  userEmail = session.user.email;
 
   // Fetch dashboard summary
   const summaryResponse = await fetch(`${Astro.url.origin}/api/dashboard/summary`, {
@@ -44,22 +52,22 @@ try {
   }
 } catch (err) {
   console.error('Error fetching dashboard data:', err);
-  error = 'Failed to load dashboard data';
+  error = 'Nie udało się załadować danych panelu';
 }
 ---
 
-<Layout title="Dashboard - Paragoniusz">
+<Layout title="Panel główny - Paragoniusz">
   <main class="container mx-auto px-4 py-8 pb-24 max-w-7xl">
     <div class="mb-8">
-      <h1 class="text-3xl font-bold tracking-tight">Dashboard</h1>
+      <h1 class="text-3xl font-bold tracking-tight">Panel główny</h1>
       <p class="text-muted-foreground mt-2">
-        Overview of your monthly expenses
+        Przegląd Twoich miesięcznych wydatków
       </p>
     </div>
 
     {error ? (
       <div class="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive" role="alert">
-        <p class="font-semibold">Error loading dashboard</p>
+        <p class="font-semibold">Błąd ładowania panelu</p>
         <p class="text-sm mt-1">{error}</p>
       </div>
     ) : (
@@ -85,5 +93,5 @@ try {
       </div>
     )}
   </main>
-  <NavBar client:load />
+  <NavBar client:load userEmail={userEmail} />
 </Layout>

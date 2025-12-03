@@ -101,7 +101,7 @@ export function ChangePasswordForm() {
       {formState.successMessage && (
         <Alert className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
           <AlertDescription className="text-green-800 dark:text-green-200">
-            {formState.successMessage}
+            Hasło zostało pomyślnie zmienione
           </AlertDescription>
         </Alert>
       )}
@@ -115,7 +115,7 @@ export function ChangePasswordForm() {
 
       {/* Current Password */}
       <div className="space-y-2">
-        <Label htmlFor="currentPassword">Current Password</Label>
+        <Label htmlFor="currentPassword">Aktualne hasło</Label>
         <Input
           id="currentPassword"
           type="password"
@@ -131,7 +131,7 @@ export function ChangePasswordForm() {
 
       {/* New Password */}
       <div className="space-y-2">
-        <Label htmlFor="newPassword">New Password</Label>
+        <Label htmlFor="newPassword">Nowe hasło</Label>
         <Input
           id="newPassword"
           type="password"
@@ -159,7 +159,7 @@ export function ChangePasswordForm() {
               </span>
             </div>
             <p className="text-xs text-muted-foreground">
-              Password must be at least 8 characters with uppercase, lowercase, and numbers
+              Hasło musi mieć minimum 8 znaków, wielką literę, małą literę i cyfrę
             </p>
           </div>
         )}
@@ -167,7 +167,7 @@ export function ChangePasswordForm() {
 
       {/* Confirm Password */}
       <div className="space-y-2">
-        <Label htmlFor="confirmPassword">Confirm New Password</Label>
+        <Label htmlFor="confirmPassword">Potwierdź nowe hasło</Label>
         <Input
           id="confirmPassword"
           type="password"
@@ -183,7 +183,7 @@ export function ChangePasswordForm() {
 
       {/* Submit Button */}
       <Button type="submit" disabled={formState.isSubmitting} className="w-full">
-        {formState.isSubmitting ? 'Changing Password...' : 'Change Password'}
+        {formState.isSubmitting ? 'Zmiana hasła...' : 'Zmień hasło'}
       </Button>
     </form>
   );

@@ -5,27 +5,27 @@ import { z } from 'zod';
  */
 export const EXPENSE_FORM_ERRORS = {
   AMOUNT: {
-    REQUIRED: 'Amount is required',
-    INVALID: 'Amount must be a valid number',
-    POSITIVE: 'Amount must be greater than 0',
-    MAX_DECIMALS: 'Amount must have maximum 2 decimal places',
-    MAX_VALUE: 'Amount cannot exceed 99,999,999.99',
+    REQUIRED: 'Kwota jest wymagana',
+    INVALID: 'Kwota musi być prawidłową liczbą',
+    POSITIVE: 'Kwota musi być większa niż 0',
+    MAX_DECIMALS: 'Kwota może mieć maksymalnie 2 miejsca dziesiętne',
+    MAX_VALUE: 'Kwota nie może przekroczyć 99 999 999,99',
   },
   CATEGORY: {
-    REQUIRED: 'Category is required',
-    INVALID: 'Please select a valid category',
+    REQUIRED: 'Kategoria jest wymagana',
+    INVALID: 'Wybierz prawidłową kategorię',
   },
   DATE: {
-    REQUIRED: 'Date is required',
-    INVALID: 'Please enter a valid date',
-    FUTURE: 'Date cannot be in the future',
-    OLD_WARNING: 'This date is more than 1 year old',
+    REQUIRED: 'Data jest wymagana',
+    INVALID: 'Wprowadź prawidłową datę',
+    FUTURE: 'Data nie może być w przyszłości',
+    OLD_WARNING: 'Ta data jest starsza niż 1 rok',
   },
   CURRENCY: {
-    INVALID: 'Invalid currency code',
+    INVALID: 'Nieprawidłowy kod waluty',
   },
   FORM: {
-    NO_CHANGES: 'No changes detected',
+    NO_CHANGES: 'Nie wykryto zmian',
   },
 } as const;
 
@@ -169,7 +169,7 @@ export function validateForm(data: ExpenseFormSchemaType): Record<string, string
       });
       return errors;
     }
-    return { _form: 'Validation error' };
+    return { _form: 'Błąd walidacji' };
   }
 }
 

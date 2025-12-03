@@ -30,9 +30,21 @@ export const prerender = false;
  */
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
-    // TODO: Get user ID from authenticated session
-    // For MVP, using hardcoded user ID
-    const userId = '1266a5e6-1684-4609-a2b3-8c29737efb8b';
+    // Check if user is authenticated
+    if (!locals.user) {
+      const errorResponse: APIErrorResponse = {
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'User must be authenticated',
+        },
+      };
+      return new Response(JSON.stringify(errorResponse), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const userId = locals.user.id;
 
     // Parse multipart form data
     const formData = await request.formData();

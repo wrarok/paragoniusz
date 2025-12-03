@@ -15,13 +15,13 @@ export function RememberMeCheckbox({ checked, onChange, disabled }: RememberMeCh
         checked={checked}
         onCheckedChange={onChange}
         disabled={disabled}
-        aria-label="Remember me"
+        aria-label="Zapamiętaj mnie"
       />
       <Label
         htmlFor={checkboxId}
         className="text-sm font-normal cursor-pointer select-none"
       >
-        Remember me
+        Zapamiętaj mnie
       </Label>
     </div>
   );

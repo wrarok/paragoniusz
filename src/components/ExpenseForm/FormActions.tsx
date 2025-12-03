@@ -23,8 +23,8 @@ export function FormActions({
   isSubmitting,
   onCancel,
 }: FormActionsProps) {
-  const submitText = mode === 'add' ? 'Add Expense' : 'Save Changes';
-  const submittingText = mode === 'add' ? 'Adding...' : 'Saving...';
+  const submitText = mode === 'add' ? 'Dodaj wydatek' : 'Zapisz zmiany';
+  const submittingText = mode === 'add' ? 'Dodawanie...' : 'Zapisywanie...';
 
   return (
     <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
@@ -35,7 +35,7 @@ export function FormActions({
         disabled={isSubmitting}
         className="w-full sm:w-auto"
       >
-        Cancel
+        Anuluj
       </Button>
 
       <Button

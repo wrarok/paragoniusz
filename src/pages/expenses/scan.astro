@@ -1,12 +1,19 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { ScanExpenseContainer } from '../../components/ScanExpense/ScanExpenseContainer';
+import { createSupabaseServerInstance } from '../../db/supabase.server';
 
-// TODO: Re-enable authentication check when login is ready
-// const session = Astro.cookies.get('sb-access-token');
-// if (!session) {
-//   return Astro.redirect('/login');
-// }
+// Check authentication using SSR client
+const supabase = createSupabaseServerInstance({
+  headers: Astro.request.headers,
+  cookies: Astro.cookies
+});
+
+const { data: { session } } = await supabase.auth.getSession();
+
+if (!session) {
+  return Astro.redirect('/login');
+}
 ---
 
 <Layout title="Scan Receipt - Paragoniusz">

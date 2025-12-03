@@ -1,17 +1,30 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import { ExpenseForm } from '@/components/ExpenseForm';
+import { createSupabaseServerInstance } from '@/db/supabase.server';
 import type { CategoryListDTO } from '@/types';
 
 /**
  * Add Manual Expense Page
- * 
+ *
  * Server-side route that renders the expense form in "add" mode.
  * Fetches categories from the API and passes them to the form component.
- * 
+ *
  * Route: /add/manual
  * Access: Available from dashboard via + button
  */
+
+// Check authentication using SSR client
+const supabase = createSupabaseServerInstance({
+  headers: Astro.request.headers,
+  cookies: Astro.cookies
+});
+
+const { data: { session } } = await supabase.auth.getSession();
+
+if (!session) {
+  return Astro.redirect('/login');
+}
 
 // Fetch categories from API
 let categories: CategoryListDTO['data'] = [];
@@ -28,11 +41,11 @@ try {
   categories = data.data;
 } catch (err) {
   console.error('Error fetching categories:', err);
-  error = 'Failed to load categories. Please refresh the page.';
+  error = 'Nie udało się załadować kategorii. Odśwież stronę.';
 }
 ---
 
-<Layout title="Add Expense - Paragoniusz">
+<Layout title="Dodaj wydatek - Paragoniusz">
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Header -->
     <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
@@ -41,7 +54,7 @@ try {
           <a
             href="/"
             class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors"
-            aria-label="Back to dashboard"
+            aria-label="Powrót do panelu"
           >
             <svg
               class="w-6 h-6"
@@ -59,7 +72,7 @@ try {
             </svg>
           </a>
           <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            Add Expense
+            Dodaj wydatek
           </h1>
         </div>
       </div>
@@ -98,7 +111,7 @@ try {
                   onclick="window.location.reload()"
                   class="text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-500 dark:hover:text-red-300"
                 >
-                  Refresh Page
+                  Odśwież stronę
                 </button>
               </div>
             </div>

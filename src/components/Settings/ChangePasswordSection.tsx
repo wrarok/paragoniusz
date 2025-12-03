@@ -9,9 +9,9 @@ export function ChangePasswordSection() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Change Password</CardTitle>
+        <CardTitle>Zmień hasło</CardTitle>
         <CardDescription>
-          Update your password to keep your account secure
+          Zaktualizuj swoje hasło, aby zabezpieczyć konto
         </CardDescription>
       </CardHeader>
       <CardContent>

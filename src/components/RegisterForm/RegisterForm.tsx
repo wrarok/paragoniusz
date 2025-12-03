@@ -31,8 +31,8 @@ export function RegisterForm(props?: RegisterFormProps) {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="space-y-1 text-center">
-        <CardTitle className="text-3xl font-bold tracking-tight">Create an account</CardTitle>
-        <CardDescription>Enter your details to get started</CardDescription>
+        <CardTitle className="text-3xl font-bold tracking-tight">Utwórz konto</CardTitle>
+        <CardDescription>Wprowadź swoje dane, aby rozpocząć</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>

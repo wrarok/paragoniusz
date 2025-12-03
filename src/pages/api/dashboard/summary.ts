@@ -18,9 +18,23 @@ export const prerender = false;
  */
 export const GET: APIRoute = async ({ request, locals }) => {
   try {
-    // TODO: Authentication will be implemented later
-    // For now, using a hardcoded user ID for testing
-    const userId = '1266a5e6-1684-4609-a2b3-8c29737efb8b';
+    // Check if user is authenticated
+    if (!locals.user) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            code: 'UNAUTHORIZED',
+            message: 'User must be authenticated',
+          },
+        }),
+        {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    const userId = locals.user.id;
 
     // Parse and validate query parameters
     const url = new URL(request.url);

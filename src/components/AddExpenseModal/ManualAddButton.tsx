@@ -19,9 +19,9 @@ export function ManualAddButton({ onClick, disabled = false }: ManualAddButtonPr
           <PencilLine className="h-5 w-5 text-primary" aria-hidden="true" />
         </div>
         <div className="flex-1 text-left">
-          <div className="font-semibold">Add Manually</div>
+          <div className="font-semibold">Dodaj ręcznie</div>
           <div className="text-xs text-muted-foreground">
-            Enter expense details yourself
+            Wprowadź szczegóły wydatku samodzielnie
           </div>
         </div>
       </div>

@@ -116,6 +116,20 @@ export const POST: APIRoute = async ({ request, locals }) => {
   try {
     // Get Supabase client from middleware
     const supabase = locals.supabase;
+    
+    // Check if user is authenticated
+    if (!locals.user) {
+      const errorResponse: APIErrorResponse = {
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'User must be authenticated to create expenses',
+        },
+      };
+      return new Response(JSON.stringify(errorResponse), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
     // Parse request body
     let requestBody;
@@ -180,9 +194,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
       console.warn(`Expense date is more than 1 year old: ${validatedData.expense_date}`);
     }
 
-    // TODO: Get user_id from authenticated user when auth is implemented
-    // For now, use a placeholder
-    const userId = '1266a5e6-1684-4609-a2b3-8c29737efb8b'; // Temporary placeholder
+    // Get user_id from authenticated user
+    const userId = locals.user.id;
 
     // Create expense using service layer
     const expense = await createExpense(supabase, userId, validatedData);

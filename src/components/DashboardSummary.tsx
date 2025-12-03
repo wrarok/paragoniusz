@@ -23,7 +23,7 @@ export function DashboardSummary({ initialData, month }: DashboardSummaryProps) 
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Monthly Summary</CardTitle>
+          <CardTitle>Podsumowanie miesięczne</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-sm text-destructive" role="alert">
@@ -39,7 +39,7 @@ export function DashboardSummary({ initialData, month }: DashboardSummaryProps) 
   }
 
   const formattedAmount = parseFloat(summary.total_amount).toFixed(2);
-  const monthDisplay = new Date(summary.period.from_date).toLocaleDateString('en-US', {
+  const monthDisplay = new Date(summary.period.from_date).toLocaleDateString('pl-PL', {
     year: 'numeric',
     month: 'long',
   });
@@ -68,7 +68,7 @@ export function DashboardSummary({ initialData, month }: DashboardSummaryProps) 
               color: 'hsl(var(--foreground))',
             }}
           >
-            {summary.expense_count} {summary.expense_count === 1 ? 'expense' : 'expenses'}
+            {summary.expense_count} {summary.expense_count === 1 ? 'wydatek' : summary.expense_count < 5 ? 'wydatki' : 'wydatków'}
           </span>
           {summary.ai_metrics.ai_created_count > 0 && (
             <span
@@ -77,9 +77,9 @@ export function DashboardSummary({ initialData, month }: DashboardSummaryProps) 
                 backgroundColor: 'hsl(var(--primary) / 0.1)',
                 color: 'hsl(var(--primary))',
               }}
-              title={`${summary.ai_metrics.ai_created_percentage.toFixed(0)}% AI-created`}
+              title={`${summary.ai_metrics.ai_created_percentage.toFixed(0)}% utworzonych przez AI`}
             >
-              {summary.ai_metrics.ai_created_count} AI-created
+              {summary.ai_metrics.ai_created_count} z AI
             </span>
           )}
         </div>

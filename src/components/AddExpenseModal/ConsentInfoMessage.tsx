@@ -18,7 +18,7 @@ export function ConsentInfoMessage({ onNavigateToSettings }: ConsentInfoMessageP
         <Info className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" aria-hidden="true" />
         <div className="flex-1 space-y-2">
           <p className="text-sm text-muted-foreground">
-            AI receipt scanning is not available. Enable it in settings to automatically extract expenses from receipts.
+            Skanowanie paragonów AI nie jest dostępne. Włącz je w ustawieniach, aby automatycznie wydobywać wydatki z paragonów.
           </p>
           {onNavigateToSettings && (
             <Button
@@ -26,7 +26,7 @@ export function ConsentInfoMessage({ onNavigateToSettings }: ConsentInfoMessageP
               variant="link"
               className="h-auto p-0 text-sm font-normal"
             >
-              Go to Settings
+              Przejdź do ustawień
             </Button>
           )}
         </div>

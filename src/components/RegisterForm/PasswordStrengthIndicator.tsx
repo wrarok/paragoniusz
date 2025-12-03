@@ -42,7 +42,7 @@ export function PasswordStrengthIndicator({ strength, password }: PasswordStreng
   return (
     <div className="space-y-2" aria-live="polite" aria-atomic="true">
       <div className="flex items-center justify-between">
-        <span className="text-sm text-muted-foreground">Password strength:</span>
+        <span className="text-sm text-muted-foreground">Siła hasła:</span>
         <span className={`text-sm font-medium ${textColorClass}`}>
           {label}
         </span>
@@ -55,7 +55,7 @@ export function PasswordStrengthIndicator({ strength, password }: PasswordStreng
           aria-valuenow={strength}
           aria-valuemin={0}
           aria-valuemax={4}
-          aria-label={`Password strength: ${label}`}
+          aria-label={`Siła hasła: ${label}`}
         />
       </div>
     </div>

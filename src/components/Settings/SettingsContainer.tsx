@@ -43,5 +43,5 @@ export function SettingsContainer() {
   }
 
   // Success state - render tabs
-  return <SettingsTabs profile={profile} />;
+  return <SettingsTabs profile={profile} onProfileUpdated={refetch} />;
 }

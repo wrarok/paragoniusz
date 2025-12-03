@@ -147,7 +147,7 @@ export function ExpenseForm({
                 />
               </svg>
               <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                {mode === 'add' ? 'Creating expense...' : 'Saving changes...'}
+                {mode === 'add' ? 'Tworzenie wydatku...' : 'Zapisywanie zmian...'}
               </span>
             </div>
           </div>

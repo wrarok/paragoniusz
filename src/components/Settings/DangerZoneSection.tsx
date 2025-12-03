@@ -17,26 +17,26 @@ export function DangerZoneSection() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
           <AlertTriangle className="h-5 w-5" />
-          Danger Zone
+          Strefa niebezpieczna
         </CardTitle>
         <CardDescription>
-          Irreversible and destructive actions
+          Nieodwracalne i destrukcyjne działania
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <Alert variant="destructive" className="bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            <strong>Warning:</strong> Deleting your account is permanent and cannot be undone.
-            All your data will be permanently removed from our servers.
+            <strong>Uwaga:</strong> Usunięcie konta jest trwałe i nie można go cofnąć.
+            Wszystkie Twoje dane zostaną trwale usunięte z naszych serwerów.
           </AlertDescription>
         </Alert>
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
           <div>
-            <h4 className="font-medium text-sm">Delete Account</h4>
+            <h4 className="font-medium text-sm">Usuń konto</h4>
             <p className="text-sm text-muted-foreground">
-              Permanently delete your account and all associated data
+              Trwale usuń swoje konto i wszystkie powiązane dane
             </p>
           </div>
           <DeleteAccountButton onClick={() => setIsModalOpen(true)} />

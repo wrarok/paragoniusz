@@ -54,7 +54,7 @@ export function DatePicker({
         htmlFor={inputId}
         className="block text-sm font-medium text-gray-900 dark:text-gray-100"
       >
-        Date <span className="text-red-600 dark:text-red-400">*</span>
+        Data <span className="text-red-600 dark:text-red-400">*</span>
       </label>
 
       <input

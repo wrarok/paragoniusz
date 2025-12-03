@@ -16,10 +16,10 @@ export function SubmitButton({ isLoading, disabled, onClick }: SubmitButtonProps
       {isLoading ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Creating Account...
+          Tworzenie konta...
         </>
       ) : (
-        'Create Account'
+        'Utwórz konto'
       )}
     </Button>
   );

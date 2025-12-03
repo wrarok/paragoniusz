@@ -41,7 +41,7 @@ export function ExpenseCard({ expense, onDelete, onEdit }: ExpenseCardProps) {
     }
   };
 
-  const formattedDate = new Date(expense.expense_date).toLocaleDateString('en-US', {
+  const formattedDate = new Date(expense.expense_date).toLocaleDateString('pl-PL', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -70,7 +70,7 @@ export function ExpenseCard({ expense, onDelete, onEdit }: ExpenseCardProps) {
                   backgroundColor: 'hsl(var(--primary) / 0.1)',
                   color: 'hsl(var(--primary))',
                 }}
-                title="Created by AI"
+                title="Utworzone przez AI"
               >
                 <Sparkles className="h-3 w-3" aria-hidden="true" />
                 AI
@@ -83,10 +83,10 @@ export function ExpenseCard({ expense, onDelete, onEdit }: ExpenseCardProps) {
                   backgroundColor: 'hsl(var(--secondary) / 0.5)',
                   color: 'hsl(var(--secondary-foreground))',
                 }}
-                title="AI suggestion was edited"
+                title="Sugestia AI została edytowana"
               >
                 <Pencil className="h-3 w-3" aria-hidden="true" />
-                Edited
+                Edytowane
               </span>
             )}
           </div>
@@ -100,7 +100,7 @@ export function ExpenseCard({ expense, onDelete, onEdit }: ExpenseCardProps) {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="More options">
+              <Button variant="ghost" size="icon" aria-label="Więcej opcji">
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -108,7 +108,7 @@ export function ExpenseCard({ expense, onDelete, onEdit }: ExpenseCardProps) {
               {onEdit && (
                 <DropdownMenuItem onClick={() => onEdit(expense.id)}>
                   <Pencil className="mr-2 h-4 w-4" />
-                  Edit
+                  Edytuj
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem
@@ -116,7 +116,7 @@ export function ExpenseCard({ expense, onDelete, onEdit }: ExpenseCardProps) {
                 className="text-destructive focus:text-destructive"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
-                Delete
+                Usuń
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -126,19 +126,19 @@ export function ExpenseCard({ expense, onDelete, onEdit }: ExpenseCardProps) {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Expense</AlertDialogTitle>
+            <AlertDialogTitle>Usuń wydatek</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this expense? This action cannot be undone.
+              Czy na pewno chcesz usunąć ten wydatek? Tej operacji nie można cofnąć.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>Anuluj</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isDeleting ? 'Deleting...' : 'Delete'}
+              {isDeleting ? 'Usuwanie...' : 'Usuń'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

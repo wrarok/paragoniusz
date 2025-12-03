@@ -22,11 +22,11 @@ const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/;
  */
 export function validateEmail(email: string): string | undefined {
   if (!email || email.trim() === '') {
-    return 'Email is required';
+    return 'Email jest wymagany';
   }
 
   if (!EMAIL_REGEX.test(email)) {
-    return 'Please enter a valid email address';
+    return 'Wprowadź poprawny adres email';
   }
 
   return undefined;
@@ -39,15 +39,15 @@ export function validateEmail(email: string): string | undefined {
  */
 export function validatePassword(password: string): string | undefined {
   if (!password || password.trim() === '') {
-    return 'Password is required';
+    return 'Hasło jest wymagane';
   }
 
   if (password.length < PASSWORD_MIN_LENGTH) {
-    return `Password must be at least ${PASSWORD_MIN_LENGTH} characters`;
+    return `Hasło musi mieć minimum ${PASSWORD_MIN_LENGTH} znaków`;
   }
 
   if (!PASSWORD_REGEX.test(password)) {
-    return 'Password must contain uppercase, lowercase, and number';
+    return 'Hasło musi zawierać wielką literę, małą literę i cyfrę';
   }
 
   return undefined;
@@ -64,11 +64,11 @@ export function validateConfirmPassword(
   confirmPassword: string
 ): string | undefined {
   if (!confirmPassword || confirmPassword.trim() === '') {
-    return 'Please confirm your password';
+    return 'Potwierdź swoje hasło';
   }
 
   if (password !== confirmPassword) {
-    return 'Passwords do not match';
+    return 'Hasła nie pasują do siebie';
   }
 
   return undefined;
@@ -140,6 +140,6 @@ export function calculatePasswordStrength(password: string): number {
  * @returns Human-readable strength label
  */
 export function getPasswordStrengthLabel(strength: number): string {
-  const labels = ['Very Weak', 'Weak', 'Fair', 'Strong', 'Very Strong'];
-  return labels[strength] || 'Very Weak';
+  const labels = ['Bardzo słabe', 'Słabe', 'Średnie', 'Silne', 'Bardzo silne'];
+  return labels[strength] || 'Bardzo słabe';
 }

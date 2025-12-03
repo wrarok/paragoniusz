@@ -33,9 +33,20 @@ export const prerender = false;
  */
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
-    // TODO: Authentication will be implemented later
-    // For now, using existing test user ID from database
-    const userId = '1266a5e6-1684-4609-a2b3-8c29737efb8b';
+    // Check if user is authenticated
+    if (!locals.user) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            code: 'UNAUTHORIZED',
+            message: 'User must be authenticated',
+          },
+        } as APIErrorResponse),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const userId = locals.user.id;
 
     // Parse request body
     let body;

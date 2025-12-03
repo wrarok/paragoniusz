@@ -30,7 +30,7 @@ export function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps)
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isConfirmationValid = confirmationText === 'DELETE';
+  const isConfirmationValid = confirmationText === 'USUŃ';
 
   const handleConfirm = async () => {
     if (!isConfirmationValid) return;
@@ -60,14 +60,14 @@ export function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps)
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
             <AlertTriangle className="h-5 w-5" />
-            Delete Account Permanently
+            Trwale usuń konto
           </AlertDialogTitle>
           <AlertDialogDescription className="space-y-4">
             <p className="text-base font-semibold">
-              This action cannot be undone. This will permanently delete your account and remove all your data from our servers.
+              Ta operacja jest nieodwracalna. Spowoduje trwałe usunięcie Twojego konta i wszystkich danych z naszych serwerów.
             </p>
             <p>
-              All your expenses, categories, and profile information will be permanently deleted.
+              Wszystkie Twoje wydatki, kategorie i informacje profilowe zostaną trwale usunięte.
             </p>
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -81,13 +81,13 @@ export function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps)
 
           <div className="space-y-2">
             <Label htmlFor="confirmation">
-              Type <span className="font-mono font-bold">DELETE</span> to confirm
+              Wpisz <span className="font-mono font-bold">USUŃ</span>, aby potwierdzić
             </Label>
             <Input
               id="confirmation"
               value={confirmationText}
               onChange={(e) => setConfirmationText(e.target.value)}
-              placeholder="Type DELETE here"
+              placeholder="Wpisz USUŃ tutaj"
               disabled={isDeleting}
               className="font-mono"
             />
@@ -96,14 +96,14 @@ export function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps)
 
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isDeleting} onClick={handleClose}>
-            Cancel
+            Anuluj
           </AlertDialogCancel>
           <AlertDialogAction
             disabled={!isConfirmationValid || isDeleting}
             onClick={handleConfirm}
             className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
           >
-            {isDeleting ? 'Deleting...' : 'Confirm Deletion'}
+            {isDeleting ? 'Usuwanie...' : 'Potwierdź usunięcie'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

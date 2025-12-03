@@ -6,7 +6,6 @@ import type {
   APIErrorResponse,
 } from '../../../types';
 import { validateCategories, createExpensesBatch } from '../../../lib/services/expense.service';
-import { DEFAULT_USER_ID } from '../../../db/supabase.client';
 
 export const prerender = false;
 
@@ -39,6 +38,19 @@ const createExpenseBatchSchema = z.object({
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
+    // Check if user is authenticated
+    if (!locals.user) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            code: 'UNAUTHORIZED',
+            message: 'User must be authenticated to create expenses',
+          },
+        } as APIErrorResponse),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    
     // Step 1: Parse and validate request body
     let body: CreateExpenseBatchCommand;
     try {
@@ -90,8 +102,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    // Step 3: Create expenses batch using DEFAULT_USER_ID
-    const createdExpenses = await createExpensesBatch(locals.supabase, DEFAULT_USER_ID, expenses);
+    // Step 3: Create expenses batch using authenticated user ID
+    const createdExpenses = await createExpensesBatch(locals.supabase, locals.user.id, expenses);
 
     // Step 4: Return success response
     const response: BatchExpenseResponseDTO = {

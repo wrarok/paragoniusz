@@ -17,7 +17,7 @@ export function DeleteAccountButton({ onClick }: DeleteAccountButtonProps) {
       className="w-full sm:w-auto"
     >
       <Trash2 className="mr-2 h-4 w-4" />
-      Delete Account
+      Usuń konto
     </Button>
   );
 }

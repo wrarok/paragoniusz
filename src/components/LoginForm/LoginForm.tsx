@@ -27,8 +27,8 @@ export function LoginForm(props?: LoginFormProps) {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="space-y-1 text-center">
-        <CardTitle className="text-3xl font-bold tracking-tight">Welcome back</CardTitle>
-        <CardDescription>Enter your credentials to access your account</CardDescription>
+        <CardTitle className="text-3xl font-bold tracking-tight">Witaj ponownie</CardTitle>
+        <CardDescription>Wprowadź swoje dane, aby zalogować się do konta</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>

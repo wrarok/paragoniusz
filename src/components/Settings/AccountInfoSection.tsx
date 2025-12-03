@@ -22,15 +22,15 @@ export function AccountInfoSection({ profile }: AccountInfoSectionProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Account Information</CardTitle>
+        <CardTitle>Informacje o koncie</CardTitle>
         <CardDescription>
-          View your account details and metadata
+          Zobacz szczegóły i metadane swojego konta
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
           <label className="text-sm font-medium text-muted-foreground">
-            User ID
+            ID użytkownika
           </label>
           <p className="mt-1 text-sm font-mono bg-muted px-3 py-2 rounded-md break-all">
             {profile.id}
@@ -39,7 +39,7 @@ export function AccountInfoSection({ profile }: AccountInfoSectionProps) {
         
         <div>
           <label className="text-sm font-medium text-muted-foreground">
-            Account Created
+            Data utworzenia konta
           </label>
           <p className="mt-1 text-sm">
             {formatDate(profile.created_at)}
@@ -48,7 +48,7 @@ export function AccountInfoSection({ profile }: AccountInfoSectionProps) {
         
         <div>
           <label className="text-sm font-medium text-muted-foreground">
-            Last Updated
+            Ostatnia aktualizacja
           </label>
           <p className="mt-1 text-sm">
             {formatDate(profile.updated_at)}
@@ -57,13 +57,13 @@ export function AccountInfoSection({ profile }: AccountInfoSectionProps) {
         
         <div>
           <label className="text-sm font-medium text-muted-foreground">
-            AI Consent Status
+            Status zgody na AI
           </label>
           <p className="mt-1 text-sm">
             {profile.ai_consent_given ? (
-              <span className="text-green-600 dark:text-green-400">✓ Granted</span>
+              <span className="text-green-600 dark:text-green-400">✓ Udzielona</span>
             ) : (
-              <span className="text-muted-foreground">Not granted</span>
+              <span className="text-muted-foreground">Nie udzielona</span>
             )}
           </p>
         </div>

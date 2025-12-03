@@ -33,32 +33,32 @@ export async function registerUser(
     });
 
     if (error) {
-      // Map specific errors to user-friendly messages
+      // Map specific errors to user-friendly messages in Polish
       if (error.message.includes('rate limit')) {
         return {
           success: false,
-          error: 'Too many registration attempts. Please try again later.'
+          error: 'Zbyt wiele prób rejestracji. Spróbuj ponownie później.'
         };
       }
 
       if (error.message.includes('already registered') || error.message.includes('already exists')) {
         return {
           success: false,
-          error: 'An account with this email already exists'
+          error: 'Konto z tym adresem email już istnieje'
         };
       }
 
       // Generic error message
       return {
         success: false,
-        error: error.message || 'Registration failed. Please try again.'
+        error: 'Rejestracja nie powiodła się. Spróbuj ponownie.'
       };
     }
 
     if (!data.user) {
       return {
         success: false,
-        error: 'Registration failed. Please try again.'
+        error: 'Rejestracja nie powiodła się. Spróbuj ponownie.'
       };
     }
 
@@ -68,16 +68,17 @@ export async function registerUser(
     console.error('Registration error:', error);
     return {
       success: false,
-      error: 'Unable to connect. Please check your internet connection.'
+      error: 'Brak połączenia. Sprawdź połączenie internetowe.'
     };
   }
 }
 
 /**
  * Authenticates a user with email and password
+ *
  * @param email - User's email address
  * @param password - User's password
- * @param rememberMe - Whether to persist the session across browser sessions
+ * @param rememberMe - Whether to persist the session (currently uses localStorage by default)
  * @returns Promise with success status and optional error message
  */
 export async function loginUser(
@@ -86,34 +87,37 @@ export async function loginUser(
   rememberMe: boolean
 ): Promise<LoginResult> {
   try {
-    // Note: Supabase automatically persists sessions in localStorage by default
-    // The rememberMe parameter could be used to switch between localStorage and sessionStorage
-    // For now, we'll use the default behavior (localStorage)
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-      email,
-      password
+    // Call API endpoint which uses SSR client to set session in cookies
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
     });
 
-    if (error) {
-      // Map specific errors to user-friendly messages
-      if (error.message.includes('rate limit')) {
+    const data = await response.json();
+
+    if (!response.ok) {
+      // Map specific errors to user-friendly messages in Polish
+      if (data.error?.includes('rate limit')) {
         return {
           success: false,
-          error: 'Too many login attempts. Please try again later.'
+          error: 'Zbyt wiele prób logowania. Spróbuj ponownie później.'
         };
       }
 
       // Generic error message for security (don't reveal if email exists)
       return {
         success: false,
-        error: 'Invalid email or password'
+        error: 'Nieprawidłowy email lub hasło'
       };
     }
 
-    if (!data.user || !data.session) {
+    if (!data.user) {
       return {
         success: false,
-        error: 'Invalid email or password'
+        error: 'Nieprawidłowy email lub hasło'
       };
     }
 
@@ -123,7 +127,7 @@ export async function loginUser(
     console.error('Login error:', error);
     return {
       success: false,
-      error: 'Unable to connect. Please check your internet connection.'
+      error: 'Brak połączenia. Sprawdź połączenie internetowe.'
     };
   }
 }
@@ -148,12 +152,15 @@ export async function getCurrentSession() {
  */
 export async function logoutUser(): Promise<LoginResult> {
   try {
-    const { error } = await supabaseClient.auth.signOut();
-    
-    if (error) {
+    // Call API endpoint which uses SSR client to clear session cookies
+    const response = await fetch('/api/auth/logout', {
+      method: 'POST',
+    });
+
+    if (!response.ok) {
       return {
         success: false,
-        error: 'Failed to sign out. Please try again.'
+        error: 'Nie udało się wylogować. Spróbuj ponownie.'
       };
     }
 
@@ -162,7 +169,7 @@ export async function logoutUser(): Promise<LoginResult> {
     console.error('Logout error:', error);
     return {
       success: false,
-      error: 'Unable to sign out. Please try again.'
+      error: 'Nie udało się wylogować. Spróbuj ponownie.'
     };
   }
 }
