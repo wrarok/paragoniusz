@@ -70,3 +70,204 @@ Aby zilustrować, jak te technologie współdziałają, przeanalizujmy krok po k
     * **Usuwa plik zdjęcia** z Supabase Storage, realizując wymóg o nieprzechowywaniu paragonów.
 7.  **Frontend (React):** Komponent formularza otrzymuje dane i wypełnia nimi pola, prezentując użytkownikowi zagregowane kwoty do weryfikacji.
 8.  **Frontend -> Supabase Database:** Po zatwierdzeniu przez użytkownika, frontend wysyła standardowe zapytanie do API Supabase, tworząc nowe rekordy w tabeli `expenses` w bazie PostgreSQL. Dashboard jest aktualizowany.
+
+---
+
+## 5. Testing: Jakość i Niezawodność
+
+Testy są kluczowe dla zapewnienia stabilności aplikacji, szczególnie w kontekście krytycznych funkcji takich jak przetwarzanie paragonów AI i zarządzanie danymi finansowymi. Strategia testowania opiera się na modelu piramidy testów: 70% testów jednostkowych, 20% testów integracyjnych, 10% testów E2E.
+
+### Testy Jednostkowe (Unit Tests)
+
+| Technologia | Rola w Projekcie | Realizowane Wymagania |
+| :--- | :--- | :--- |
+| **Vitest** | Główny framework do testów jednostkowych i integracyjnych. Natywna integracja z Vite (używanym przez Astro), znacznie szybszy niż Jest dzięki wykorzystaniu Vite's dev server. | Testy logiki biznesowej, walidacji, transformacji danych |
+| **React Testing Library** | Framework do testowania komponentów React zgodnie z best practices. Skupia się na testowaniu z perspektywy użytkownika (co widzi i z czym wchodzi w interakcję), a nie szczegółów implementacji. | Testy komponentów UI, formularzy, interakcji użytkownika |
+| **Happy-DOM** | Lekka implementacja DOM dla środowiska testowego. Szybsza alternatywa dla jsdom, idealna do testów jednostkowych komponentów. | Środowisko testowe dla komponentów React |
+
+**Kluczowe obszary pokrycia testami jednostkowymi:**
+- [`src/lib/validation/expense-form.validation.ts`](src/lib/validation/expense-form.validation.ts:1) - Walidacja kwot (precyzja 2 miejsc po przecinku, maksymalna wartość)
+- [`src/lib/services/receipt.service.ts`](src/lib/services/receipt.service.ts:259-286) - Mapowanie kategorii AI na kategorie bazodanowe
+- [`src/lib/services/auth.service.ts`](src/lib/services/auth.service.ts:1) - Logika uwierzytelniania, rate limiting
+- [`src/lib/services/expense.service.ts`](src/lib/services/expense.service.ts:18-42) - Walidacja kategorii, operacje CRUD
+
+**Przykład konfiguracji (`vitest.config.ts`):**
+```typescript
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    environment: 'happy-dom',
+    setupFiles: ['./test/setup.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      thresholds: {
+        lines: 70,
+        functions: 70,
+        branches: 70,
+        statements: 70,
+      },
+    },
+  },
+});
+```
+
+### Testy End-to-End (E2E)
+
+| Technologia | Rola w Projekcie | Realizowane Wymagania |
+| :--- | :--- | :--- |
+| **Playwright** | Framework do testów E2E oficjalnie rekomendowany przez Astro. Wspiera testowanie w wielu przeglądarkach (Chromium, Firefox, WebKit), posiada wbudowane mechanizmy automatycznego oczekiwania (auto-waiting) redukujące niestabilne testy, oraz trace viewer do debugowania. | Testy pełnych przepływów użytkownika, cross-browser testing |
+
+**Kluczowe scenariusze E2E:**
+1. **Kompletny przepływ AI Receipt Scan**: Login → Upload zdjęcia → Weryfikacja danych AI → Edycja → Zapis → Weryfikacja na dashboardzie
+2. **Registration to First Expense**: Rejestracja → Login → Pusty dashboard → Dodanie pierwszego wydatku → Weryfikacja
+3. **Dashboard Analytics Flow**: Wielokrotne wydatki → Weryfikacja sum → Wykres kołowy → Filtrowanie dat
+
+**Przykład konfiguracji (`playwright.config.ts`):**
+```typescript
+export default defineConfig({
+  testDir: './e2e',
+  fullyParallel: true,
+  retries: process.env.CI ? 2 : 0,
+  use: {
+    baseURL: 'http://localhost:4321',
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+  },
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'Mobile Safari', use: { ...devices['iPhone 13'] } },
+  ],
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:4321',
+    reuseExistingServer: !process.env.CI,
+  },
+});
+```
+
+### Testy Funkcji Edge (Edge Functions Testing)
+
+| Technologia | Rola w Projekcie | Realizowane Wymagania |
+| :--- | :--- | :--- |
+| **Deno Test** | Natywny test runner dla Deno, w którym działają Supabase Edge Functions. Umożliwia testowanie logiki serverless, rate limitera, konwersji base64, oraz integracji z OpenRouter API. | Testy [`supabase/functions/process-receipt/index.ts`](supabase/functions/process-receipt/index.ts:1) |
+
+**Kluczowe testy:**
+- Rate limiter (10 req/min per user)
+- Konwersja ArrayBuffer → Base64
+- Walidacja ścieżki pliku (security - path traversal)
+- Obsługa timeout (20s limit)
+- Obsługa błędów OpenRouter API (429, network errors)
+
+**Uruchomienie:**
+```bash
+deno test --allow-env --allow-net supabase/functions/
+```
+
+### Testy Integracyjne Bazy Danych
+
+| Technologia | Rola w Projekcie | Realizowane Wymagania |
+| :--- | :--- | :--- |
+| **Testcontainers** | Framework umożliwiający uruchomienie prawdziwej instancji PostgreSQL w kontenerze Docker dla testów integracyjnych. Pozwala na izolowane testowanie Row Level Security (RLS) policies, database constraints, triggers, oraz pełnej integracji Supabase. | Testy RLS, constraints, data integrity |
+
+**Kluczowe testy:**
+- **RLS Policies**: Użytkownik A nie widzi wydatków użytkownika B
+- **Database Constraints**: Odrzucenie ujemnych kwot, przyszłych dat
+- **Triggers**: Automatyczna aktualizacja `updated_at` timestamp
+- **Foreign Keys**: Weryfikacja integralności referencyjnej kategorii
+
+**Przykład użycia:**
+```typescript
+import { PostgreSqlContainer } from 'testcontainers';
+
+describe('Database Integration Tests', () => {
+  let container: StartedPostgreSqlContainer;
+  
+  beforeAll(async () => {
+    container = await new PostgreSqlContainer().start();
+    await runMigrations(container.getConnectionUri());
+  });
+
+  afterAll(async () => {
+    await container.stop();
+  });
+
+  it('should enforce RLS - user A cannot see user B expenses', async () => {
+    // Test implementation
+  });
+});
+```
+
+### Mockowanie i Dane Testowe
+
+| Technologia | Rola w Projekcie | Realizowane Wymagania |
+| :--- | :--- | :--- |
+| **MSW (Mock Service Worker)** | Biblioteka do mockowania API na poziomie sieciowym. Używana do mockowania OpenRouter API w testach integracyjnych, aby uniknąć kosztów rzeczywistych wywołań AI i zapewnić przewidywalne wyniki testów. | Testy integracyjne bez kosztów API |
+| **@faker-js/faker** | Generator realistycznych danych testowych (kwoty, daty, kategorie). Wspiera locale polski, co jest kluczowe dla testowania z polskimi nazwami kategorii. | Factory pattern dla generowania test fixtures |
+
+**Strategia mockowania:**
+- **Unit Tests**: Pełne mockowanie Supabase client i OpenRouter
+- **Integration Tests**: MSW dla OpenRouter, Testcontainers dla bazy danych
+- **E2E Tests**: Prawdziwy Supabase test project, mockowanie tylko OpenRouter (opcjonalnie)
+
+**Przykład MSW setup:**
+```typescript
+import { setupServer } from 'msw/node';
+import { rest } from 'msw';
+
+const server = setupServer(
+  rest.post('https://openrouter.ai/api/v1/chat/completions', (req, res, ctx) => {
+    return res(ctx.json({
+      choices: [{
+        message: {
+          content: JSON.stringify({
+            items: [
+              { name: 'Mleko', amount: 5.50, category: 'żywność' },
+            ],
+            total: 5.50,
+            date: '2024-01-15',
+          }),
+        },
+      }],
+    }));
+  })
+);
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+```
+
+### Metryki i Cele Jakości
+
+**Coverage Thresholds:**
+- Ogólne pokrycie: **70%** (lines, functions, branches, statements)
+- Krytyczne ścieżki: **100%** (walidacje, security, financial data)
+
+**Stabilność testów:**
+- Wskaźnik flaky tests: **<5%**
+- Auto-retry w CI: maksymalnie 2 próby
+
+**Wydajność:**
+- Unit tests: **<30 sekund**
+- Integration tests: **<5 minut**
+- E2E tests: **<15 minut**
+
+**Cel jakości AI:**
+- Dokładność AI: **>95%** (na zbiorze testowych paragonów)
+- Wskaźnik edycji: **<20%** (zgodnie z PRD 6.2)
+
+---
+
+## 6. Podsumowanie Techniczne
+
+Wybrany stos technologiczny dla projektu **Paragoniusz** został zoptymalizowany pod kątem:
+
+1. **Szybkości wdrożenia MVP** - Astro + Supabase minimalizują boilerplate
+2. **Skalowalności** - Serverless architecture + PostgreSQL
+3. **Bezpieczeństwa** - RLS policies + Edge Functions dla kluczy API
+4. **Jakości** - Kompleksowa strategia testowania (Vitest, Playwright, Testcontainers)
+5. **Kosztów** - OpenRouter.ai jako brama do wielu modeli LLM
+6. **Developer Experience** - TypeScript, hot reload, współczesne tooling
+
+Wszystkie technologie są dobrze udokumentowane, mają aktywne społeczności, i są zgodne z najnowszymi standardami web development 2024/2025.

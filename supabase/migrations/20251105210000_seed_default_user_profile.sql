@@ -1,7 +1,7 @@
 -- migration: seed default user profile for development
 -- purpose: creates a default user profile for testing without authentication
 -- affected tables: profiles
--- special considerations: 
+-- special considerations:
 --   - this is for development/testing purposes only
 --   - uses the DEFAULT_USER_ID from src/db/supabase.client.ts
 --   - ai_consent_given is set to true for testing ai features
@@ -9,7 +9,7 @@
 -- insert default user profile for development
 -- this allows testing endpoints without setting up full authentication
 insert into public.profiles (id, ai_consent_given)
-values ('a33573a0-3562-495e-b3c4-d898d0b54241', true)
+values ('1266a5e6-1684-4609-a2b3-8c29737efb8b', true)
 on conflict (id) do update
   set ai_consent_given = excluded.ai_consent_given;
 
