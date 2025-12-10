@@ -44,7 +44,7 @@ export class ReceiptService {
 
     // Handle upload errors
     if (error) {
-      throw new Error(`Failed to upload file: ${error.message}`);
+      throw new Error(`Nie udało się przesłać pliku: ${error.message}`);
     }
 
     // Return response DTO with file metadata
@@ -104,7 +104,7 @@ export class ReceiptService {
       .single();
 
     if (profileError) {
-      throw new Error('Failed to fetch user profile');
+      throw new Error('Nie udało się pobrać profilu użytkownika');
     }
 
     if (!profile.ai_consent_given) {
@@ -124,7 +124,7 @@ export class ReceiptService {
       .select('id, name');
 
     if (categoriesError || !categories || categories.length === 0) {
-      throw new Error('Failed to fetch categories');
+      throw new Error('Nie udało się pobrać kategorii');
     }
 
     // Step 4: Call Edge Function to process receipt
@@ -149,11 +149,11 @@ export class ReceiptService {
       if (edgeFunctionError.message?.includes('timeout')) {
         throw new Error('PROCESSING_TIMEOUT');
       }
-      throw new Error(`AI processing failed: ${edgeFunctionError.message}`);
+      throw new Error(`Przetwarzanie AI nie powiodło się: ${edgeFunctionError.message}`);
     }
 
     if (!edgeFunctionData) {
-      throw new Error('No data returned from AI processing');
+      throw new Error('Brak danych zwróconych z przetwarzania AI');
     }
 
     // Step 5: Transform OpenRouter response to our DTO format

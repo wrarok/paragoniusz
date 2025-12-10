@@ -35,7 +35,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       const errorResponse: APIErrorResponse = {
         error: {
           code: 'UNAUTHORIZED',
-          message: 'User must be authenticated',
+          message: 'Użytkownik musi być uwierzytelniony',
         },
       };
       return new Response(JSON.stringify(errorResponse), {
@@ -55,7 +55,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       const errorResponse: APIErrorResponse = {
         error: {
           code: 'VALIDATION_ERROR',
-          message: 'No file provided in request',
+          message: 'Nie podano pliku w żądaniu',
           details: { field: 'file' },
         },
       };
@@ -70,7 +70,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       const errorResponse: APIErrorResponse = {
         error: {
           code: 'PAYLOAD_TOO_LARGE',
-          message: `File size must not exceed ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
+          message: `Rozmiar pliku nie może przekraczać ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
           details: {
             max_size_mb: MAX_FILE_SIZE / (1024 * 1024),
             provided_size_mb: Number((file.size / (1024 * 1024)).toFixed(2)),
@@ -121,7 +121,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const errorResponse: APIErrorResponse = {
       error: {
         code: 'INTERNAL_ERROR',
-        message: 'Failed to upload file to storage',
+        message: 'Nie udało się przesłać pliku do magazynu',
         details: {
           reason: error instanceof Error ? error.message : 'Unknown error',
         },

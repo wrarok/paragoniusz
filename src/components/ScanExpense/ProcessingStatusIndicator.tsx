@@ -50,17 +50,17 @@ export function ProcessingStatusIndicator({
 
   const getStatusMessage = (): string => {
     if (step === 'upload') {
-      return 'Uploading receipt...';
+      return 'Przesyłanie paragonu...';
     }
     
     if (elapsedTime < 5000) {
-      return 'Analyzing receipt image...';
+      return 'Analizowanie zdjęcia paragonu...';
     } else if (elapsedTime < 10000) {
-      return 'Extracting expense data...';
+      return 'Wyodrębnianie danych o wydatkach...';
     } else if (elapsedTime < 15000) {
-      return 'Identifying categories...';
+      return 'Identyfikowanie kategorii...';
     } else {
-      return 'Finalizing results...';
+      return 'Finalizowanie wyników...';
     }
   };
 
@@ -69,10 +69,10 @@ export function ProcessingStatusIndicator({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Loader2 className="h-5 w-5 animate-spin" />
-          Processing Receipt
+          Przetwarzanie paragonu
         </CardTitle>
         <CardDescription>
-          AI is analyzing your receipt to extract expense information
+          AI analizuje Twój paragon, aby wyodrębnić informacje o wydatkach
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -97,11 +97,11 @@ export function ProcessingStatusIndicator({
               aria-valuenow={getProgressPercentage()}
               aria-valuemin={0}
               aria-valuemax={100}
-              aria-label="Processing progress"
+              aria-label="Postęp przetwarzania"
             />
           </div>
           <p className="text-xs text-center text-muted-foreground">
-            {Math.round(getProgressPercentage())}% complete
+            {Math.round(getProgressPercentage())}% ukończone
           </p>
         </div>
 
@@ -110,30 +110,30 @@ export function ProcessingStatusIndicator({
           <Alert variant="default" className="border-yellow-500 bg-yellow-50 dark:bg-yellow-950">
             <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
             <AlertDescription className="text-yellow-800 dark:text-yellow-200">
-              Processing is taking longer than usual. This may happen with complex
-              receipts or poor image quality.
+              Przetwarzanie trwa dłużej niż zwykle. Może się to zdarzyć w przypadku
+              skomplikowanych paragonów lub słabej jakości obrazu.
             </AlertDescription>
           </Alert>
         )}
 
         {/* Processing Steps */}
         <div className="space-y-2">
-          <p className="text-sm font-medium">Processing steps:</p>
+          <p className="text-sm font-medium">Kroki przetwarzania:</p>
           <ul className="space-y-1 text-sm text-muted-foreground">
             <li className={elapsedTime >= 0 ? 'text-foreground' : ''}>
-              ✓ Image uploaded successfully
+              ✓ Obraz przesłany pomyślnie
             </li>
             <li className={elapsedTime >= 2000 ? 'text-foreground' : ''}>
-              {elapsedTime >= 2000 ? '✓' : '○'} Analyzing receipt structure
+              {elapsedTime >= 2000 ? '✓' : '○'} Analizowanie struktury paragonu
             </li>
             <li className={elapsedTime >= 7000 ? 'text-foreground' : ''}>
-              {elapsedTime >= 7000 ? '✓' : '○'} Extracting text and amounts
+              {elapsedTime >= 7000 ? '✓' : '○'} Wyodrębnianie tekstu i kwot
             </li>
             <li className={elapsedTime >= 12000 ? 'text-foreground' : ''}>
-              {elapsedTime >= 12000 ? '✓' : '○'} Categorizing expenses
+              {elapsedTime >= 12000 ? '✓' : '○'} Kategoryzowanie wydatków
             </li>
             <li className={step === 'processing' && elapsedTime < TIMEOUT_MS ? '' : 'text-foreground'}>
-              {step === 'processing' && elapsedTime < TIMEOUT_MS ? '○' : '✓'} Preparing results
+              {step === 'processing' && elapsedTime < TIMEOUT_MS ? '○' : '✓'} Przygotowywanie wyników
             </li>
           </ul>
         </div>
@@ -141,8 +141,8 @@ export function ProcessingStatusIndicator({
         {/* Info */}
         <div className="text-xs text-muted-foreground text-center pt-2">
           <p>
-            Processing typically takes 5-15 seconds. Maximum wait time is 20
-            seconds.
+            Przetwarzanie zwykle trwa 5-15 sekund. Maksymalny czas oczekiwania to 20
+            sekund.
           </p>
         </div>
       </CardContent>

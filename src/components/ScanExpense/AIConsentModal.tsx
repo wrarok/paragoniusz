@@ -27,10 +27,9 @@ export function AIConsentModal({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>AI-Powered Receipt Scanning</DialogTitle>
+          <DialogTitle>Skanowanie paragonów z wykorzystaniem AI</DialogTitle>
           <DialogDescription>
-            Enable AI features to automatically extract expense data from receipt
-            images
+            Włącz funkcje AI, aby automatycznie wyodrębnić dane o wydatkach ze zdjęć paragonów
           </DialogDescription>
         </DialogHeader>
 
@@ -38,34 +37,32 @@ export function AIConsentModal({
           <Alert>
             <Info className="h-4 w-4" />
             <AlertDescription>
-              By enabling AI features, you consent to:
+              Włączając funkcje AI, wyrażasz zgodę na:
             </AlertDescription>
           </Alert>
 
           <ul className="space-y-2 text-sm text-muted-foreground ml-6 list-disc">
             <li>
-              Your receipt images will be processed by our AI service to extract
-              expense information
+              Twoje zdjęcia paragonów będą przetwarzane przez naszą usługę AI w celu wyodrębnienia informacji o wydatkach
             </li>
             <li>
-              Receipt data (amounts, categories, dates) will be automatically
-              detected and suggested
+              Dane z paragonu (kwoty, kategorie, daty) będą automatycznie wykrywane i sugerowane
             </li>
             <li>
-              You can review and edit all AI suggestions before saving
+              Możesz przejrzeć i edytować wszystkie sugestie AI przed zapisaniem
             </li>
             <li>
-              Receipt images are processed securely and not stored permanently
+              Zdjęcia paragonów są przetwarzane bezpiecznie i nie są przechowywane na stałe
             </li>
           </ul>
 
           <div className="pt-2 text-sm text-muted-foreground">
-            <p className="font-medium mb-2">What happens next:</p>
+            <p className="font-medium mb-2">Co dzieje się dalej:</p>
             <ol className="space-y-1 ml-6 list-decimal">
-              <li>Upload a receipt image (JPEG, PNG, or HEIC)</li>
-              <li>AI processes the image (typically 5-15 seconds)</li>
-              <li>Review and edit the extracted expenses</li>
-              <li>Save all expenses in one batch</li>
+              <li>Prześlij zdjęcie paragonu (JPEG, PNG lub HEIC)</li>
+              <li>AI przetwarza obraz (zwykle 5-15 sekund)</li>
+              <li>Przejrzyj i edytuj wyodrębnione wydatki</li>
+              <li>Zapisz wszystkie wydatki jednocześnie</li>
             </ol>
           </div>
         </div>
@@ -77,14 +74,14 @@ export function AIConsentModal({
             disabled={isLoading}
             className="w-full sm:w-auto"
           >
-            Cancel
+            Anuluj
           </Button>
           <Button
             onClick={onAccept}
             disabled={isLoading}
             className="w-full sm:w-auto"
           >
-            {isLoading ? 'Enabling...' : 'Enable AI Features'}
+            {isLoading ? 'Włączanie...' : 'Włącz funkcje AI'}
           </Button>
         </DialogFooter>
       </DialogContent>

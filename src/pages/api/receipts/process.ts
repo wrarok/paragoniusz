@@ -39,7 +39,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         JSON.stringify({
           error: {
             code: 'UNAUTHORIZED',
-            message: 'User must be authenticated',
+            message: 'Użytkownik musi być uwierzytelniony',
           },
         } as APIErrorResponse),
         { status: 401, headers: { 'Content-Type': 'application/json' } }
@@ -57,7 +57,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         JSON.stringify({
           error: {
             code: 'INVALID_REQUEST',
-            message: 'Invalid JSON in request body',
+            message: 'Nieprawidłowy JSON w treści żądania',
           },
         } as APIErrorResponse),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
@@ -102,7 +102,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
                 error: {
                   code: 'AI_CONSENT_REQUIRED',
                   message:
-                    'AI processing consent has not been given. Please enable AI features in settings.',
+                    'Nie udzielono zgody na przetwarzanie AI. Włącz funkcje AI w ustawieniach.',
                 },
               } as APIErrorResponse),
               { status: 403, headers: { 'Content-Type': 'application/json' } }
@@ -113,7 +113,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
               JSON.stringify({
                 error: {
                   code: 'FORBIDDEN',
-                  message: 'You do not have permission to process this file',
+                  message: 'Nie masz uprawnień do przetwarzania tego pliku',
                 },
               } as APIErrorResponse),
               { status: 403, headers: { 'Content-Type': 'application/json' } }
@@ -124,7 +124,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
               JSON.stringify({
                 error: {
                   code: 'FILE_NOT_FOUND',
-                  message: 'Receipt file not found in storage',
+                  message: 'Plik paragonu nie został znaleziony w magazynie',
                   details: { file_path: validation.data.file_path },
                 },
               } as APIErrorResponse),
@@ -137,7 +137,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
                 error: {
                   code: 'PROCESSING_TIMEOUT',
                   message:
-                    'AI processing exceeded the 20-second timeout limit. Please try again with a clearer image.',
+                    'Przetwarzanie AI przekroczyło limit 20 sekund. Spróbuj ponownie z wyraźniejszym obrazem.',
                 },
               } as APIErrorResponse),
               { status: 408, headers: { 'Content-Type': 'application/json' } }
@@ -149,7 +149,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
                 error: {
                   code: 'EXTRACTION_FAILED',
                   message:
-                    'Unable to extract expense data from the receipt. Please ensure the image is clear and contains a valid receipt.',
+                    'Nie udało się wyodrębnić danych o wydatkach z paragonu. Upewnij się, że obraz jest wyraźny i zawiera prawidłowy paragon.',
                 },
               } as APIErrorResponse),
               { status: 422, headers: { 'Content-Type': 'application/json' } }
@@ -162,7 +162,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
                 error: {
                   code: 'AI_SERVICE_ERROR',
                   message:
-                    'An error occurred while processing the receipt. Please try again later.',
+                    'Wystąpił błąd podczas przetwarzania paragonu. Spróbuj ponownie później.',
                   details: { service: 'mock_ai' },
                 },
               } as APIErrorResponse),
@@ -177,7 +177,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         JSON.stringify({
           error: {
             code: 'INTERNAL_ERROR',
-            message: 'An unexpected error occurred. Please try again later.',
+            message: 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.',
           },
         } as APIErrorResponse),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
@@ -190,7 +190,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       JSON.stringify({
         error: {
           code: 'INTERNAL_ERROR',
-          message: 'An unexpected error occurred. Please try again later.',
+          message: 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.',
         },
       } as APIErrorResponse),
       { status: 500, headers: { 'Content-Type': 'application/json' } }

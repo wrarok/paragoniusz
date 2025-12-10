@@ -54,22 +54,22 @@ export function ExpenseVerificationItem({
 
   const amountError = useMemo(() => {
     if (!expense.amount) {
-      return 'Amount is required';
+      return 'Kwota jest wymagana';
     }
     const numAmount = parseFloat(expense.amount);
     if (isNaN(numAmount) || numAmount <= 0) {
-      return 'Amount must be greater than 0';
+      return 'Kwota musi być większa niż 0';
     }
     return null;
   }, [expense.amount]);
 
   const categoryError = useMemo(() => {
     if (!expense.category_id) {
-      return 'Category is required';
+      return 'Kategoria jest wymagana';
     }
     const categoryExists = categories.some((c) => c.id === expense.category_id);
     if (!categoryExists) {
-      return 'Invalid category';
+      return 'Nieprawidłowa kategoria';
     }
     return null;
   }, [expense.category_id, categories]);
@@ -85,13 +85,13 @@ export function ExpenseVerificationItem({
             <div className="flex-1 space-y-1">
               {expense.items.length > 0 && (
                 <div className="text-sm text-muted-foreground">
-                  <span className="font-medium">Items:</span>{' '}
+                  <span className="font-medium">Pozycje:</span>{' '}
                   {expense.items.join(', ')}
                 </div>
               )}
               {expense.isEdited && (
                 <p className="text-xs text-blue-600 dark:text-blue-400">
-                  ✓ Edited
+                  ✓ Edytowane
                 </p>
               )}
             </div>
@@ -100,7 +100,7 @@ export function ExpenseVerificationItem({
               size="icon"
               onClick={onRemove}
               className="h-8 w-8 text-muted-foreground hover:text-destructive"
-              aria-label="Remove expense"
+              aria-label="Usuń wydatek"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -109,7 +109,7 @@ export function ExpenseVerificationItem({
           {/* Amount Input */}
           <div className="space-y-2">
             <Label htmlFor={`amount-${expense.id}`}>
-              Amount <span className="text-destructive">*</span>
+              Kwota <span className="text-destructive">*</span>
             </Label>
             <div className="relative">
               <Input
@@ -141,7 +141,7 @@ export function ExpenseVerificationItem({
           {/* Category Select */}
           <div className="space-y-2">
             <Label htmlFor={`category-${expense.id}`}>
-              Category <span className="text-destructive">*</span>
+              Kategoria <span className="text-destructive">*</span>
             </Label>
             <Select
               value={expense.category_id}
@@ -155,7 +155,7 @@ export function ExpenseVerificationItem({
                   categoryError ? `category-error-${expense.id}` : undefined
                 }
               >
-                <SelectValue placeholder="Select category" />
+                <SelectValue placeholder="Wybierz kategorię" />
               </SelectTrigger>
               <SelectContent>
                 {categories.map((category) => (

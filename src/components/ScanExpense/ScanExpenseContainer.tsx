@@ -28,7 +28,7 @@ export function ScanExpenseContainer() {
       <div className="container mx-auto px-4 py-8">
         <Card className="w-full max-w-2xl mx-auto">
           <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">Loading...</p>
+            <p className="text-muted-foreground">Ładowanie...</p>
           </CardContent>
         </Card>
       </div>
@@ -96,10 +96,9 @@ export function ScanExpenseContainer() {
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
               </div>
               <div>
-                <p className="text-lg font-medium">Saving Expenses...</p>
+                <p className="text-lg font-medium">Zapisywanie wydatków...</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Creating {state.editedExpenses.length} expense
-                  {state.editedExpenses.length !== 1 ? 's' : ''}
+                  Tworzenie {state.editedExpenses.length} {state.editedExpenses.length === 1 ? 'wydatku' : state.editedExpenses.length < 5 ? 'wydatków' : 'wydatków'}
                 </p>
               </div>
             </CardContent>
@@ -114,9 +113,9 @@ export function ScanExpenseContainer() {
                 <CheckCircle2 className="h-16 w-16 text-green-500" />
               </div>
               <div>
-                <p className="text-lg font-medium">Expenses Saved Successfully!</p>
+                <p className="text-lg font-medium">Wydatki zostały zapisane pomyślnie!</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Redirecting to dashboard...
+                  Przekierowywanie do panelu głównego...
                 </p>
               </div>
             </CardContent>
@@ -146,9 +145,9 @@ export function ScanExpenseContainer() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold mb-2">Scan Receipt</h1>
+        <h1 className="text-3xl font-bold mb-2">Skanuj paragon</h1>
         <p className="text-muted-foreground">
-          Upload a receipt image and let AI extract your expenses
+          Prześlij zdjęcie paragonu i pozwól AI wyodrębnić Twoje wydatki
         </p>
       </div>
 

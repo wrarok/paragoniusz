@@ -51,10 +51,14 @@ export function ExpenseCard({ expense, onDelete, onEdit }: ExpenseCardProps) {
 
   return (
     <>
-      <div className="flex items-start justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+      <div
+        data-testid="expense-card"
+        className="flex items-start justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+      >
         <div className="flex-1 space-y-1">
           <div className="flex items-center gap-2">
             <span
+              data-testid="expense-category"
               className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset"
               style={{
                 backgroundColor: 'hsl(var(--muted))',
@@ -90,7 +94,12 @@ export function ExpenseCard({ expense, onDelete, onEdit }: ExpenseCardProps) {
               </span>
             )}
           </div>
-          <p className="text-sm text-muted-foreground">{formattedDate}</p>
+          <p
+            data-testid="expense-date"
+            className="text-sm text-muted-foreground"
+          >
+            {formattedDate}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <div className="text-right">
@@ -100,13 +109,21 @@ export function ExpenseCard({ expense, onDelete, onEdit }: ExpenseCardProps) {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Więcej opcji">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Więcej opcji"
+                data-testid="expense-menu-trigger"
+              >
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {onEdit && (
-                <DropdownMenuItem onClick={() => onEdit(expense.id)}>
+                <DropdownMenuItem
+                  onClick={() => onEdit(expense.id)}
+                  data-testid="expense-edit-button"
+                >
                   <Pencil className="mr-2 h-4 w-4" />
                   Edytuj
                 </DropdownMenuItem>
@@ -114,6 +131,7 @@ export function ExpenseCard({ expense, onDelete, onEdit }: ExpenseCardProps) {
               <DropdownMenuItem
                 onClick={() => setShowDeleteDialog(true)}
                 className="text-destructive focus:text-destructive"
+                data-testid="expense-delete-button"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Usuń

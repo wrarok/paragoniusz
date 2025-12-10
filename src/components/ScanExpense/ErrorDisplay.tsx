@@ -40,9 +40,9 @@ export function ErrorDisplay({
       case 'PROCESSING_TIMEOUT':
         return {
           icon: <Clock className="h-5 w-5" />,
-          title: 'Processing Timeout',
+          title: 'Przekroczono limit czasu przetwarzania',
           description:
-            'AI processing took longer than expected (20 seconds). This can happen with complex receipts or poor image quality. You can try again with a clearer image or add expenses manually.',
+            'Przetwarzanie AI trwało dłużej niż oczekiwano (20 sekund). Może się to zdarzyć w przypadku skomplikowanych paragonów lub słabej jakości obrazu. Możesz spróbować ponownie z wyraźniejszym obrazem lub dodać wydatki ręcznie.',
           showRetry: true,
           showManual: true,
           variant: 'default',
@@ -51,9 +51,9 @@ export function ErrorDisplay({
       case 'EXTRACTION_FAILED':
         return {
           icon: <FileX className="h-5 w-5" />,
-          title: 'Cannot Read Receipt',
+          title: 'Nie można odczytać paragonu',
           description:
-            'The AI could not extract expense information from this receipt. This may be due to poor image quality, unusual receipt format, or handwritten text. Please try with a clearer image or add expenses manually.',
+            'AI nie mogło wyodrębnić informacji o wydatkach z tego paragonu. Może to być spowodowane słabą jakością obrazu, nietypowym formatem paragonu lub tekstem pisanym odręcznie. Spróbuj z wyraźniejszym obrazem lub dodaj wydatki ręcznie.',
           showRetry: true,
           showManual: true,
           variant: 'default',
@@ -62,9 +62,9 @@ export function ErrorDisplay({
       case 'VALIDATION_ERROR':
         return {
           icon: <AlertCircle className="h-5 w-5" />,
-          title: 'Invalid File',
+          title: 'Nieprawidłowy plik',
           description:
-            error.error.message || 'The uploaded file is invalid. Please ensure you upload a JPEG, PNG, or HEIC image under 10MB.',
+            error.error.message || 'Przesłany plik jest nieprawidłowy. Upewnij się, że przesyłasz obraz JPEG, PNG lub HEIC o rozmiarze poniżej 10MB.',
           showRetry: true,
           showManual: false,
           variant: 'destructive',
@@ -73,9 +73,9 @@ export function ErrorDisplay({
       case 'PAYLOAD_TOO_LARGE':
         return {
           icon: <AlertCircle className="h-5 w-5" />,
-          title: 'File Too Large',
+          title: 'Plik zbyt duży',
           description:
-            'The uploaded file exceeds the 10MB size limit. Please compress the image or take a new photo with lower resolution.',
+            'Przesłany plik przekracza limit 10MB. Skompresuj obraz lub zrób nowe zdjęcie w niższej rozdzielczości.',
           showRetry: true,
           showManual: false,
           variant: 'destructive',
@@ -84,9 +84,9 @@ export function ErrorDisplay({
       case 'AI_CONSENT_REQUIRED':
         return {
           icon: <ShieldAlert className="h-5 w-5" />,
-          title: 'AI Consent Required',
+          title: 'Wymagana zgoda na AI',
           description:
-            'You need to grant consent to use AI features before uploading receipts. Please accept the AI consent prompt to continue.',
+            'Musisz wyrazić zgodę na korzystanie z funkcji AI przed przesłaniem paragonów. Zaakceptuj monit o zgodę na AI, aby kontynuować.',
           showRetry: false,
           showManual: true,
           variant: 'default',
@@ -95,9 +95,9 @@ export function ErrorDisplay({
       case 'AI_SERVICE_ERROR':
         return {
           icon: <ServerCrash className="h-5 w-5" />,
-          title: 'AI Service Error',
+          title: 'Błąd usługi AI',
           description:
-            'The AI service is temporarily unavailable. This is usually a temporary issue. Please try again in a few moments or add expenses manually.',
+            'Usługa AI jest tymczasowo niedostępna. To zwykle tymczasowy problem. Spróbuj ponownie za chwilę lub dodaj wydatki ręcznie.',
           showRetry: true,
           showManual: true,
           variant: 'destructive',
@@ -106,9 +106,9 @@ export function ErrorDisplay({
       case 'UNAUTHORIZED':
         return {
           icon: <ShieldAlert className="h-5 w-5" />,
-          title: 'Session Expired',
+          title: 'Sesja wygasła',
           description:
-            'Your session has expired. Please log in again to continue.',
+            'Twoja sesja wygasła. Zaloguj się ponownie, aby kontynuować.',
           showRetry: false,
           showManual: false,
           variant: 'destructive',
@@ -117,9 +117,9 @@ export function ErrorDisplay({
       default:
         return {
           icon: <AlertCircle className="h-5 w-5" />,
-          title: 'An Error Occurred',
+          title: 'Wystąpił błąd',
           description:
-            error.error.message || 'An unexpected error occurred. Please try again or add expenses manually.',
+            error.error.message || 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie lub dodaj wydatki ręcznie.',
           showRetry: true,
           showManual: true,
           variant: 'destructive',
@@ -149,20 +149,20 @@ export function ErrorDisplay({
           {config.title}
         </CardTitle>
         <CardDescription>
-          Something went wrong while processing your receipt
+          Wystąpił problem podczas przetwarzania Twojego paragonu
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <Alert variant={config.variant}>
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error Details</AlertTitle>
+          <AlertTitle>Szczegóły błędu</AlertTitle>
           <AlertDescription>{config.description}</AlertDescription>
         </Alert>
 
         {error.error.details && (
           <details className="text-sm">
             <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
-              Technical Details
+              Szczegóły techniczne
             </summary>
             <pre className="mt-2 p-3 bg-muted rounded-md overflow-x-auto text-xs">
               {JSON.stringify(error.error.details, null, 2)}
@@ -171,15 +171,15 @@ export function ErrorDisplay({
         )}
 
         <div className="space-y-2 text-sm text-muted-foreground">
-          <p className="font-medium">What you can do:</p>
+          <p className="font-medium">Co możesz zrobić:</p>
           <ul className="list-disc list-inside space-y-1 ml-2">
             {config.showRetry && (
-              <li>Try uploading the receipt again with a clearer image</li>
+              <li>Spróbuj przesłać paragon ponownie z wyraźniejszym obrazem</li>
             )}
             {config.showManual && (
-              <li>Add expenses manually without AI assistance</li>
+              <li>Dodaj wydatki ręcznie bez pomocy AI</li>
             )}
-            <li>Return to the dashboard and try again later</li>
+            <li>Wróć do panelu głównego i spróbuj ponownie później</li>
           </ul>
         </div>
 
@@ -187,12 +187,12 @@ export function ErrorDisplay({
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              <p className="font-medium mb-1">Tips for better results:</p>
+              <p className="font-medium mb-1">Wskazówki dla lepszych rezultatów:</p>
               <ul className="list-disc list-inside space-y-0.5 text-sm">
-                <li>Ensure good lighting when taking photos</li>
-                <li>Keep the receipt flat and in focus</li>
-                <li>Avoid shadows and glare</li>
-                <li>Capture the entire receipt in the frame</li>
+                <li>Zapewnij dobre oświetlenie podczas robienia zdjęć</li>
+                <li>Trzymaj paragon płasko i w ostrości</li>
+                <li>Unikaj cieni i odblasku</li>
+                <li>Umieść cały paragon w kadrze</li>
               </ul>
             </AlertDescription>
           </Alert>
@@ -205,7 +205,7 @@ export function ErrorDisplay({
           className="w-full sm:w-auto"
         >
           <X className="h-4 w-4 mr-2" />
-          Cancel
+          Anuluj
         </Button>
         {config.showManual && (
           <Button
@@ -214,7 +214,7 @@ export function ErrorDisplay({
             className="w-full sm:flex-1"
           >
             <PlusCircle className="h-4 w-4 mr-2" />
-            Add Manually
+            Dodaj ręcznie
           </Button>
         )}
         {config.showRetry && (
@@ -223,7 +223,7 @@ export function ErrorDisplay({
             className="w-full sm:flex-1"
           >
             <RefreshCw className="h-4 w-4 mr-2" />
-            Try Again
+            Spróbuj ponownie
           </Button>
         )}
       </CardFooter>

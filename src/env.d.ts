@@ -13,11 +13,15 @@ declare global {
 }
 
 interface ImportMetaEnv {
-  // PUBLIC_ prefix makes these available both server-side AND client-side
+  // Client-side (React components) - requires PUBLIC_ prefix
   readonly PUBLIC_SUPABASE_URL: string;
   readonly PUBLIC_SUPABASE_ANON_KEY: string;
   
-  // Server-side only (NOT exposed to browser)
+  // Server-side (API routes, middleware) - no prefix needed
+  readonly SUPABASE_URL: string;
+  readonly SUPABASE_ANON_KEY: string;
+  
+  // Server-side only
   readonly SUPABASE_SERVICE_ROLE_KEY: string;
   readonly OPENROUTER_API_KEY: string;
 }

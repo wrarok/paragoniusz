@@ -12,11 +12,11 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  */
 export function validateEmail(email: string): string | undefined {
   if (!email || email.trim() === '') {
-    return 'Email is required';
+    return 'Email jest wymagany';
   }
 
   if (!EMAIL_REGEX.test(email)) {
-    return 'Please enter a valid email address';
+    return 'Wprowadź poprawny adres email';
   }
 
   return undefined;
@@ -29,7 +29,7 @@ export function validateEmail(email: string): string | undefined {
  */
 export function validatePassword(password: string): string | undefined {
   if (!password || password.trim() === '') {
-    return 'Password is required';
+    return 'Hasło jest wymagane';
   }
 
   return undefined;

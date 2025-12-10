@@ -68,6 +68,14 @@ The current MVP intentionally excludes:
 - **[Docker](https://www.docker.com/)** - Application containerization
 - **[DigitalOcean](https://www.digitalocean.com/)** - Production hosting
 
+### Testing
+- **[Vitest](https://vitest.dev/)** - Unit and integration testing framework
+- **[React Testing Library](https://testing-library.com/react)** - Component testing
+- **[Playwright](https://playwright.dev/)** - End-to-end testing across browsers
+- **[Testcontainers](https://testcontainers.com/)** - Database integration testing
+- **[Deno Test](https://deno.land/manual/testing)** - Edge Functions testing
+- **[MSW](https://mswjs.io/)** - API mocking for tests
+
 ## 🚀 Getting Started Locally
 
 ### Prerequisites

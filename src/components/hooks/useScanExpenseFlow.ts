@@ -43,7 +43,7 @@ export function useScanExpenseFlow() {
     try {
       const response = await fetch('/api/profiles/me');
       if (!response.ok) {
-        throw new Error('Failed to fetch profile');
+        throw new Error('Nie udało się pobrać profilu');
       }
       const profile: ProfileDTO = await response.json();
       setHasAIConsent(profile.ai_consent_given);
@@ -59,7 +59,7 @@ export function useScanExpenseFlow() {
         error: {
           error: {
             code: 'CONSENT_CHECK_FAILED',
-            message: 'Failed to check AI consent status',
+            message: 'Nie udało się sprawdzić statusu zgody AI',
           },
         },
       }));
@@ -80,7 +80,7 @@ export function useScanExpenseFlow() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to grant consent');
+        throw new Error('Nie udało się udzielić zgody');
       }
 
       const profile: ProfileDTO = await response.json();
@@ -99,7 +99,7 @@ export function useScanExpenseFlow() {
         error: {
           error: {
             code: 'CONSENT_GRANT_FAILED',
-            message: 'Failed to grant AI consent',
+            message: 'Nie udało się udzielić zgody AI',
           },
         },
       }));
@@ -113,7 +113,7 @@ export function useScanExpenseFlow() {
     try {
       const response = await fetch('/api/categories');
       if (!response.ok) {
-        throw new Error('Failed to fetch categories');
+        throw new Error('Nie udało się pobrać kategorii');
       }
       const data = await response.json();
       setCategories(data.data);
@@ -127,25 +127,25 @@ export function useScanExpenseFlow() {
    */
   const validateFile = useCallback((file: File): FileValidationResult => {
     if (!file) {
-      return { isValid: false, error: 'No file selected' };
+      return { isValid: false, error: 'Nie wybrano pliku' };
     }
 
     if (!ALLOWED_FILE_TYPES.includes(file.type)) {
       return {
         isValid: false,
-        error: 'Invalid file type. Please upload JPEG, PNG, or HEIC images only.',
+        error: 'Nieprawidłowy typ pliku. Prześlij tylko obrazy JPEG, PNG lub HEIC.',
       };
     }
 
     if (file.size > MAX_FILE_SIZE_BYTES) {
       return {
         isValid: false,
-        error: `File size exceeds ${MAX_FILE_SIZE_MB}MB limit.`,
+        error: `Rozmiar pliku przekracza limit ${MAX_FILE_SIZE_MB}MB.`,
       };
     }
 
     if (file.size === 0) {
-      return { isValid: false, error: 'File is empty' };
+      return { isValid: false, error: 'Plik jest pusty' };
     }
 
     return { isValid: true };
@@ -214,7 +214,7 @@ export function useScanExpenseFlow() {
           error: {
             error: {
               code: 'PROCESSING_TIMEOUT',
-              message: 'AI processing took too long (20s timeout exceeded)',
+              message: 'Przetwarzanie AI trwało zbyt długo (przekroczono limit 20s)',
             },
           },
         }));
@@ -243,7 +243,7 @@ export function useScanExpenseFlow() {
         error: {
           error: {
             code: 'VALIDATION_ERROR',
-            message: validation.error || 'Invalid file',
+            message: validation.error || 'Nieprawidłowy plik',
           },
         },
       }));

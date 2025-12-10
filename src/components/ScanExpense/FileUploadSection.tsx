@@ -73,9 +73,9 @@ export function FileUploadSection({
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>Upload Receipt</CardTitle>
+        <CardTitle>Prześlij paragon</CardTitle>
         <CardDescription>
-          Upload a receipt image to automatically extract expense data
+          Prześlij zdjęcie paragonu, aby automatycznie wyodrębnić dane o wydatkach
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -98,7 +98,7 @@ export function FileUploadSection({
           onClick={handleBrowseClick}
           role="button"
           tabIndex={0}
-          aria-label="Upload receipt image"
+          aria-label="Prześlij zdjęcie paragonu"
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
@@ -113,7 +113,7 @@ export function FileUploadSection({
             onChange={handleFileInputChange}
             className="hidden"
             disabled={isUploading}
-            aria-label="File input"
+            aria-label="Wybór pliku"
           />
 
           <div className="flex flex-col items-center gap-4">
@@ -132,10 +132,10 @@ export function FileUploadSection({
                 <Upload className="h-12 w-12 text-muted-foreground" />
                 <div className="space-y-1">
                   <p className="text-sm font-medium">
-                    Drop your receipt here or click to browse
+                    Upuść paragon tutaj lub kliknij, aby przeglądać
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    JPEG, PNG, or HEIC up to 10MB
+                    JPEG, PNG lub HEIC do 10MB
                   </p>
                 </div>
               </>
@@ -150,7 +150,7 @@ export function FileUploadSection({
               disabled={isUploading}
               className="flex-1"
             >
-              {isUploading ? 'Uploading...' : 'Upload and Process'}
+              {isUploading ? 'Przesyłanie...' : 'Prześlij i przetwórz'}
             </Button>
             <Button
               variant="outline"
@@ -162,19 +162,19 @@ export function FileUploadSection({
               }}
               disabled={isUploading}
             >
-              Clear
+              Wyczyść
             </Button>
           </div>
         )}
 
         <div className="text-xs text-muted-foreground space-y-1">
-          <p className="font-medium">Supported formats:</p>
+          <p className="font-medium">Obsługiwane formaty:</p>
           <ul className="list-disc list-inside space-y-0.5 ml-2">
             <li>JPEG (.jpg, .jpeg)</li>
             <li>PNG (.png)</li>
-            <li>HEIC (.heic) - iPhone photos</li>
+            <li>HEIC (.heic) - zdjęcia iPhone</li>
           </ul>
-          <p className="pt-2">Maximum file size: 10MB</p>
+          <p className="pt-2">Maksymalny rozmiar pliku: 10MB</p>
         </div>
       </CardContent>
     </Card>

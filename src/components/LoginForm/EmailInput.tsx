@@ -17,7 +17,7 @@ export function EmailInput({ value, error, onChange, onBlur, disabled }: EmailIn
         name="email"
         type="email"
         autoComplete="email"
-        placeholder="Enter your email"
+        placeholder="Wprowadź swój email"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onBlur={onBlur}

@@ -33,35 +33,51 @@ if (!session) {
   return Astro.redirect('/login');
 }
 
-// Fetch categories and expense data in parallel
+// Fetch categories and expense data directly using Supabase client
 let categories: CategoryListDTO['data'] = [];
 let expense: ExpenseDTO | null = null;
 let error: string | null = null;
 
 try {
-  const [categoriesResponse, expenseResponse] = await Promise.all([
-    fetch(`${Astro.url.origin}/api/categories`),
-    fetch(`${Astro.url.origin}/api/expenses/${id}`),
-  ]);
+  // Fetch categories
+  const { data: categoriesData, error: categoriesError } = await supabase
+    .from('categories')
+    .select('id, name')
+    .order('name');
 
-  // Handle categories response
-  if (!categoriesResponse.ok) {
+  if (categoriesError) {
     throw new Error('Failed to fetch categories');
   }
-  const categoriesData: CategoryListDTO = await categoriesResponse.json();
-  categories = categoriesData.data;
+  categories = categoriesData || [];
 
-  // Handle expense response
-  if (expenseResponse.status === 404) {
-    // Expense not found - redirect to dashboard
-    return Astro.redirect('/?error=expense-not-found');
+  // Fetch expense (RLS will ensure user can only access their own expenses)
+  const { data: expenseData, error: expenseError } = await supabase
+    .from('expenses')
+    .select(`
+      id,
+      user_id,
+      category_id,
+      amount,
+      expense_date,
+      currency,
+      created_by_ai,
+      was_ai_suggestion_edited,
+      created_at,
+      updated_at,
+      category:categories(id, name)
+    `)
+    .eq('id', id)
+    .single();
+
+  if (expenseError) {
+    if (expenseError.code === 'PGRST116') {
+      // No rows returned - expense not found or user doesn't have access
+      return Astro.redirect('/?error=expense-not-found');
+    }
+    throw expenseError;
   }
-  
-  if (!expenseResponse.ok) {
-    throw new Error('Failed to fetch expense');
-  }
-  
-  expense = await expenseResponse.json();
+
+  expense = expenseData;
 } catch (err) {
   console.error('Error fetching data:', err);
   error = 'Failed to load expense data. Please try again.';
