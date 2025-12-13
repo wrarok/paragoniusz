@@ -5,9 +5,11 @@ import { resolve } from 'path';
 export default defineConfig({
   plugins: [react()],
   test: {
+    name: 'unit',
     environment: 'happy-dom',
     setupFiles: ['./test/setup.ts'],
     globals: true,
+    include: ['test/unit/**/*.test.ts', 'test/unit/**/*.test.tsx'],
     exclude: [
       '**/node_modules/**',
       '**/dist/**',

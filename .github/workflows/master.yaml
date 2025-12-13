@@ -16,6 +16,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - name: Configure git for LF
+        run: |
+          git config core.autocrlf false
+          git config core.eol lf
+          git rm --cached -r . || true
+          git reset --hard
 
       - name: Setup Node.js and dependencies
         uses: ./.github/actions/setup-node-deps
@@ -32,6 +41,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - name: Configure git for LF
+        run: |
+          git config core.autocrlf false
+          git config core.eol lf
 
       - name: Setup Node.js and dependencies
         uses: ./.github/actions/setup-node-deps
@@ -70,6 +86,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - name: Configure git for LF
+        run: |
+          git config core.autocrlf false
+          git config core.eol lf
 
       - name: Setup Node.js and dependencies
         uses: ./.github/actions/setup-node-deps
@@ -99,6 +122,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - name: Configure git for LF
+        run: |
+          git config core.autocrlf false
+          git config core.eol lf
 
       - name: Setup Node.js and dependencies
         uses: ./.github/actions/setup-node-deps
