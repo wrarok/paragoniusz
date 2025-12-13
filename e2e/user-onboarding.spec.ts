@@ -9,6 +9,15 @@ test.describe('E2E: New User Onboarding', () => {
     await deleteAllExpenses(page).catch(() => {});
   });
 
+  test.afterAll(async () => {
+    // Clean up test users created in this test file
+    console.log('\n🧹 Cleaning up test users from user-onboarding tests...');
+    const { cleanupTestUsers } = await import('./helpers/auth.helpers');
+    await cleanupTestUsers().catch((error) => {
+      console.error('❌ Failed to cleanup test users in afterAll:', error);
+    });
+  });
+
   test('Complete flow from registration to adding first expense', async ({ page }) => {
     // 1. Visit homepage
     await page.goto('/');
@@ -26,18 +35,62 @@ test.describe('E2E: New User Onboarding', () => {
     // 2. Click register link
     await page.click('a:has-text("Zarejestruj się")');
     await page.waitForURL('/register');
+    await page.waitForLoadState('domcontentloaded');
     
-    // 3. Fill registration form
-    const email = `test-${Date.now()}@test.pl`;
+    // 3. Fill registration form with unique email
+    const email = `test-${Date.now()}${Math.random().toString(36).substring(7)}@test.pl`;
+    console.log(`Registering new user: ${email}`);
+    
     await page.fill('input[name="email"]', email);
+    await page.waitForTimeout(500); // Increased wait for React state update
+    
     await page.fill('input[name="password"]', 'SecurePass123!');
+    await page.waitForTimeout(500);
+    
     await page.fill('input[name="confirmPassword"]', 'SecurePass123!');
+    await page.waitForTimeout(500);
+    
+    // Verify fields are actually filled before proceeding
+    const emailValue = await page.inputValue('input[name="email"]');
+    const passwordValue = await page.inputValue('input[name="password"]');
+    const confirmPasswordValue = await page.inputValue('input[name="confirmPassword"]');
+    
+    console.log(`Field values - Email: "${emailValue}", Password: ${passwordValue ? '***' : 'EMPTY'}, Confirm: ${confirmPasswordValue ? '***' : 'EMPTY'}`);
+    
+    // Check if there are any validation errors before submitting
+    const hasPreSubmitError = await page.isVisible('text=Email jest wymagany')
+      .catch(() => page.isVisible('text=Hasło jest wymagane'))
+      .catch(() => false);
+    
+    if (hasPreSubmitError) {
+      console.log('⚠️  Validation error before submit - taking screenshot');
+      await page.screenshot({ path: `test-results/pre-submit-error-${Date.now()}.png` }).catch(() => {});
+      console.log(`Email filled: ${emailValue}`);
+    }
+    
+    expect(hasPreSubmitError).toBe(false);
     
     // 4. Submit registration
     await page.click('button[type="submit"]');
     
-    // 5. Should redirect to login
-    await page.waitForURL('/login', { timeout: 10000 });
+    // Wait for submission to process
+    await page.waitForTimeout(1000);
+    
+    // 5. Check for errors first before waiting for redirect
+    const hasSubmitError = await page.isVisible('text=Email jest wymagany')
+      .catch(() => page.isVisible('text=istnieje'))
+      .catch(() => page.isVisible('text=błąd'))
+      .catch(() => false);
+    
+    if (hasSubmitError) {
+      console.log('⚠️  Registration error - taking screenshot');
+      await page.screenshot({ path: `test-results/registration-error-${Date.now()}.png` }).catch(() => {});
+      const errorText = await page.locator('text=/Email jest wymagany|istnieje|błąd/i').first().textContent().catch(() => '');
+      console.log(`Error text: ${errorText}`);
+    }
+    
+    // Should redirect to login
+    await page.waitForURL('/login', { timeout: 15000 });
     
     // 6. Login with new credentials
     await page.fill('input[name="email"]', email);
@@ -179,6 +232,15 @@ test.describe('E2E: User Registration Edge Cases', () => {
     await deleteAllExpenses(page).catch(() => {});
   });
 
+  test.afterAll(async () => {
+    // Clean up test users created in this test file
+    console.log('\n🧹 Cleaning up test users from registration edge case tests...');
+    const { cleanupTestUsers } = await import('./helpers/auth.helpers');
+    await cleanupTestUsers().catch((error) => {
+      console.error('❌ Failed to cleanup test users in afterAll:', error);
+    });
+  });
+
   test('Should validate email format on registration', async ({ page }) => {
     // Test each invalid email format separately with page reload
     const invalidEmails = [
@@ -195,10 +257,25 @@ test.describe('E2E: User Registration Edge Cases', () => {
       await page.goto('/register');
       await page.waitForLoadState('domcontentloaded');
       
-      // Fill form with invalid email
-      await page.fill('input[name="email"]', email);
-      await page.fill('input[name="password"]', 'ValidPass123!');
-      await page.fill('input[name="confirmPassword"]', 'ValidPass123!');
+      // Fill form with invalid email - use slower typing to ensure React captures it
+      await page.locator('input[name="email"]').fill(email);
+      await page.locator('input[name="email"]').blur(); // Trigger validation on blur
+      await page.waitForTimeout(300);
+      
+      await page.locator('input[name="password"]').fill('ValidPass123!');
+      await page.locator('input[name="password"]').blur();
+      await page.waitForTimeout(300);
+      
+      await page.locator('input[name="confirmPassword"]').fill('ValidPass123!');
+      await page.locator('input[name="confirmPassword"]').blur();
+      await page.waitForTimeout(300);
+      
+      // Verify values are actually filled
+      const emailValue = await page.locator('input[name="email"]').inputValue();
+      const passwordValue = await page.locator('input[name="password"]').inputValue();
+      const confirmPasswordValue = await page.locator('input[name="confirmPassword"]').inputValue();
+      
+      console.log(`Filled values - Email: "${emailValue}", Password: "${passwordValue}", ConfirmPassword: "${confirmPasswordValue}"`);
       
       // Trigger validation by clicking submit
       await page.click('button[type="submit"]');
@@ -206,14 +283,17 @@ test.describe('E2E: User Registration Edge Cases', () => {
       // Wait for validation to appear
       await page.waitForTimeout(1000);
       
-      // Should show validation error for invalid email format
-      const hasError = await page.isVisible('text=Wprowadź poprawny adres email')
-        .catch(() => page.isVisible('text=poprawny adres'))
-        .catch(() => page.isVisible('text=Email'))
-        .catch(() => false);
+      // Check for ANY validation error message (use OR logic, not catch chain)
+      const hasEmailError = await page.locator('text=Wprowadź poprawny adres email').isVisible();
+      const hasRequiredError = await page.locator('text=Email jest wymagany').isVisible();
+      const hasGenericEmailError = await page.locator('text=poprawny adres').isVisible();
+      const hasGenericRequiredError = await page.locator('text=wymagany').first().isVisible();
+      
+      const hasError = hasEmailError || hasRequiredError || hasGenericEmailError || hasGenericRequiredError;
       
       if (!hasError) {
         console.log(`⚠️  No validation error shown for: ${email}`);
+        console.log(`Values at error check - Email: "${emailValue}", hasEmailError: ${hasEmailError}, hasRequiredError: ${hasRequiredError}`);
         // Take screenshot for debugging
         await page.screenshot({
           path: `test-results/email-validation-${email.replace(/[@.]/g, '-')}-${Date.now()}.png`

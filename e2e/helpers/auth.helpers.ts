@@ -312,7 +312,62 @@ export async function loginAsTestUser(page: Page): Promise<void> {
 }
 
 /**
- * Delete test user from Supabase Auth
+ * Delete test user data from database tables (expenses, profiles)
+ * This should be called before deleting from auth
+ *
+ * @param userId - User ID to delete data for
+ * @param email - User email (for logging)
+ *
+ * @example
+ * ```typescript
+ * await deleteTestUserData(userId, 'test-123@test.pl');
+ * ```
+ */
+async function deleteTestUserData(userId: string, email: string): Promise<void> {
+  try {
+    // Create admin client with service role key for database operations
+    const supabaseAdmin = createClient(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      }
+    );
+
+    // Delete in correct order due to foreign key constraints:
+    // 1. Delete expenses (references profiles.id)
+    const { error: expensesError } = await supabaseAdmin
+      .from('expenses')
+      .delete()
+      .eq('user_id', userId);
+    
+    if (expensesError) {
+      console.error(`❌ Error deleting expenses for ${email}:`, expensesError.message);
+    } else {
+      console.log(`  ✅ Deleted expenses for ${email}`);
+    }
+
+    // 2. Delete profile
+    const { error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .delete()
+      .eq('id', userId);
+    
+    if (profileError) {
+      console.error(`❌ Error deleting profile for ${email}:`, profileError.message);
+    } else {
+      console.log(`  ✅ Deleted profile for ${email}`);
+    }
+  } catch (error) {
+    console.error(`❌ Failed to delete data for ${email}:`, error);
+  }
+}
+
+/**
+ * Delete test user from Supabase Auth and associated database records
  * Requires SUPABASE_SERVICE_ROLE_KEY in environment
  *
  * @param email - Email of user to delete
@@ -363,13 +418,16 @@ export async function deleteTestUser(email: string): Promise<void> {
       return;
     }
 
-    // Delete user
+    // Step 1: Delete user data from database tables (expenses, profiles)
+    await deleteTestUserData(user.id, email);
+
+    // Step 2: Delete user from auth
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
     
     if (deleteError) {
-      console.error(`❌ Error deleting user ${email}: ${deleteError.message}`);
+      console.error(`❌ Error deleting auth user ${email}: ${deleteError.message}`);
     } else {
-      console.log(`✅ Deleted test user: ${email}`);
+      console.log(`  ✅ Deleted auth user: ${email}`);
     }
   } catch (error) {
     console.error(`❌ Failed to delete user ${email}:`, error);
@@ -380,6 +438,10 @@ export async function deleteTestUser(email: string): Promise<void> {
  * Delete all test users created during test run
  * Should be called in global teardown
  *
+ * This function lists ALL users from Supabase Auth and deletes those matching
+ * the test pattern, regardless of whether they were tracked in createdTestUsers Set.
+ * This ensures complete cleanup even for users created directly through UI.
+ *
  * @example
  * ```typescript
  * // In globalTeardown.ts
@@ -387,19 +449,68 @@ export async function deleteTestUser(email: string): Promise<void> {
  * ```
  */
 export async function cleanupTestUsers(): Promise<void> {
-  console.log(`\n🧹 Cleaning up ${createdTestUsers.size} test users...`);
+  console.log(`\n🧹 Starting test user cleanup...`);
+  console.log(`SUPABASE_URL: ${process.env.SUPABASE_URL || 'NOT SET'}`);
+  console.log(`SUPABASE_SERVICE_ROLE_KEY: ${process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set (length: ' + process.env.SUPABASE_SERVICE_ROLE_KEY.length + ')' : 'NOT SET'}`);
+  console.log(`SUPABASE_ANON_KEY: ${process.env.SUPABASE_ANON_KEY ? 'Set (length: ' + process.env.SUPABASE_ANON_KEY.length + ')' : 'NOT SET'}`);
   
-  if (createdTestUsers.size === 0) {
-    console.log('ℹ️  No test users to clean up');
-    return;
+  try {
+    // Create admin client with service role key
+    const supabaseAdmin = createClient(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      }
+    );
+
+    console.log('📋 Listing all users from Supabase Auth...');
+    // List ALL users from Supabase Auth
+    const { data: users, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+    
+    if (listError) {
+      console.error(`❌ Error listing users: ${listError.message}`);
+      console.error('Full error:', JSON.stringify(listError, null, 2));
+      return;
+    }
+
+    console.log(`📊 Total users in database: ${users.users.length}`);
+    console.log('All users:', users.users.map(u => u.email).join(', '));
+
+    // Filter for test users (matching pattern AND not in whitelist)
+    const testUsersToDelete = users.users.filter(user => {
+      const email = user.email || '';
+      const matchesPattern = isTestUserEmail(email);
+      const isWhitelisted = PRODUCTION_USERS_WHITELIST.includes(email);
+      
+      console.log(`  ${email}: matchesPattern=${matchesPattern}, isWhitelisted=${isWhitelisted}`);
+      
+      return matchesPattern && !isWhitelisted;
+    });
+
+    console.log(`\n🎯 Found ${testUsersToDelete.length} test users to delete:`);
+    testUsersToDelete.forEach(u => console.log(`  - ${u.email}`));
+
+    if (testUsersToDelete.length === 0) {
+      console.log('ℹ️  No test users to clean up');
+      return;
+    }
+
+    // Delete each test user (includes database cleanup)
+    console.log('\n🗑️  Starting deletion...');
+    const deletionPromises = testUsersToDelete.map(user =>
+      deleteTestUser(user.email!)
+    );
+
+    await Promise.all(deletionPromises);
+    
+    console.log('✅ Test user cleanup complete\n');
+    createdTestUsers.clear();
+  } catch (error) {
+    console.error('❌ Error during test user cleanup:', error);
+    console.error('Stack:', (error as Error).stack);
   }
-
-  const deletionPromises = Array.from(createdTestUsers).map(email =>
-    deleteTestUser(email)
-  );
-
-  await Promise.all(deletionPromises);
-  
-  console.log('✅ Test user cleanup complete\n');
-  createdTestUsers.clear();
 }

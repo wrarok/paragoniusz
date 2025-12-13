@@ -11,18 +11,18 @@ export const prerender = false;
 
 // Zod validation schema for individual expense in batch
 const batchExpenseItemSchema = z.object({
-  category_id: z.string().uuid('Invalid category ID format'),
+  category_id: z.string().uuid('Nieprawidłowy format identyfikatora kategorii'),
   amount: z
     .string()
-    .regex(/^\d+(\.\d{1,2})?$/, 'Amount must be a valid number with up to 2 decimal places')
-    .refine((val) => parseFloat(val) > 0, 'Amount must be greater than 0'),
+    .regex(/^\d+(\.\d{1,2})?$/, 'Kwota musi być liczbą z maksymalnie 2 miejscami po przecinku')
+    .refine((val) => parseFloat(val) > 0, 'Kwota musi być większa od 0'),
   expense_date: z
     .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format')
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Data musi być w formacie RRRR-MM-DD')
     .refine((date) => {
       const parsed = new Date(date);
       return !isNaN(parsed.getTime());
-    }, 'Invalid date'),
+    }, 'Nieprawidłowa data'),
   currency: z.string().default('PLN'),
   created_by_ai: z.boolean().default(false),
   was_ai_suggestion_edited: z.boolean().default(false),
@@ -32,8 +32,8 @@ const batchExpenseItemSchema = z.object({
 const createExpenseBatchSchema = z.object({
   expenses: z
     .array(batchExpenseItemSchema)
-    .min(1, 'Expenses array cannot be empty')
-    .max(50, 'Maximum 50 expenses per batch'),
+    .min(1, 'Tablica wydatków nie może być pusta')
+    .max(50, 'Maksymalnie 50 wydatków w jednej partii'),
 });
 
 export const POST: APIRoute = async ({ request, locals }) => {
@@ -44,7 +44,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         JSON.stringify({
           error: {
             code: 'UNAUTHORIZED',
-            message: 'User must be authenticated to create expenses',
+            message: 'Użytkownik musi być zalogowany aby utworzyć wydatki',
           },
         } as APIErrorResponse),
         { status: 401, headers: { 'Content-Type': 'application/json' } }
@@ -60,7 +60,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         JSON.stringify({
           error: {
             code: 'INVALID_JSON',
-            message: 'Invalid request body',
+            message: 'Nieprawidłowe dane żądania',
           },
         } as APIErrorResponse),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
@@ -73,7 +73,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         JSON.stringify({
           error: {
             code: 'VALIDATION_ERROR',
-            message: 'Invalid expense data',
+            message: 'Nieprawidłowe dane wydatku',
             details: validation.error.format(),
           },
         } as APIErrorResponse),
@@ -92,7 +92,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         JSON.stringify({
           error: {
             code: 'INVALID_CATEGORY',
-            message: "One or more categories don't exist",
+            message: 'Jedna lub więcej kategorii nie istnieje',
             details: {
               invalid_category_ids: categoryValidation.invalidIds,
             },
@@ -124,7 +124,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       JSON.stringify({
         error: {
           code: 'INTERNAL_ERROR',
-          message: 'An unexpected error occurred',
+          message: 'Wystąpił nieoczekiwany błąd',
         },
       } as APIErrorResponse),
       { status: 500, headers: { 'Content-Type': 'application/json' } }

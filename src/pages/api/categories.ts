@@ -32,7 +32,7 @@ export const GET: APIRoute = async ({ locals }) => {
     const errorResponse: APIErrorResponse = {
       error: {
         code: 'INTERNAL_SERVER_ERROR',
-        message: 'An unexpected error occurred while fetching categories',
+        message: 'Wystąpił nieoczekiwany błąd podczas pobierania kategorii',
       },
     };
     return new Response(JSON.stringify(errorResponse), {

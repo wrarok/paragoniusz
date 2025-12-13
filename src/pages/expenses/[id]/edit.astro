@@ -2,6 +2,7 @@
 import Layout from '@/layouts/Layout.astro';
 import { ExpenseForm } from '@/components/ExpenseForm';
 import { createSupabaseServerInstance } from '@/db/supabase.server';
+import { convertAmountToString } from '@/lib/validation/expense-form.validation';
 import type { CategoryListDTO, ExpenseDTO } from '@/types';
 
 /**
@@ -77,7 +78,11 @@ try {
     throw expenseError;
   }
 
-  expense = expenseData;
+  // Convert expense data for form (amount must be string)
+  expense = {
+    ...expenseData,
+    amount: convertAmountToString(expenseData.amount as number),
+  };
 } catch (err) {
   console.error('Error fetching data:', err);
   error = 'Failed to load expense data. Please try again.';

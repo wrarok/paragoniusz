@@ -6,20 +6,15 @@ import { DatePicker } from './DatePicker';
 import { FormActions } from './FormActions';
 
 /**
- * ExpenseForm Component
+ * ExpenseForm Component - React Hook Form Version
  * 
- * Main form component that orchestrates all form fields, manages form state
- * through custom hook, handles validation, and submits data to appropriate
- * API endpoint. Supports both add and edit modes with conditional rendering
- * and behavior.
+ * Main form component using React Hook Form for state management.
+ * Supports both add and edit modes with validation and API integration.
  * 
- * Features:
- * - Unified form for creating and editing expenses
- * - Real-time field validation with inline errors
- * - Loading states during submission
- * - Global error message display
- * - Automatic navigation after success
- * - Accessible form structure
+ * **Refactored to use React Hook Form**
+ * - Simplified state management
+ * - Automatic validation with Zod
+ * - Service layer for API calls
  * 
  * @param mode - Form mode (add or edit)
  * @param expenseId - Expense ID (required for edit mode)
@@ -32,25 +27,23 @@ export function ExpenseForm({
   initialData,
   categories,
 }: ExpenseFormProps) {
-  const {
-    formData,
-    errors,
-    isSubmitting,
-    handleFieldChange,
-    handleFieldBlur,
-    handleSubmit,
-    handleCancel,
-  } = useExpenseForm({
+  const { form, onSubmit, onCancel } = useExpenseForm({
     mode,
     expenseId,
     initialData,
     categories,
   });
 
+  const { formState } = form;
+  const { errors, isSubmitting } = formState;
+
+  // Watch form values for controlled inputs
+  const formData = form.watch();
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+    <form onSubmit={onSubmit} className="space-y-6" noValidate>
       {/* Global form error */}
-      {errors._form && (
+      {errors.root && (
         <div
           className="rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4"
           role="alert"
@@ -73,7 +66,7 @@ export function ExpenseForm({
             </div>
             <div className="ml-3">
               <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
-                {errors._form}
+                {errors.root.message}
               </h3>
             </div>
           </div>
@@ -84,27 +77,27 @@ export function ExpenseForm({
       <div className="space-y-4">
         {/* Amount field */}
         <AmountInput
-          value={formData.amount}
-          onChange={(value) => handleFieldChange('amount', value)}
-          onBlur={() => handleFieldBlur('amount')}
-          error={errors.amount}
+          value={formData.amount || ''}
+          onChange={(value) => form.setValue('amount', value)}
+          onBlur={() => form.trigger('amount')}
+          error={errors.amount?.message}
           disabled={isSubmitting}
         />
 
         {/* Category field */}
         <CategorySelect
-          value={formData.category_id}
-          onChange={(value) => handleFieldChange('category_id', value)}
+          value={formData.category_id || ''}
+          onChange={(value) => form.setValue('category_id', value)}
           categories={categories}
-          error={errors.category_id}
+          error={errors.category_id?.message}
           disabled={isSubmitting}
         />
 
         {/* Date field */}
         <DatePicker
-          value={formData.expense_date}
-          onChange={(value) => handleFieldChange('expense_date', value)}
-          error={errors.expense_date}
+          value={formData.expense_date || ''}
+          onChange={(value) => form.setValue('expense_date', value)}
+          error={errors.expense_date?.message}
           disabled={isSubmitting}
         />
       </div>
@@ -113,7 +106,7 @@ export function ExpenseForm({
       <FormActions
         mode={mode}
         isSubmitting={isSubmitting}
-        onCancel={handleCancel}
+        onCancel={onCancel}
       />
 
       {/* Loading overlay */}

@@ -122,7 +122,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       const errorResponse: APIErrorResponse = {
         error: {
           code: 'UNAUTHORIZED',
-          message: 'User must be authenticated to create expenses',
+          message: 'Użytkownik musi być zalogowany aby utworzyć wydatki',
         },
       };
       return new Response(JSON.stringify(errorResponse), {
@@ -139,7 +139,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       const errorResponse: APIErrorResponse = {
         error: {
           code: 'INVALID_JSON',
-          message: 'Invalid JSON in request body',
+          message: 'Nieprawidłowe dane JSON w treści żądania',
         },
       };
       return new Response(JSON.stringify(errorResponse), {
@@ -156,7 +156,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       const errorResponse: APIErrorResponse = {
         error: {
           code: 'VALIDATION_ERROR',
-          message: 'Validation failed',
+          message: 'Walidacja nie powiodła się',
           details: errors,
         },
       };
@@ -175,7 +175,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       const errorResponse: APIErrorResponse = {
         error: {
           code: 'CATEGORY_NOT_FOUND',
-          message: 'The specified category does not exist',
+          message: 'Określona kategoria nie istnieje',
           details: {
             category_id: validatedData.category_id,
           },
@@ -212,7 +212,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const errorResponse: APIErrorResponse = {
       error: {
         code: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred. Please try again later.',
+        message: 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.',
         details: {
           timestamp: new Date().toISOString(),
         },

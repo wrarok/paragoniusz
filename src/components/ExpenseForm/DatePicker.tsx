@@ -34,8 +34,9 @@ export function DatePicker({
   const errorId = `${inputId}-error`;
   const warningId = `${inputId}-warning`;
 
-  // Calculate max date (today) if not provided
-  const today = new Date().toISOString().split('T')[0];
+  // Calculate max date (today) if not provided - use local timezone
+  const todayLocal = new Date();
+  const today = `${todayLocal.getFullYear()}-${String(todayLocal.getMonth() + 1).padStart(2, '0')}-${String(todayLocal.getDate()).padStart(2, '0')}`;
   const maxDateValue = maxDate || today;
 
   // Check if date is older than 1 year (warning, not error)

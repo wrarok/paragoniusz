@@ -7,7 +7,7 @@ export const EXPENSE_FORM_ERRORS = {
   AMOUNT: {
     REQUIRED: 'Kwota jest wymagana',
     INVALID: 'Kwota musi być prawidłową liczbą',
-    POSITIVE: 'Kwota musi być większa niż 0',
+    POSITIVE: 'Kwota musi być większa od 0',
     MAX_DECIMALS: 'Kwota może mieć maksymalnie 2 miejsca dziesiętne',
     MAX_VALUE: 'Kwota nie może przekroczyć 99 999 999,99',
   },
@@ -68,8 +68,8 @@ export const amountSchema = z
  */
 export const categoryIdSchema = z
   .string()
-  .uuid(EXPENSE_FORM_ERRORS.CATEGORY.INVALID)
-  .min(1, EXPENSE_FORM_ERRORS.CATEGORY.REQUIRED);
+  .min(1, EXPENSE_FORM_ERRORS.CATEGORY.REQUIRED)
+  .uuid(EXPENSE_FORM_ERRORS.CATEGORY.INVALID);
 
 /**
  * Schema for validating expense_date field
@@ -80,18 +80,21 @@ export const expenseDateSchema = z
   .min(1, EXPENSE_FORM_ERRORS.DATE.REQUIRED)
   .refine(
     (val) => {
-      // Check if date is valid
-      const date = new Date(val);
+      // Check if date is valid - parse as local date
+      const [year, month, day] = val.split('-').map(Number);
+      if (!year || !month || !day) return false;
+      const date = new Date(year, month - 1, day);
       return !isNaN(date.getTime());
     },
     { message: EXPENSE_FORM_ERRORS.DATE.INVALID }
   )
   .refine(
     (val) => {
-      // Check if date is not in the future
-      const date = new Date(val);
+      // Check if date is not in the future - parse as local date
+      const [year, month, day] = val.split('-').map(Number);
+      const date = new Date(year, month - 1, day);
       const today = new Date();
-      today.setHours(23, 59, 59, 999); // End of today
+      today.setHours(23, 59, 59, 999); // End of today in local time
       return date <= today;
     },
     { message: EXPENSE_FORM_ERRORS.DATE.FUTURE }
@@ -177,7 +180,11 @@ export function validateForm(data: ExpenseFormSchemaType): Record<string, string
  * Checks if date is older than 1 year (warning, not error)
  */
 export function isDateOlderThanOneYear(dateString: string): boolean {
-  const date = new Date(dateString);
+  // Parse as local date (YYYY-MM-DD)
+  const [year, month, day] = dateString.split('-').map(Number);
+  if (!year || !month || !day) return false;
+  
+  const date = new Date(year, month - 1, day);
   const oneYearAgo = new Date();
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
   return date < oneYearAgo;

@@ -62,11 +62,11 @@ export function ErrorDisplay({
       case 'VALIDATION_ERROR':
         return {
           icon: <AlertCircle className="h-5 w-5" />,
-          title: 'Nieprawidłowy plik',
+          title: 'Błąd walidacji danych',
           description:
-            error.error.message || 'Przesłany plik jest nieprawidłowy. Upewnij się, że przesyłasz obraz JPEG, PNG lub HEIC o rozmiarze poniżej 10MB.',
+            error.error.message || 'Dane wydatków są nieprawidłowe. Sprawdź wprowadzone wartości i spróbuj ponownie.',
           showRetry: true,
-          showManual: false,
+          showManual: true,
           variant: 'destructive',
         };
 

@@ -26,6 +26,7 @@ export function useRegisterForm(props?: RegisterFormProps) {
   });
 
   const [errors, setErrors] = useState<RegisterValidationErrors>({});
+  const [touchedFields, setTouchedFields] = useState<Set<keyof RegisterFormData>>(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -38,13 +39,16 @@ export function useRegisterForm(props?: RegisterFormProps) {
 
   /**
    * Handles input field changes
-   * Clears error for the field being edited
+   * Marks field as touched and clears error for the field being edited
    */
   const handleInputChange = useCallback((field: keyof RegisterFormData, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
+
+    // Mark field as touched when user types
+    setTouchedFields(prev => new Set(prev).add(field));
 
     // Clear error for this field when user starts typing
     if (errors[field as keyof RegisterValidationErrors]) {
@@ -65,8 +69,15 @@ export function useRegisterForm(props?: RegisterFormProps) {
 
   /**
    * Handles field blur events for immediate validation feedback
+   * Only validates fields that have been touched by the user
    */
   const handleBlur = useCallback((field: keyof RegisterFormData) => {
+    // Only validate if field has been touched (user has typed something)
+    // This prevents showing "required" errors when tabbing through empty form
+    if (!touchedFields.has(field)) {
+      return;
+    }
+    
     let error: string | undefined;
 
     if (field === 'email') {
@@ -83,7 +94,7 @@ export function useRegisterForm(props?: RegisterFormProps) {
         [field]: error
       }));
     }
-  }, [formData]);
+  }, [formData, touchedFields]);
 
   /**
    * Toggles password visibility

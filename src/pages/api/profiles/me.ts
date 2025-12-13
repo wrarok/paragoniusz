@@ -305,11 +305,30 @@ export const DELETE: APIRoute = async ({ locals, cookies }) => {
     // Handle deletion errors
     console.error('Failed to delete user account:', error);
     
+    // Check if error is due to missing service role key
+    if (error instanceof Error && error.message.includes('SUPABASE_SERVICE_ROLE_KEY')) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            code: 'CONFIGURATION_ERROR',
+            message: 'Usługa usuwania konta jest tymczasowo niedostępna. Skontaktuj się z administratorem.',
+            details: {
+              technical: 'SUPABASE_SERVICE_ROLE_KEY nie jest skonfigurowany'
+            }
+          }
+        } satisfies APIErrorResponse),
+        {
+          status: 503,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+    
     return new Response(
       JSON.stringify({
         error: {
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to delete user account'
+          message: 'Nie udało się usunąć konta użytkownika'
         }
       } satisfies APIErrorResponse),
       {
