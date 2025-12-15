@@ -1,13 +1,13 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 interface SkeletonLoaderProps {
-  variant: 'summary' | 'chart' | 'list' | 'card';
+  variant: "summary" | "chart" | "list" | "card";
   count?: number;
 }
 
 export function SkeletonLoader({ variant, count = 1 }: SkeletonLoaderProps) {
-  if (variant === 'summary') {
+  if (variant === "summary") {
     return (
       <Card>
         <CardHeader>
@@ -24,7 +24,7 @@ export function SkeletonLoader({ variant, count = 1 }: SkeletonLoaderProps) {
     );
   }
 
-  if (variant === 'chart') {
+  if (variant === "chart") {
     return (
       <Card>
         <CardHeader>
@@ -37,7 +37,7 @@ export function SkeletonLoader({ variant, count = 1 }: SkeletonLoaderProps) {
     );
   }
 
-  if (variant === 'list') {
+  if (variant === "list") {
     return (
       <Card>
         <CardHeader>
@@ -61,7 +61,7 @@ export function SkeletonLoader({ variant, count = 1 }: SkeletonLoaderProps) {
     );
   }
 
-  if (variant === 'card') {
+  if (variant === "card") {
     return (
       <div className="space-y-2 p-4 border rounded-lg">
         <div className="flex justify-between items-start">

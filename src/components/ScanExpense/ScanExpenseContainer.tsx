@@ -1,6 +1,6 @@
-import { useScanExpenseFlow } from '../hooks/useScanExpenseFlow';
-import { toVerificationFormValues } from '@/lib/transformers/verification-form.transformer';
-import { stepRegistry, loadingStep as LoadingStep } from './step-registry';
+import { useScanExpenseFlow } from "../hooks/useScanExpenseFlow";
+import { toVerificationFormValues } from "@/lib/transformers/verification-form.transformer";
+import { stepRegistry, loadingStep as LoadingStep } from "./step-registry";
 
 export function ScanExpenseContainer() {
   const {
@@ -59,7 +59,7 @@ export function ScanExpenseContainer() {
           error,
           onRetry: resetFlow,
           onAddManually: () => {
-            window.location.href = '/expenses/new';
+            window.location.href = "/expenses/new";
           },
           onCancel: cancelFlow,
         }
@@ -68,7 +68,7 @@ export function ScanExpenseContainer() {
 
   // Render the current step component
   const renderStep = () => {
-    const StepComponent = stepRegistry[step] as any;
+    const StepComponent = stepRegistry[step] as React.ComponentType<Record<string, unknown>>;
 
     // Get props for steps that require them
     const props = stepProps[step as keyof typeof stepProps];
@@ -86,9 +86,7 @@ export function ScanExpenseContainer() {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold mb-2">Skanuj paragon</h1>
-        <p className="text-muted-foreground">
-          Prześlij zdjęcie paragonu i pozwól AI wyodrębnić Twoje wydatki
-        </p>
+        <p className="text-muted-foreground">Prześlij zdjęcie paragonu i pozwól AI wyodrębnić Twoje wydatki</p>
       </div>
 
       {renderStep()}

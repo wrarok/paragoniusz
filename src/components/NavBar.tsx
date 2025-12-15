@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { Home, Settings, LogOut, User } from 'lucide-react';
-import { AddExpenseModalContainer } from './AddExpenseModal';
-import { logoutUser } from '../lib/services/auth.service';
+import { useState } from "react";
+import { Home, Settings, LogOut, User } from "lucide-react";
+import { AddExpenseModalContainer } from "./AddExpenseModal";
+import { logoutUser } from "../lib/services/auth.service";
 
 interface NavBarProps {
   userEmail?: string;
@@ -16,20 +16,20 @@ export function NavBar({ userEmail }: NavBarProps) {
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
-    
+
     try {
       const result = await logoutUser();
-      
+
       if (result.success) {
         // Redirect to login page
-        window.location.href = '/login';
+        window.location.href = "/login";
       } else {
         // Show error (for now, just log it)
-        console.error('Logout failed:', result.error);
+        console.error("Logout failed:", result.error);
         setIsLoggingOut(false);
       }
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
       setIsLoggingOut(false);
     }
   };
@@ -47,14 +47,12 @@ export function NavBar({ userEmail }: NavBarProps) {
             href="/"
             className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Strona główna"
-            title={userEmail || 'Strona główna'}
+            title={userEmail || "Strona główna"}
           >
             {userEmail ? (
               <>
                 <User className="h-6 w-6" aria-hidden="true" />
-                <span className="text-xs truncate max-w-[60px]">
-                  {userEmail.split('@')[0]}
-                </span>
+                <span className="text-xs truncate max-w-[60px]">{userEmail.split("@")[0]}</span>
               </>
             ) : (
               <>
@@ -88,7 +86,7 @@ export function NavBar({ userEmail }: NavBarProps) {
             aria-label="Wyloguj"
           >
             <LogOut className="h-6 w-6" aria-hidden="true" />
-            <span className="text-xs">{isLoggingOut ? 'Wylogowywanie...' : 'Wyloguj'}</span>
+            <span className="text-xs">{isLoggingOut ? "Wylogowywanie..." : "Wyloguj"}</span>
           </button>
         </div>
       </div>

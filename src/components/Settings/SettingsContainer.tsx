@@ -1,9 +1,9 @@
-import { useProfile } from '../hooks/useProfile';
-import { SettingsTabs } from './SettingsTabs';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { AlertCircle } from 'lucide-react';
+import { useProfile } from "../hooks/useProfile";
+import { SettingsTabs } from "./SettingsTabs";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { AlertCircle } from "lucide-react";
 
 /**
  * SettingsContainer - Main container for the settings view
@@ -33,7 +33,7 @@ export function SettingsContainer() {
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Error Loading Profile</AlertTitle>
         <AlertDescription className="mt-2 space-y-4">
-          <p>{error || 'Unable to load your profile. Please try again.'}</p>
+          <p>{error || "Unable to load your profile. Please try again."}</p>
           <Button onClick={refetch} variant="outline" size="sm">
             Retry
           </Button>

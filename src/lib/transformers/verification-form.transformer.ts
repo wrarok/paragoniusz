@@ -1,5 +1,5 @@
-import type { ProcessReceiptResponseDTO, ReceiptExpenseDTO } from '@/types';
-import type { ExpenseVerificationFormValues } from '@/lib/validation/expense-verification.validation';
+import type { ProcessReceiptResponseDTO, ReceiptExpenseDTO } from "@/types";
+import type { ExpenseVerificationFormValues } from "@/lib/validation/expense-verification.validation";
 
 /**
  * Transforms processed receipt data from AI response into form values
@@ -8,9 +8,7 @@ import type { ExpenseVerificationFormValues } from '@/lib/validation/expense-ver
  * @param data - Processed receipt data from AI
  * @returns Form values ready for verification
  */
-export function toVerificationFormValues(
-  data: ProcessReceiptResponseDTO,
-): ExpenseVerificationFormValues {
+export function toVerificationFormValues(data: ProcessReceiptResponseDTO): ExpenseVerificationFormValues {
   return {
     receipt_date: data.receipt_date,
     currency: data.currency,

@@ -1,19 +1,13 @@
-import { ProcessingStatusIndicator } from '../ProcessingStatusIndicator';
+import { ProcessingStatusIndicator } from "../ProcessingStatusIndicator";
 
-type ProcessingStepProps = {
+interface ProcessingStepProps {
   startTime: number;
   onTimeout: () => void;
-};
+}
 
 /**
  * Processing step - displays AI processing indicator
  */
 export function ProcessingStep({ startTime, onTimeout }: ProcessingStepProps) {
-  return (
-    <ProcessingStatusIndicator
-      step="processing"
-      startTime={startTime}
-      onTimeout={onTimeout}
-    />
-  );
+  return <ProcessingStatusIndicator step="processing" startTime={startTime} onTimeout={onTimeout} />;
 }

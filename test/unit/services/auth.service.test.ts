@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { registerUser, loginUser, logoutUser } from '@/lib/services/auth.service';
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { registerUser, loginUser, logoutUser } from "@/lib/services/auth.service";
 
 // Mock supabaseClient
-vi.mock('@/db/supabase.client', () => ({
+vi.mock("@/db/supabase.client", () => ({
   supabaseClient: {
     auth: {
       signUp: vi.fn(),
@@ -12,9 +12,9 @@ vi.mock('@/db/supabase.client', () => ({
 }));
 
 // Import mocked supabaseClient after mock is defined
-import { supabaseClient } from '@/db/supabase.client';
+import { supabaseClient } from "@/db/supabase.client";
 
-describe('AuthService', () => {
+describe("AuthService", () => {
   // Save original fetch
   const originalFetch = global.fetch;
 
@@ -28,16 +28,16 @@ describe('AuthService', () => {
     global.fetch = originalFetch;
   });
 
-  describe('registerUser', () => {
-    it('should return success for valid credentials', async () => {
+  describe("registerUser", () => {
+    it("should return success for valid credentials", async () => {
       // Mock successful registration
       vi.mocked(supabaseClient.auth.signUp).mockResolvedValue({
         data: {
           user: {
-            id: '123',
-            email: 'test@test.pl',
-            aud: 'authenticated',
-            role: 'authenticated',
+            id: "123",
+            email: "test@test.pl",
+            aud: "authenticated",
+            role: "authenticated",
             created_at: new Date().toISOString(),
           },
           session: null,
@@ -45,17 +45,17 @@ describe('AuthService', () => {
         error: null,
       } as any);
 
-      const result = await registerUser('test@test.pl', 'Password123!');
+      const result = await registerUser("test@test.pl", "Password123!");
 
       expect(result.success).toBe(true);
       expect(result.error).toBeUndefined();
       expect(supabaseClient.auth.signUp).toHaveBeenCalledWith({
-        email: 'test@test.pl',
-        password: 'Password123!',
+        email: "test@test.pl",
+        password: "Password123!",
       });
     });
 
-    it('should handle rate limiting', async () => {
+    it("should handle rate limiting", async () => {
       // Mock rate limit error
       vi.mocked(supabaseClient.auth.signUp).mockResolvedValue({
         data: {
@@ -63,19 +63,19 @@ describe('AuthService', () => {
           session: null,
         },
         error: {
-          message: 'rate limit exceeded',
+          message: "rate limit exceeded",
           status: 429,
         } as any,
       } as any);
 
-      const result = await registerUser('test@test.pl', 'Password123!');
+      const result = await registerUser("test@test.pl", "Password123!");
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('prób rejestracji');
-      expect(result.error).toContain('później');
+      expect(result.error).toContain("prób rejestracji");
+      expect(result.error).toContain("później");
     });
 
-    it('should detect duplicate email', async () => {
+    it("should detect duplicate email", async () => {
       // Mock duplicate email error
       vi.mocked(supabaseClient.auth.signUp).mockResolvedValue({
         data: {
@@ -83,18 +83,18 @@ describe('AuthService', () => {
           session: null,
         },
         error: {
-          message: 'User already registered',
+          message: "User already registered",
           status: 400,
         } as any,
       } as any);
 
-      const result = await registerUser('test@test.pl', 'Password123!');
+      const result = await registerUser("test@test.pl", "Password123!");
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('już istnieje');
+      expect(result.error).toContain("już istnieje");
     });
 
-    it('should detect duplicate email with alternative wording', async () => {
+    it("should detect duplicate email with alternative wording", async () => {
       // Mock duplicate email with "already exists" message
       vi.mocked(supabaseClient.auth.signUp).mockResolvedValue({
         data: {
@@ -102,31 +102,29 @@ describe('AuthService', () => {
           session: null,
         },
         error: {
-          message: 'Email already exists',
+          message: "Email already exists",
           status: 400,
         } as any,
       } as any);
 
-      const result = await registerUser('test@test.pl', 'Password123!');
+      const result = await registerUser("test@test.pl", "Password123!");
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('już istnieje');
+      expect(result.error).toContain("już istnieje");
     });
 
-    it('should handle network errors', async () => {
+    it("should handle network errors", async () => {
       // Mock network error by throwing
-      vi.mocked(supabaseClient.auth.signUp).mockRejectedValue(
-        new Error('Network error')
-      );
+      vi.mocked(supabaseClient.auth.signUp).mockRejectedValue(new Error("Network error"));
 
-      const result = await registerUser('test@test.pl', 'Password123!');
+      const result = await registerUser("test@test.pl", "Password123!");
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('połączenia');
-      expect(result.error).toContain('internetowe');
+      expect(result.error).toContain("połączenia");
+      expect(result.error).toContain("internetowe");
     });
 
-    it('should handle generic Supabase errors', async () => {
+    it("should handle generic Supabase errors", async () => {
       // Mock generic error
       vi.mocked(supabaseClient.auth.signUp).mockResolvedValue({
         data: {
@@ -134,18 +132,18 @@ describe('AuthService', () => {
           session: null,
         },
         error: {
-          message: 'Some other error',
+          message: "Some other error",
           status: 500,
         } as any,
       } as any);
 
-      const result = await registerUser('test@test.pl', 'Password123!');
+      const result = await registerUser("test@test.pl", "Password123!");
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Rejestracja nie powiodła się. Spróbuj ponownie.');
+      expect(result.error).toBe("Rejestracja nie powiodła się. Spróbuj ponownie.");
     });
 
-    it('should handle missing user in successful response', async () => {
+    it("should handle missing user in successful response", async () => {
       // Mock response without user (edge case)
       vi.mocked(supabaseClient.auth.signUp).mockResolvedValue({
         data: {
@@ -155,85 +153,85 @@ describe('AuthService', () => {
         error: null,
       } as any);
 
-      const result = await registerUser('test@test.pl', 'Password123!');
+      const result = await registerUser("test@test.pl", "Password123!");
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Rejestracja nie powiodła się. Spróbuj ponownie.');
+      expect(result.error).toBe("Rejestracja nie powiodła się. Spróbuj ponownie.");
     });
   });
 
-  describe('loginUser', () => {
-    it('should return success for valid credentials', async () => {
+  describe("loginUser", () => {
+    it("should return success for valid credentials", async () => {
       // Mock successful login
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: async () => ({
           user: {
-            id: '123',
-            email: 'test@test.pl',
+            id: "123",
+            email: "test@test.pl",
           },
         }),
       } as any);
 
-      const result = await loginUser('test@test.pl', 'Password123!', true);
+      const result = await loginUser("test@test.pl", "Password123!");
 
       expect(result.success).toBe(true);
       expect(result.error).toBeUndefined();
-      expect(global.fetch).toHaveBeenCalledWith('/api/auth/login', {
-        method: 'POST',
+      expect(global.fetch).toHaveBeenCalledWith("/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: 'test@test.pl',
-          password: 'Password123!',
+          email: "test@test.pl",
+          password: "Password123!",
         }),
       });
     });
 
-    it('should handle rate limiting', async () => {
+    it("should handle rate limiting", async () => {
       // Mock rate limit error
       global.fetch = vi.fn().mockResolvedValue({
         ok: false,
         json: async () => ({
-          error: 'rate limit exceeded',
+          error: "rate limit exceeded",
         }),
       } as any);
 
-      const result = await loginUser('test@test.pl', 'Password123!', false);
+      const result = await loginUser("test@test.pl", "Password123!");
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('prób logowania');
-      expect(result.error).toContain('później');
+      expect(result.error).toContain("prób logowania");
+      expect(result.error).toContain("później");
     });
 
-    it('should return generic error for invalid credentials', async () => {
+    it("should return generic error for invalid credentials", async () => {
       // Mock invalid credentials
       global.fetch = vi.fn().mockResolvedValue({
         ok: false,
         json: async () => ({
-          error: 'Invalid credentials',
+          error: "Invalid credentials",
         }),
       } as any);
 
-      const result = await loginUser('test@test.pl', 'WrongPassword', false);
+      const result = await loginUser("test@test.pl", "WrongPassword");
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Nieprawidłowy email lub hasło');
+      expect(result.error).toBe("Nieprawidłowy email lub hasło");
     });
 
-    it('should handle network errors', async () => {
+    it("should handle network errors", async () => {
       // Mock network error
-      global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
+      global.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
 
-      const result = await loginUser('test@test.pl', 'Password123!', false);
+      const result = await loginUser("test@test.pl", "Password123!");
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('połączenia');
-      expect(result.error).toContain('internetowe');
+      expect(result.error).toContain("połączenia");
+      expect(result.error).toContain("internetowe");
     });
 
-    it('should handle missing user in response', async () => {
+    it("should handle missing user in response", async () => {
       // Mock response without user
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
@@ -242,48 +240,48 @@ describe('AuthService', () => {
         }),
       } as any);
 
-      const result = await loginUser('test@test.pl', 'Password123!', false);
+      const result = await loginUser("test@test.pl", "Password123!");
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Nieprawidłowy email lub hasło');
+      expect(result.error).toBe("Nieprawidłowy email lub hasło");
     });
 
-    it('should pass rememberMe parameter', async () => {
+    it("should pass rememberMe parameter", async () => {
       // Mock successful login
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: async () => ({
-          user: { id: '123' },
+          user: { id: "123" },
         }),
       } as any);
 
       // Test with rememberMe = true
-      const result = await loginUser('test@test.pl', 'Password123!', true);
+      const result = await loginUser("test@test.pl", "Password123!");
       expect(result.success).toBe(true);
 
       // Test with rememberMe = false
-      const result2 = await loginUser('test@test.pl', 'Password123!', false);
+      const result2 = await loginUser("test@test.pl", "Password123!");
       expect(result2.success).toBe(true);
     });
 
-    it('should handle malformed JSON response', async () => {
+    it("should handle malformed JSON response", async () => {
       // Mock response that throws on json()
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: async () => {
-          throw new Error('Invalid JSON');
+          throw new Error("Invalid JSON");
         },
       } as any);
 
-      const result = await loginUser('test@test.pl', 'Password123!', false);
+      const result = await loginUser("test@test.pl", "Password123!");
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('połączenia');
+      expect(result.error).toContain("połączenia");
     });
   });
 
-  describe('logoutUser', () => {
-    it('should return success on successful logout', async () => {
+  describe("logoutUser", () => {
+    it("should return success on successful logout", async () => {
       // Mock successful logout
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
@@ -293,12 +291,12 @@ describe('AuthService', () => {
 
       expect(result.success).toBe(true);
       expect(result.error).toBeUndefined();
-      expect(global.fetch).toHaveBeenCalledWith('/api/auth/logout', {
-        method: 'POST',
+      expect(global.fetch).toHaveBeenCalledWith("/api/auth/logout", {
+        method: "POST",
       });
     });
 
-    it('should handle logout API errors', async () => {
+    it("should handle logout API errors", async () => {
       // Mock failed logout
       global.fetch = vi.fn().mockResolvedValue({
         ok: false,
@@ -307,27 +305,27 @@ describe('AuthService', () => {
       const result = await logoutUser();
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Nie udało się wylogować. Spróbuj ponownie.');
+      expect(result.error).toBe("Nie udało się wylogować. Spróbuj ponownie.");
     });
 
-    it('should handle network errors during logout', async () => {
+    it("should handle network errors during logout", async () => {
       // Mock network error
-      global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
+      global.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
 
       const result = await logoutUser();
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Nie udało się wylogować. Spróbuj ponownie.');
+      expect(result.error).toBe("Nie udało się wylogować. Spróbuj ponownie.");
     });
 
-    it('should handle timeout errors', async () => {
+    it("should handle timeout errors", async () => {
       // Mock timeout error
-      global.fetch = vi.fn().mockRejectedValue(new Error('Request timeout'));
+      global.fetch = vi.fn().mockRejectedValue(new Error("Request timeout"));
 
       const result = await logoutUser();
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Nie udało się wylogować. Spróbuj ponownie.');
+      expect(result.error).toBe("Nie udało się wylogować. Spróbuj ponownie.");
     });
   });
 });

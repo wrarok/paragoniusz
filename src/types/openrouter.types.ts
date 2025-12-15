@@ -1,6 +1,6 @@
 /**
  * OpenRouter Service Type Definitions
- * 
+ *
  * This file contains all TypeScript interfaces and types used by the OpenRouter service
  * for interacting with the OpenRouter API to perform LLM-based chat completions.
  */
@@ -42,7 +42,7 @@ export interface ChatCompletionOptions {
  */
 export interface MessageContent {
   /** Type of content */
-  type: 'text' | 'image_url';
+  type: "text" | "image_url";
   /** Text content (for type: 'text') */
   text?: string;
   /** Image URL content (for type: 'image_url') */
@@ -98,7 +98,7 @@ export interface ChatCompletionResponse<T> {
  */
 export interface ResponseFormat {
   /** Must be 'json_schema' for structured outputs */
-  type: 'json_schema';
+  type: "json_schema";
   /** JSON schema configuration */
   json_schema: {
     /** Schema name */
@@ -133,7 +133,7 @@ export interface OpenRouterRequest {
  */
 export interface Message {
   /** Role of the message sender */
-  role: 'system' | 'user' | 'assistant';
+  role: "system" | "user" | "assistant";
   /** Message content - can be string or multimodal array */
   content: string | MessageContent[];
 }
@@ -147,7 +147,7 @@ export interface OpenRouterAPIResponse {
   /** Model used */
   model: string;
   /** Array of completion choices */
-  choices: Array<{
+  choices: {
     /** Index of the choice */
     index: number;
     /** Message content */
@@ -159,7 +159,7 @@ export interface OpenRouterAPIResponse {
     };
     /** Finish reason */
     finish_reason: string;
-  }>;
+  }[];
   /** Token usage statistics */
   usage?: {
     prompt_tokens: number;

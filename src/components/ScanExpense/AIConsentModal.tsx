@@ -5,24 +5,19 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Info } from 'lucide-react';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 
-type AIConsentModalProps = {
+interface AIConsentModalProps {
   isOpen: boolean;
   onAccept: () => Promise<void>;
   onCancel: () => void;
   isLoading: boolean;
-};
+}
 
-export function AIConsentModal({
-  isOpen,
-  onAccept,
-  onCancel,
-  isLoading,
-}: AIConsentModalProps) {
+export function AIConsentModal({ isOpen, onAccept, onCancel, isLoading }: AIConsentModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
       <DialogContent className="sm:max-w-[500px]">
@@ -36,24 +31,17 @@ export function AIConsentModal({
         <div className="space-y-4 py-4">
           <Alert>
             <Info className="h-4 w-4" />
-            <AlertDescription>
-              Włączając funkcje AI, wyrażasz zgodę na:
-            </AlertDescription>
+            <AlertDescription>Włączając funkcje AI, wyrażasz zgodę na:</AlertDescription>
           </Alert>
 
           <ul className="space-y-2 text-sm text-muted-foreground ml-6 list-disc">
             <li>
-              Twoje zdjęcia paragonów będą przetwarzane przez naszą usługę AI w celu wyodrębnienia informacji o wydatkach
+              Twoje zdjęcia paragonów będą przetwarzane przez naszą usługę AI w celu wyodrębnienia informacji o
+              wydatkach
             </li>
-            <li>
-              Dane z paragonu (kwoty, kategorie, daty) będą automatycznie wykrywane i sugerowane
-            </li>
-            <li>
-              Możesz przejrzeć i edytować wszystkie sugestie AI przed zapisaniem
-            </li>
-            <li>
-              Zdjęcia paragonów są przetwarzane bezpiecznie i nie są przechowywane na stałe
-            </li>
+            <li>Dane z paragonu (kwoty, kategorie, daty) będą automatycznie wykrywane i sugerowane</li>
+            <li>Możesz przejrzeć i edytować wszystkie sugestie AI przed zapisaniem</li>
+            <li>Zdjęcia paragonów są przetwarzane bezpiecznie i nie są przechowywane na stałe</li>
           </ul>
 
           <div className="pt-2 text-sm text-muted-foreground">
@@ -68,20 +56,11 @@ export function AIConsentModal({
         </div>
 
         <DialogFooter className="flex-col sm:flex-row gap-2">
-          <Button
-            variant="outline"
-            onClick={onCancel}
-            disabled={isLoading}
-            className="w-full sm:w-auto"
-          >
+          <Button variant="outline" onClick={onCancel} disabled={isLoading} className="w-full sm:w-auto">
             Anuluj
           </Button>
-          <Button
-            onClick={onAccept}
-            disabled={isLoading}
-            className="w-full sm:w-auto"
-          >
-            {isLoading ? 'Włączanie...' : 'Włącz funkcje AI'}
+          <Button onClick={onAccept} disabled={isLoading} className="w-full sm:w-auto">
+            {isLoading ? "Włączanie..." : "Włącz funkcje AI"}
           </Button>
         </DialogFooter>
       </DialogContent>

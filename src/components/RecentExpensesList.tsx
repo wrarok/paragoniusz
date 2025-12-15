@@ -1,11 +1,11 @@
-import { useCallback } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { SkeletonLoader } from './SkeletonLoader';
-import { EmptyState } from './EmptyState';
-import { ExpenseCard } from './ExpenseCard';
-import { useExpenseList } from './hooks/useExpenseList';
-import type { ExpenseListDTO } from '../types';
+import { useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SkeletonLoader } from "./SkeletonLoader";
+import { EmptyState } from "./EmptyState";
+import { ExpenseCard } from "./ExpenseCard";
+import { useExpenseList } from "./hooks/useExpenseList";
+import type { ExpenseListDTO } from "../types";
 
 interface RecentExpensesListProps {
   initialData?: ExpenseListDTO;
@@ -13,8 +13,10 @@ interface RecentExpensesListProps {
 }
 
 export function RecentExpensesList({ initialData, limit = 10 }: RecentExpensesListProps) {
-  const { expenses, hasMore, isLoading, isLoadingMore, error, loadMore, deleteExpense } =
-    useExpenseList({ initialData, limit });
+  const { expenses, hasMore, isLoading, isLoadingMore, error, loadMore, deleteExpense } = useExpenseList({
+    initialData,
+    limit,
+  });
 
   const handleDelete = useCallback(
     async (expenseId: string) => {
@@ -32,7 +34,7 @@ export function RecentExpensesList({ initialData, limit = 10 }: RecentExpensesLi
   }, []);
 
   const handleAddExpense = useCallback(() => {
-    window.location.href = '/expenses/new';
+    window.location.href = "/expenses/new";
   }, []);
 
   if (isLoading) {
@@ -82,13 +84,8 @@ export function RecentExpensesList({ initialData, limit = 10 }: RecentExpensesLi
         ))}
         {hasMore && (
           <div className="pt-4">
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={loadMore}
-              disabled={isLoadingMore}
-            >
-              {isLoadingMore ? 'Ładowanie...' : 'Pokaż więcej'}
+            <Button variant="outline" className="w-full" onClick={loadMore} disabled={isLoadingMore}>
+              {isLoadingMore ? "Ładowanie..." : "Pokaż więcej"}
             </Button>
           </div>
         )}

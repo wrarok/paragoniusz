@@ -1,17 +1,17 @@
 /**
  * Category Mapping Service
- * 
+ *
  * Responsible for mapping AI-suggested categories to database categories.
  * Uses fuzzy matching to find the best match for each AI-suggested category.
- * 
+ *
  * This service is used by CategoryMappingStep in the receipt processing pipeline.
  */
 
-import type { ProcessReceiptResponseDTO } from '../../types';
+import type { ProcessReceiptResponseDTO } from "../../types";
 
 /**
  * Service for mapping AI-suggested categories to database categories
- * 
+ *
  * Implements intelligent category matching:
  * 1. Exact match (case-insensitive)
  * 2. Partial match (substring matching)
@@ -21,7 +21,7 @@ import type { ProcessReceiptResponseDTO } from '../../types';
 export class CategoryMappingService {
   /**
    * Maps AI categories to database categories and builds expense DTOs
-   * 
+   *
    * Flow:
    * 1. Group items by AI-suggested category
    * 2. For each group:
@@ -29,11 +29,11 @@ export class CategoryMappingService {
    *    b. Calculate total amount for the group
    *    c. Format items with amounts
    *    d. Create expense DTO
-   * 
+   *
    * @param items - Array of items from AI response with name, amount, and category
    * @param dbCategories - Available database categories with id and name
    * @returns Array of expense DTOs grouped by category
-   * 
+   *
    * @example
    * ```typescript
    * const mapper = new CategoryMappingService();
@@ -56,13 +56,13 @@ export class CategoryMappingService {
    * ```
    */
   async mapExpensesWithCategories(
-    items: Array<{ name: string; amount: number; category: string }>,
-    dbCategories: Array<{ id: string; name: string }>
-  ): Promise<ProcessReceiptResponseDTO['expenses']> {
+    items: { name: string; amount: number; category: string }[],
+    dbCategories: { id: string; name: string }[]
+  ): Promise<ProcessReceiptResponseDTO["expenses"]> {
     // Group items by AI-suggested category
     const grouped = this.groupItemsByCategory(items);
 
-    const expenses: ProcessReceiptResponseDTO['expenses'] = [];
+    const expenses: ProcessReceiptResponseDTO["expenses"] = [];
 
     for (const [aiCategoryName, categoryItems] of grouped.entries()) {
       // Find best matching database category
@@ -72,9 +72,7 @@ export class CategoryMappingService {
       const categoryTotal = categoryItems.reduce((sum, item) => sum + item.amount, 0);
 
       // Format items as strings with amounts
-      const formattedItems = categoryItems.map(
-        (item) => `${item.name} - ${item.amount.toFixed(2)}`
-      );
+      const formattedItems = categoryItems.map((item) => `${item.name} - ${item.amount.toFixed(2)}`);
 
       expenses.push({
         category_id: matchedCategory.id,
@@ -89,14 +87,14 @@ export class CategoryMappingService {
 
   /**
    * Groups receipt items by their AI-suggested category
-   * 
+   *
    * Takes flat array of items and groups them by category name.
    * Items with the same category name are grouped together.
-   * 
+   *
    * @param items - Array of items from AI response
    * @returns Map of category name to array of items
    * @private
-   * 
+   *
    * @example
    * ```typescript
    * const grouped = this.groupItemsByCategory([
@@ -111,9 +109,9 @@ export class CategoryMappingService {
    * ```
    */
   private groupItemsByCategory(
-    items: Array<{ name: string; amount: number; category: string }>
-  ): Map<string, Array<{ name: string; amount: number }>> {
-    const grouped = new Map<string, Array<{ name: string; amount: number }>>();
+    items: { name: string; amount: number; category: string }[]
+  ): Map<string, { name: string; amount: number }[]> {
+    const grouped = new Map<string, { name: string; amount: number }[]>();
 
     for (const item of items) {
       const categoryName = item.category;
@@ -127,28 +125,28 @@ export class CategoryMappingService {
 
   /**
    * Finds the best matching database category for an AI-suggested category name
-   * 
+   *
    * Matching strategy (in order of preference):
    * 1. Exact match (case-insensitive) - e.g., "Jedzenie" matches "jedzenie"
    * 2. Partial match (substring) - e.g., "Jedzenie i napoje" matches "Jedzenie"
    * 3. Fallback to "Inne" or "Other" category
    * 4. Ultimate fallback to first category in list
-   * 
+   *
    * @param aiCategoryName - Category name suggested by AI
    * @param dbCategories - Available database categories
    * @returns Best matching database category
    * @private
-   * 
+   *
    * @example
    * ```typescript
    * // Exact match
    * findBestCategoryMatch('Jedzenie', [{ id: '1', name: 'Jedzenie' }])
    * // Returns: { id: '1', name: 'Jedzenie' }
-   * 
+   *
    * // Partial match
    * findBestCategoryMatch('Jedzenie i napoje', [{ id: '1', name: 'Jedzenie' }])
    * // Returns: { id: '1', name: 'Jedzenie' }
-   * 
+   *
    * // Fallback to "Inne"
    * findBestCategoryMatch('Unknown', [{ id: '1', name: 'Food' }, { id: '2', name: 'Inne' }])
    * // Returns: { id: '2', name: 'Inne' }
@@ -156,27 +154,23 @@ export class CategoryMappingService {
    */
   private findBestCategoryMatch(
     aiCategoryName: string,
-    dbCategories: Array<{ id: string; name: string }>
+    dbCategories: { id: string; name: string }[]
   ): { id: string; name: string } {
     const normalizedAiName = aiCategoryName.toLowerCase().trim();
 
     // Try exact match first (case-insensitive)
-    const exactMatch = dbCategories.find(
-      (cat) => cat.name.toLowerCase() === normalizedAiName
-    );
+    const exactMatch = dbCategories.find((cat) => cat.name.toLowerCase() === normalizedAiName);
     if (exactMatch) return exactMatch;
 
     // Try partial match (AI category contains DB category name or vice versa)
     const partialMatch = dbCategories.find(
-      (cat) =>
-        normalizedAiName.includes(cat.name.toLowerCase()) ||
-        cat.name.toLowerCase().includes(normalizedAiName)
+      (cat) => normalizedAiName.includes(cat.name.toLowerCase()) || cat.name.toLowerCase().includes(normalizedAiName)
     );
     if (partialMatch) return partialMatch;
 
     // Fallback to "Inne" (Other) category
     const otherCategory = dbCategories.find(
-      (cat) => cat.name.toLowerCase() === 'inne' || cat.name.toLowerCase() === 'other'
+      (cat) => cat.name.toLowerCase() === "inne" || cat.name.toLowerCase() === "other"
     );
 
     // Ultimate fallback: use the first category

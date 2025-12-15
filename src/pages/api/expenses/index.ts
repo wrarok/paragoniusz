@@ -1,7 +1,7 @@
-import type { APIRoute } from 'astro';
-import { ExpenseQuerySchema, CreateExpenseSchema } from '../../../lib/validation/expense.validation';
-import { listExpenses, createExpense, validateCategories } from '../../../lib/services/expense.service';
-import type { APIErrorResponse, ExpenseQueryParams } from '../../../types';
+import type { APIRoute } from "astro";
+import { ExpenseQuerySchema, CreateExpenseSchema } from "../../../lib/validation/expense.validation";
+import { listExpenses, createExpense, validateCategories } from "../../../lib/services/expense.service.refactored";
+import type { APIErrorResponse, ExpenseQueryParams } from "../../../types";
 
 export const prerender = false;
 
@@ -34,12 +34,12 @@ export const GET: APIRoute = async ({ request, locals }) => {
     // Extract query parameters from URL
     const url = new URL(request.url);
     const rawParams = {
-      limit: url.searchParams.get('limit'),
-      offset: url.searchParams.get('offset'),
-      from_date: url.searchParams.get('from_date'),
-      to_date: url.searchParams.get('to_date'),
-      category_id: url.searchParams.get('category_id'),
-      sort: url.searchParams.get('sort'),
+      limit: url.searchParams.get("limit"),
+      offset: url.searchParams.get("offset"),
+      from_date: url.searchParams.get("from_date"),
+      to_date: url.searchParams.get("to_date"),
+      category_id: url.searchParams.get("category_id"),
+      sort: url.searchParams.get("sort"),
     };
 
     // Validate query parameters with Zod schema
@@ -47,19 +47,19 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     if (!validationResult.success) {
       // Log validation errors for debugging
-      console.error('Validation failed:', JSON.stringify(validationResult.error.format(), null, 2));
-      console.error('Raw params:', rawParams);
-      
+      console.error("Validation failed:", JSON.stringify(validationResult.error.format(), null, 2));
+      console.error("Raw params:", rawParams);
+
       const errorResponse: APIErrorResponse = {
         error: {
-          code: 'INVALID_INPUT',
-          message: 'Invalid query parameters',
+          code: "INVALID_INPUT",
+          message: "Invalid query parameters",
           details: validationResult.error.flatten().fieldErrors,
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -71,22 +71,22 @@ export const GET: APIRoute = async ({ request, locals }) => {
     // Return success response
     return new Response(JSON.stringify(result), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     // Log error for debugging (in production, use proper logging service)
-    console.error('Error in GET /api/expenses:', error);
+    console.error("Error in GET /api/expenses:", error);
 
     const errorResponse: APIErrorResponse = {
       error: {
-        code: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred while fetching expenses',
+        code: "INTERNAL_ERROR",
+        message: "An unexpected error occurred while fetching expenses",
       },
     };
 
     return new Response(JSON.stringify(errorResponse), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   }
 };
@@ -116,18 +116,18 @@ export const POST: APIRoute = async ({ request, locals }) => {
   try {
     // Get Supabase client from middleware
     const supabase = locals.supabase;
-    
+
     // Check if user is authenticated
     if (!locals.user) {
       const errorResponse: APIErrorResponse = {
         error: {
-          code: 'UNAUTHORIZED',
-          message: 'Użytkownik musi być zalogowany aby utworzyć wydatki',
+          code: "UNAUTHORIZED",
+          message: "Użytkownik musi być zalogowany aby utworzyć wydatki",
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -135,16 +135,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
     let requestBody;
     try {
       requestBody = await request.json();
-    } catch (error) {
+    } catch {
       const errorResponse: APIErrorResponse = {
         error: {
-          code: 'INVALID_JSON',
-          message: 'Nieprawidłowe dane JSON w treści żądania',
+          code: "INVALID_JSON",
+          message: "Nieprawidłowe dane JSON w treści żądania",
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -155,14 +155,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
       const errors = validationResult.error.flatten().fieldErrors;
       const errorResponse: APIErrorResponse = {
         error: {
-          code: 'VALIDATION_ERROR',
-          message: 'Walidacja nie powiodła się',
+          code: "VALIDATION_ERROR",
+          message: "Walidacja nie powiodła się",
           details: errors,
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -174,8 +174,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     if (!categoryValidation.valid) {
       const errorResponse: APIErrorResponse = {
         error: {
-          code: 'CATEGORY_NOT_FOUND',
-          message: 'Określona kategoria nie istnieje',
+          code: "CATEGORY_NOT_FOUND",
+          message: "Określona kategoria nie istnieje",
           details: {
             category_id: validatedData.category_id,
           },
@@ -183,7 +183,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 422,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -203,16 +203,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Return success response with 201 Created
     return new Response(JSON.stringify(expense), {
       status: 201,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     // Log error for debugging
-    console.error('Error in POST /api/expenses:', error);
+    console.error("Error in POST /api/expenses:", error);
 
     const errorResponse: APIErrorResponse = {
       error: {
-        code: 'INTERNAL_ERROR',
-        message: 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.',
+        code: "INTERNAL_ERROR",
+        message: "Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.",
         details: {
           timestamp: new Date().toISOString(),
         },
@@ -221,7 +221,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     return new Response(JSON.stringify(errorResponse), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   }
 };

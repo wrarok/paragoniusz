@@ -1,7 +1,7 @@
-import type { Page } from '@playwright/test';
-import type { ExpenseData } from './expense.helpers';
-import { createMultipleExpenses, deleteAllExpenses } from './expense.helpers';
-import { loginUser, getTestUser, type TestUser } from './auth.helpers';
+import type { Page } from "@playwright/test";
+import type { ExpenseData } from "./expense.helpers";
+import { createMultipleExpenses, deleteAllExpenses } from "./expense.helpers";
+import { loginUser, getTestUser, type TestUser } from "./auth.helpers";
 
 /**
  * Complete test user with expenses
@@ -15,11 +15,11 @@ export interface TestUserWithExpenses {
  * Create test user with expenses via UI
  * Note: This uses UI interactions for expense creation
  * For faster setup in real scenarios, consider using API directly
- * 
+ *
  * @param page - Playwright Page object
  * @param expenses - Array of expense data to create
  * @returns Test user object with created expenses
- * 
+ *
  * @example
  * ```typescript
  * const { user, expenses } = await createTestUserWithExpenses(page, [
@@ -30,30 +30,30 @@ export interface TestUserWithExpenses {
  */
 export async function createTestUserWithExpenses(
   page: Page,
-  expenses: Array<{
+  expenses: {
     amount: number | string;
     category: string;
     date: string;
-  }>
+  }[]
 ): Promise<TestUserWithExpenses> {
   // Use existing test user from .env.test
   const testUser = getTestUser();
-  
+
   // Login
   await loginUser(page, testUser.email, testUser.password);
-  
+
   // Clean existing expenses
   await deleteAllExpenses(page);
-  
+
   // Create new expenses
   const expenseData: ExpenseData[] = expenses.map((e) => ({
-    amount: typeof e.amount === 'number' ? e.amount.toFixed(2) : e.amount,
+    amount: typeof e.amount === "number" ? e.amount.toFixed(2) : e.amount,
     category: e.category,
     date: e.date,
   }));
-  
+
   await createMultipleExpenses(page, expenseData);
-  
+
   return {
     user: testUser,
     expenses: expenseData,
@@ -65,9 +65,9 @@ export async function createTestUserWithExpenses(
  * - Login as test user
  * - Delete all existing expenses
  * - Navigate to dashboard
- * 
+ *
  * @param page - Playwright Page object
- * 
+ *
  * @example
  * ```typescript
  * test.beforeEach(async ({ page }) => {
@@ -77,38 +77,40 @@ export async function createTestUserWithExpenses(
  */
 export async function setupCleanEnvironment(page: Page): Promise<void> {
   const testUser = getTestUser();
-  
+
   try {
     // Login (with extended timeout for slower systems)
     await loginUser(page, testUser.email, testUser.password);
-    
+
     // Wait a bit for session to stabilize
     await page.waitForTimeout(1000);
-    
+
     // Clean up all expenses
     await deleteAllExpenses(page);
-    
+
     // Navigate to dashboard and wait for load
-    await page.goto('/', { waitUntil: 'networkidle', timeout: 15000 });
-    
+    await page.goto("/", { waitUntil: "networkidle", timeout: 15000 });
+
     // Extra wait for any async operations
     await page.waitForTimeout(500);
   } catch (error) {
-    console.error('Setup failed:', error);
+    console.error("Setup failed:", error);
     // Take screenshot for debugging
-    await page.screenshot({
-      path: `test-results/setup-failure-${Date.now()}.png`,
-      fullPage: true,
-    }).catch(() => {});
+    await page
+      .screenshot({
+        path: `test-results/setup-failure-${Date.now()}.png`,
+        fullPage: true,
+      })
+      .catch(() => {});
     throw error;
   }
 }
 
 /**
  * Clean up test data (expenses only, keep user)
- * 
+ *
  * @param page - Playwright Page object
- * 
+ *
  * @example
  * ```typescript
  * test.afterEach(async ({ page }) => {
@@ -120,83 +122,78 @@ export async function cleanupTestData(page: Page): Promise<void> {
   try {
     await deleteAllExpenses(page);
   } catch (error) {
-    console.warn('Cleanup failed:', error);
+    console.warn("Cleanup failed:", error);
     // Don't throw - cleanup failures shouldn't fail tests
   }
 }
 
 /**
  * Wait for dashboard to load completely
- * 
+ *
  * @param page - Playwright Page object
  * @param timeout - Maximum time to wait in milliseconds
- * 
+ *
  * @example
  * ```typescript
  * await waitForDashboardLoad(page);
  * ```
  */
-export async function waitForDashboardLoad(
-  page: Page,
-  timeout: number = 10000
-): Promise<void> {
-  await page.goto('/');
-  
+export async function waitForDashboardLoad(page: Page, timeout = 10000): Promise<void> {
+  await page.goto("/");
+
   // Wait for network to be idle
-  await page.waitForLoadState('networkidle', { timeout });
-  
+  await page.waitForLoadState("networkidle", { timeout });
+
   // Wait for main content to appear
-  await page.waitForSelector('[data-testid="dashboard-content"]', { 
-    timeout,
-    state: 'visible' 
-  }).catch(() => {
-    // If dashboard-content doesn't exist, check for expense list or empty state
-    return page.waitForSelector('[data-testid="expense-list"], text=Brak wydatków', {
-      timeout: 5000,
+  await page
+    .waitForSelector('[data-testid="dashboard-content"]', {
+      timeout,
+      state: "visible",
+    })
+    .catch(() => {
+      // If dashboard-content doesn't exist, check for expense list or empty state
+      return page.waitForSelector('[data-testid="expense-list"], text=Brak wydatków', {
+        timeout: 5000,
+      });
     });
-  });
 }
 
 /**
  * Setup test with specific number of expenses
- * 
+ *
  * @param page - Playwright Page object
  * @param count - Number of expenses to create
  * @param baseAmount - Base amount (will be incremented)
- * 
+ *
  * @example
  * ```typescript
  * await setupWithExpenses(page, 5, 50); // Creates 5 expenses: 50, 51, 52, 53, 54
  * ```
  */
-export async function setupWithExpenses(
-  page: Page,
-  count: number,
-  baseAmount: number = 50
-): Promise<void> {
+export async function setupWithExpenses(page: Page, count: number, baseAmount = 50): Promise<void> {
   const testUser = getTestUser();
   await loginUser(page, testUser.email, testUser.password);
   await deleteAllExpenses(page);
-  
+
   const expenses: ExpenseData[] = [];
-  const categories = ['żywność', 'transport', 'media', 'rozrywka', 'zdrowie'];
-  
+  const categories = ["żywność", "transport", "media", "rozrywka", "zdrowie"];
+
   for (let i = 0; i < count; i++) {
     expenses.push({
       amount: (baseAmount + i).toFixed(2),
       category: categories[i % categories.length],
     });
   }
-  
+
   await createMultipleExpenses(page, expenses);
 }
 
 /**
  * Get current date in YYYY-MM-DD format
- * 
+ *
  * @param daysOffset - Number of days to offset from today (negative for past)
  * @returns Date string in YYYY-MM-DD format
- * 
+ *
  * @example
  * ```typescript
  * const today = getDateString(0);
@@ -204,17 +201,17 @@ export async function setupWithExpenses(
  * const nextWeek = getDateString(7);
  * ```
  */
-export function getDateString(daysOffset: number = 0): string {
+export function getDateString(daysOffset = 0): string {
   const date = new Date();
   date.setDate(date.getDate() + daysOffset);
-  return date.toISOString().split('T')[0];
+  return date.toISOString().split("T")[0];
 }
 
 /**
  * Wait for specific time (wrapper for page.waitForTimeout with clearer name)
- * 
+ *
  * @param milliseconds - Time to wait in milliseconds
- * 
+ *
  * @example
  * ```typescript
  * await wait(1000); // Wait 1 second
@@ -226,20 +223,17 @@ export async function wait(milliseconds: number): Promise<void> {
 
 /**
  * Take screenshot with timestamp (for debugging)
- * 
+ *
  * @param page - Playwright Page object
  * @param name - Screenshot name (timestamp will be appended)
- * 
+ *
  * @example
  * ```typescript
  * await takeDebugScreenshot(page, 'before-delete');
  * ```
  */
-export async function takeDebugScreenshot(
-  page: Page,
-  name: string
-): Promise<void> {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+export async function takeDebugScreenshot(page: Page, name: string): Promise<void> {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
   await page.screenshot({
     path: `test-results/debug-${name}-${timestamp}.png`,
     fullPage: true,
@@ -248,10 +242,10 @@ export async function takeDebugScreenshot(
 
 /**
  * Verify page has no console errors
- * 
+ *
  * @param page - Playwright Page object
  * @returns Array of error messages (empty if no errors)
- * 
+ *
  * @example
  * ```typescript
  * const errors = await getConsoleErrors(page);
@@ -260,32 +254,29 @@ export async function takeDebugScreenshot(
  */
 export async function getConsoleErrors(page: Page): Promise<string[]> {
   const errors: string[] = [];
-  
-  page.on('console', (msg) => {
-    if (msg.type() === 'error') {
+
+  page.on("console", (msg) => {
+    if (msg.type() === "error") {
       errors.push(msg.text());
     }
   });
-  
+
   return errors;
 }
 
 /**
  * Check if element exists (without throwing error)
- * 
+ *
  * @param page - Playwright Page object
  * @param selector - CSS selector or text
  * @returns true if element exists
- * 
+ *
  * @example
  * ```typescript
  * const hasButton = await elementExists(page, 'button:has-text("Zapisz")');
  * ```
  */
-export async function elementExists(
-  page: Page,
-  selector: string
-): Promise<boolean> {
+export async function elementExists(page: Page, selector: string): Promise<boolean> {
   try {
     const element = await page.$(selector);
     return element !== null;
@@ -296,11 +287,11 @@ export async function elementExists(
 
 /**
  * Retry action with timeout
- * 
+ *
  * @param action - Async function to retry
  * @param maxAttempts - Maximum number of attempts
  * @param delayMs - Delay between attempts in milliseconds
- * 
+ *
  * @example
  * ```typescript
  * await retryAction(async () => {
@@ -308,24 +299,20 @@ export async function elementExists(
  * }, 3, 1000);
  * ```
  */
-export async function retryAction<T>(
-  action: () => Promise<T>,
-  maxAttempts: number = 3,
-  delayMs: number = 1000
-): Promise<T> {
+export async function retryAction<T>(action: () => Promise<T>, maxAttempts = 3, delayMs = 1000): Promise<T> {
   let lastError: Error | undefined;
-  
+
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       return await action();
     } catch (error) {
       lastError = error as Error;
-      
+
       if (attempt < maxAttempts) {
         await wait(delayMs);
       }
     }
   }
-  
-  throw lastError || new Error('Retry action failed');
+
+  throw lastError || new Error("Retry action failed");
 }

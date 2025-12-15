@@ -1,5 +1,5 @@
-import type { SupabaseClient } from '../../db/supabase.client';
-import type { ExpenseQueryBuilder } from '../builders/expense-query.builder';
+import type { SupabaseClient } from "../../db/supabase.client";
+import type { ExpenseQueryBuilder } from "../builders/expense-query.builder";
 
 /**
  * Database entity for expense with nested category
@@ -33,7 +33,7 @@ export interface InsertExpense {
 
 /**
  * Repository for expense data access operations
- * 
+ *
  * Provides abstraction over Supabase client for expense-related queries.
  * All methods return database entities, not DTOs.
  * Implements Repository Pattern for separation of concerns.
@@ -48,13 +48,13 @@ export class ExpenseRepository {
    */
   async findById(id: string): Promise<DatabaseExpense | null> {
     const { data, error } = await this.supabase
-      .from('expenses')
+      .from("expenses")
       .select(`*, category:categories(id, name)`)
-      .eq('id', id)
+      .eq("id", id)
       .single();
 
     if (error) {
-      if (error.code === 'PGRST116') {
+      if (error.code === "PGRST116") {
         return null;
       }
       throw error;
@@ -102,7 +102,7 @@ export class ExpenseRepository {
    */
   async create(data: InsertExpense): Promise<DatabaseExpense> {
     const { data: created, error } = await this.supabase
-      .from('expenses')
+      .from("expenses")
       .insert(data)
       .select(`*, category:categories(id, name)`)
       .single();
@@ -121,9 +121,10 @@ export class ExpenseRepository {
    */
   async createBatch(data: InsertExpense[]): Promise<DatabaseExpense[]> {
     const { data: created, error } = await this.supabase
-      .from('expenses')
+      .from("expenses")
       .insert(data)
-      .select(`*, category:categories(id, name)`);
+      .select(`*, category:categories(id, name)`)
+      .order("expense_date", { ascending: true });
 
     if (error) {
       throw error;
@@ -140,14 +141,14 @@ export class ExpenseRepository {
    */
   async update(id: string, data: Partial<InsertExpense>): Promise<DatabaseExpense | null> {
     const { data: updated, error } = await this.supabase
-      .from('expenses')
+      .from("expenses")
       .update(data)
-      .eq('id', id)
+      .eq("id", id)
       .select(`*, category:categories(id, name)`)
       .single();
 
     if (error) {
-      if (error.code === 'PGRST116') {
+      if (error.code === "PGRST116") {
         return null;
       }
       throw error;
@@ -162,10 +163,7 @@ export class ExpenseRepository {
    * @returns true if deleted, false if not found
    */
   async delete(id: string): Promise<boolean> {
-    const { error, count } = await this.supabase
-      .from('expenses')
-      .delete({ count: 'exact' })
-      .eq('id', id);
+    const { error, count } = await this.supabase.from("expenses").delete({ count: "exact" }).eq("id", id);
 
     if (error) {
       throw error;
@@ -184,10 +182,7 @@ export class ExpenseRepository {
       return [];
     }
 
-    const { data, error } = await this.supabase
-      .from('categories')
-      .select('id')
-      .in('id', categoryIds);
+    const { data, error } = await this.supabase.from("categories").select("id").in("id", categoryIds);
 
     if (error) {
       throw error;

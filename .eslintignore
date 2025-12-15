@@ -1,0 +1,18 @@
+# Ignore test directories for production linting
+e2e/
+test/
+
+# Ignore build outputs
+dist/
+.astro/
+
+# Ignore dependencies
+node_modules/
+
+# Ignore configuration files
+*.config.js
+*.config.ts
+*.config.mjs
+
+# Ignore generated types
+src/db/database.types.ts

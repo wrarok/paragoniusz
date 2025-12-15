@@ -1,9 +1,8 @@
-import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Eye, EyeOff } from 'lucide-react';
-import type { PasswordInputProps } from '../../types/auth.types';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Eye, EyeOff } from "lucide-react";
+import type { PasswordInputProps } from "../../types/auth.types";
 
 /**
  * Password input field component with show/hide toggle
@@ -15,9 +14,9 @@ export function PasswordInput({
   onChange,
   onBlur,
   onToggleVisibility,
-  disabled
+  disabled,
 }: PasswordInputProps) {
-  const inputId = 'password-input';
+  const inputId = "password-input";
   const errorId = `${inputId}-error`;
 
   return (
@@ -27,7 +26,7 @@ export function PasswordInput({
         <Input
           id={inputId}
           name="password"
-          type={showPassword ? 'text' : 'password'}
+          type={showPassword ? "text" : "password"}
           autoComplete="current-password"
           placeholder="Wprowadź swoje hasło"
           value={value}
@@ -36,7 +35,7 @@ export function PasswordInput({
           disabled={disabled}
           aria-invalid={!!error}
           aria-describedby={error ? errorId : undefined}
-          className={error ? 'border-red-500 focus-visible:ring-red-500 pr-10' : 'pr-10'}
+          className={error ? "border-red-500 focus-visible:ring-red-500 pr-10" : "pr-10"}
         />
         <Button
           type="button"
@@ -45,13 +44,9 @@ export function PasswordInput({
           className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
           onClick={onToggleVisibility}
           disabled={disabled}
-          aria-label={showPassword ? 'Ukryj hasło' : 'Pokaż hasło'}
+          aria-label={showPassword ? "Ukryj hasło" : "Pokaż hasło"}
         >
-          {showPassword ? (
-            <EyeOff className="h-4 w-4 text-gray-500" />
-          ) : (
-            <Eye className="h-4 w-4 text-gray-500" />
-          )}
+          {showPassword ? <EyeOff className="h-4 w-4 text-gray-500" /> : <Eye className="h-4 w-4 text-gray-500" />}
         </Button>
       </div>
       {error && (

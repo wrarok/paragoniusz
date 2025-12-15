@@ -1,12 +1,12 @@
-import { useLoginForm } from '../hooks/useLoginForm';
-import { EmailInput } from './EmailInput';
-import { PasswordInput } from './PasswordInput';
-import { RememberMeCheckbox } from './RememberMeCheckbox';
-import { FormErrorMessage } from './FormErrorMessage';
-import { SubmitButton } from './SubmitButton';
-import { RegisterLink } from './RegisterLink';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import type { LoginFormProps } from '../../types/auth.types';
+import { useLoginForm } from "../hooks/useLoginForm";
+import { EmailInput } from "./EmailInput";
+import { PasswordInput } from "./PasswordInput";
+import { RememberMeCheckbox } from "./RememberMeCheckbox";
+import { FormErrorMessage } from "./FormErrorMessage";
+import { SubmitButton } from "./SubmitButton";
+import { RegisterLink } from "./RegisterLink";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import type { LoginFormProps } from "../../types/auth.types";
 
 /**
  * Main login form component
@@ -21,7 +21,7 @@ export function LoginForm(props?: LoginFormProps) {
     handleInputChange,
     handleBlur,
     handleSubmit,
-    togglePasswordVisibility
+    togglePasswordVisibility,
   } = useLoginForm(props);
 
   return (
@@ -39,8 +39,8 @@ export function LoginForm(props?: LoginFormProps) {
           <EmailInput
             value={formData.email}
             error={errors.email}
-            onChange={(value) => handleInputChange('email', value)}
-            onBlur={() => handleBlur('email')}
+            onChange={(value) => handleInputChange("email", value)}
+            onBlur={() => handleBlur("email")}
             disabled={isSubmitting}
           />
 
@@ -49,8 +49,8 @@ export function LoginForm(props?: LoginFormProps) {
             value={formData.password}
             error={errors.password}
             showPassword={showPassword}
-            onChange={(value) => handleInputChange('password', value)}
-            onBlur={() => handleBlur('password')}
+            onChange={(value) => handleInputChange("password", value)}
+            onBlur={() => handleBlur("password")}
             onToggleVisibility={togglePasswordVisibility}
             disabled={isSubmitting}
           />
@@ -58,15 +58,12 @@ export function LoginForm(props?: LoginFormProps) {
           {/* Remember me checkbox */}
           <RememberMeCheckbox
             checked={formData.rememberMe}
-            onChange={(checked) => handleInputChange('rememberMe', checked)}
+            onChange={(checked) => handleInputChange("rememberMe", checked)}
             disabled={isSubmitting}
           />
 
           {/* Submit button */}
-          <SubmitButton
-            isLoading={isSubmitting}
-            disabled={isSubmitting}
-          />
+          <SubmitButton isLoading={isSubmitting} disabled={isSubmitting} />
 
           {/* Register link */}
           <RegisterLink className="mt-4" />

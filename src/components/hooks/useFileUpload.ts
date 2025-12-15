@@ -1,11 +1,11 @@
-import { useState, useCallback } from 'react';
-import { ScanFlowAPIService } from '@/lib/services/scan-flow.service';
-import { validateFile } from '@/lib/validation/file-upload.validation';
-import type { UploadReceiptResponseDTO, APIErrorResponse } from '@/types';
+import { useState, useCallback } from "react";
+import { uploadReceipt } from "@/lib/services/scan-flow.service";
+import { validateFile } from "@/lib/validation/file-upload.validation";
+import type { UploadReceiptResponseDTO, APIErrorResponse } from "@/types";
 
 /**
  * Hook do zarządzania uploadem plików paragonów
- * 
+ *
  * Obsługuje walidację i upload plików na serwer
  */
 export function useFileUpload() {
@@ -15,7 +15,7 @@ export function useFileUpload() {
 
   /**
    * Waliduj i upload pliku
-   * 
+   *
    * @param file - Plik do uploadu
    * @returns Rezultat uploadu lub null w przypadku błędu
    */
@@ -25,7 +25,7 @@ export function useFileUpload() {
     if (!validation.isValid) {
       const validationError: APIErrorResponse = {
         error: {
-          code: 'VALIDATION_ERROR',
+          code: "VALIDATION_ERROR",
           message: validation.error,
         },
       };
@@ -38,13 +38,13 @@ export function useFileUpload() {
     setError(null);
 
     try {
-      const result = await ScanFlowAPIService.uploadReceipt(file);
+      const result = await uploadReceipt(file);
       setUploadedFile(result);
       return result;
     } catch (err) {
       const apiError = err as APIErrorResponse;
       setError(apiError);
-      console.error('Error uploading file:', apiError);
+      console.error("Error uploading file:", apiError);
       return null;
     } finally {
       setIsUploading(false);

@@ -3,15 +3,13 @@
  * Uses SSR client through API to ensure session access
  */
 export function useChangePassword() {
-  const changePassword = async (
-    newPassword: string
-  ): Promise<{ success: boolean; error?: string }> => {
+  const changePassword = async (newPassword: string): Promise<{ success: boolean; error?: string }> => {
     try {
       // Call API endpoint which uses SSR client with access to session cookies
-      const response = await fetch('/api/auth/change-password', {
-        method: 'POST',
+      const response = await fetch("/api/auth/change-password", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ newPassword }),
       });
@@ -20,38 +18,38 @@ export function useChangePassword() {
 
       if (!response.ok) {
         // Handle specific Supabase Auth errors with Polish messages
-        if (data.error?.includes('session')) {
+        if (data.error?.includes("session")) {
           return {
             success: false,
-            error: 'Twoja sesja wygasła. Zaloguj się ponownie.',
+            error: "Twoja sesja wygasła. Zaloguj się ponownie.",
           };
         }
 
-        if (data.error?.includes('weak') || data.error?.includes('password')) {
+        if (data.error?.includes("weak") || data.error?.includes("password")) {
           return {
             success: false,
-            error: 'Hasło nie spełnia wymagań',
+            error: "Hasło nie spełnia wymagań",
           };
         }
 
         return {
           success: false,
-          error: 'Nie udało się zmienić hasła. Spróbuj ponownie.',
+          error: "Nie udało się zmienić hasła. Spróbuj ponownie.",
         };
       }
 
       if (!data.user) {
         return {
           success: false,
-          error: 'Nie udało się zmienić hasła. Spróbuj ponownie.',
+          error: "Nie udało się zmienić hasła. Spróbuj ponownie.",
         };
       }
 
       return { success: true };
-    } catch (error) {
+    } catch {
       return {
         success: false,
-        error: 'Nie udało się zmienić hasła. Sprawdź połączenie i spróbuj ponownie.',
+        error: "Nie udało się zmienić hasła. Sprawdź połączenie i spróbuj ponownie.",
       };
     }
   };

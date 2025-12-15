@@ -1,12 +1,12 @@
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import type { EmailInputProps } from '../../types/auth.types';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import type { EmailInputProps } from "../../types/auth.types";
 
 /**
  * Email input field component with validation
  */
 export function EmailInput({ value, error, onChange, onBlur, disabled }: EmailInputProps) {
-  const inputId = 'email-input';
+  const inputId = "email-input";
   const errorId = `${inputId}-error`;
 
   return (
@@ -24,7 +24,7 @@ export function EmailInput({ value, error, onChange, onBlur, disabled }: EmailIn
         disabled={disabled}
         aria-invalid={!!error}
         aria-describedby={error ? errorId : undefined}
-        className={error ? 'border-red-500 focus-visible:ring-red-500' : ''}
+        className={error ? "border-red-500 focus-visible:ring-red-500" : ""}
       />
       {error && (
         <p id={errorId} className="text-sm text-red-500" role="alert">

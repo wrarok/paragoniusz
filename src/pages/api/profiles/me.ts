@@ -1,18 +1,20 @@
-import type { APIRoute } from 'astro';
-import { z } from 'zod';
-import { ProfileService } from '../../../lib/services/profile.service';
-import type { ProfileDTO, APIErrorResponse, UpdateProfileCommand } from '../../../types';
+import type { APIRoute } from "astro";
+import { z } from "zod";
+import { ProfileService } from "../../../lib/services/profile.service";
+import type { ProfileDTO, APIErrorResponse, UpdateProfileCommand } from "../../../types";
 
 /**
  * Zod schema for validating profile update requests
  * Ensures ai_consent_given is a boolean and no extra fields are present
  */
-const UpdateProfileSchema = z.object({
-  ai_consent_given: z.boolean({
-    required_error: "ai_consent_given is required",
-    invalid_type_error: "ai_consent_given must be a boolean"
+const UpdateProfileSchema = z
+  .object({
+    ai_consent_given: z.boolean({
+      required_error: "ai_consent_given is required",
+      invalid_type_error: "ai_consent_given must be a boolean",
+    }),
   })
-}).strict();
+  .strict();
 
 /**
  * GET /api/profiles/me
@@ -44,13 +46,13 @@ export const GET: APIRoute = async ({ locals }) => {
       return new Response(
         JSON.stringify({
           error: {
-            code: 'UNAUTHORIZED',
-            message: 'User must be authenticated'
-          }
+            code: "UNAUTHORIZED",
+            message: "User must be authenticated",
+          },
         } satisfies APIErrorResponse),
         {
           status: 401,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
@@ -66,43 +68,39 @@ export const GET: APIRoute = async ({ locals }) => {
       return new Response(
         JSON.stringify({
           error: {
-            code: 'PROFILE_NOT_FOUND',
-            message: 'Profile not found for the specified user'
-          }
+            code: "PROFILE_NOT_FOUND",
+            message: "Profile not found for the specified user",
+          },
         } satisfies APIErrorResponse),
         {
           status: 404,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
 
     // Return successful response
-    return new Response(
-      JSON.stringify(profile satisfies ProfileDTO),
-      {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-
+    return new Response(JSON.stringify(profile satisfies ProfileDTO), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
     // Handle unexpected errors
-    console.error('Error fetching profile:', error);
-    
+    console.error("Error fetching profile:", error);
+
     return new Response(
       JSON.stringify({
         error: {
-          code: 'INTERNAL_ERROR',
-          message: 'An unexpected error occurred',
+          code: "INTERNAL_ERROR",
+          message: "An unexpected error occurred",
           details: {
-            timestamp: new Date().toISOString()
-          }
-        }
+            timestamp: new Date().toISOString(),
+          },
+        },
       } satisfies APIErrorResponse),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { "Content-Type": "application/json" },
       }
     );
   }
@@ -144,13 +142,13 @@ export const PATCH: APIRoute = async ({ request, locals }) => {
       return new Response(
         JSON.stringify({
           error: {
-            code: 'UNAUTHORIZED',
-            message: 'User must be authenticated'
-          }
+            code: "UNAUTHORIZED",
+            message: "User must be authenticated",
+          },
         } satisfies APIErrorResponse),
         {
           status: 401,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
@@ -165,13 +163,13 @@ export const PATCH: APIRoute = async ({ request, locals }) => {
       return new Response(
         JSON.stringify({
           error: {
-            code: 'INVALID_JSON',
-            message: 'Invalid JSON in request body'
-          }
+            code: "INVALID_JSON",
+            message: "Invalid JSON in request body",
+          },
         } satisfies APIErrorResponse),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
@@ -182,16 +180,16 @@ export const PATCH: APIRoute = async ({ request, locals }) => {
       return new Response(
         JSON.stringify({
           error: {
-            code: 'VALIDATION_ERROR',
-            message: 'Invalid request payload',
+            code: "VALIDATION_ERROR",
+            message: "Invalid request payload",
             details: {
-              errors: validationResult.error.errors
-            }
-          }
+              errors: validationResult.error.errors,
+            },
+          },
         } satisfies APIErrorResponse),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
@@ -203,47 +201,43 @@ export const PATCH: APIRoute = async ({ request, locals }) => {
     const updatedProfile = await profileService.updateProfile(userId, updateData);
 
     // Return successful response
-    return new Response(
-      JSON.stringify(updatedProfile satisfies ProfileDTO),
-      {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-
+    return new Response(JSON.stringify(updatedProfile satisfies ProfileDTO), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
     // Handle profile not found error
-    if (error instanceof Error && error.message === 'Profile not found') {
+    if (error instanceof Error && error.message === "Profile not found") {
       return new Response(
         JSON.stringify({
           error: {
-            code: 'PROFILE_NOT_FOUND',
-            message: 'Profile not found for the specified user'
-          }
+            code: "PROFILE_NOT_FOUND",
+            message: "Profile not found for the specified user",
+          },
         } satisfies APIErrorResponse),
         {
           status: 404,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
 
     // Handle unexpected errors
-    console.error('Error updating profile:', error);
-    
+    console.error("Error updating profile:", error);
+
     return new Response(
       JSON.stringify({
         error: {
-          code: 'INTERNAL_ERROR',
-          message: 'An unexpected error occurred',
+          code: "INTERNAL_ERROR",
+          message: "An unexpected error occurred",
           details: {
-            timestamp: new Date().toISOString()
-          }
-        }
+            timestamp: new Date().toISOString(),
+          },
+        },
       } satisfies APIErrorResponse),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { "Content-Type": "application/json" },
       }
     );
   }
@@ -271,20 +265,20 @@ export const PATCH: APIRoute = async ({ request, locals }) => {
  * - 401 Unauthorized: Authentication required or invalid token
  * - 500 Internal Server Error: Failed to delete user account
  */
-export const DELETE: APIRoute = async ({ locals, cookies }) => {
+export const DELETE: APIRoute = async ({ locals }) => {
   try {
     // Check if user is authenticated
     if (!locals.user) {
       return new Response(
         JSON.stringify({
           error: {
-            code: 'UNAUTHORIZED',
-            message: 'User must be authenticated'
-          }
+            code: "UNAUTHORIZED",
+            message: "User must be authenticated",
+          },
         } satisfies APIErrorResponse),
         {
           status: 401,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
@@ -300,40 +294,39 @@ export const DELETE: APIRoute = async ({ locals, cookies }) => {
 
     // Return 204 No Content on successful deletion
     return new Response(null, { status: 204 });
-
   } catch (error) {
     // Handle deletion errors
-    console.error('Failed to delete user account:', error);
-    
+    console.error("Failed to delete user account:", error);
+
     // Check if error is due to missing service role key
-    if (error instanceof Error && error.message.includes('SUPABASE_SERVICE_ROLE_KEY')) {
+    if (error instanceof Error && error.message.includes("SUPABASE_SERVICE_ROLE_KEY")) {
       return new Response(
         JSON.stringify({
           error: {
-            code: 'CONFIGURATION_ERROR',
-            message: 'Usługa usuwania konta jest tymczasowo niedostępna. Skontaktuj się z administratorem.',
+            code: "CONFIGURATION_ERROR",
+            message: "Usługa usuwania konta jest tymczasowo niedostępna. Skontaktuj się z administratorem.",
             details: {
-              technical: 'SUPABASE_SERVICE_ROLE_KEY nie jest skonfigurowany'
-            }
-          }
+              technical: "SUPABASE_SERVICE_ROLE_KEY nie jest skonfigurowany",
+            },
+          },
         } satisfies APIErrorResponse),
         {
           status: 503,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
-    
+
     return new Response(
       JSON.stringify({
         error: {
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Nie udało się usunąć konta użytkownika'
-        }
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Nie udało się usunąć konta użytkownika",
+        },
       } satisfies APIErrorResponse),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { "Content-Type": "application/json" },
       }
     );
   }

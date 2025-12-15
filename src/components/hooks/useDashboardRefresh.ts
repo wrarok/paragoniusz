@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from "react";
 
 /**
  * Hook that listens for expense-deleted events and triggers a refresh callback
@@ -10,7 +10,7 @@ export function useDashboardRefresh(onRefresh: () => void | Promise<void>) {
   }, [onRefresh]);
 
   useEffect(() => {
-    window.addEventListener('expense-deleted', handleExpenseDeleted);
-    return () => window.removeEventListener('expense-deleted', handleExpenseDeleted);
+    window.addEventListener("expense-deleted", handleExpenseDeleted);
+    return () => window.removeEventListener("expense-deleted", handleExpenseDeleted);
   }, [handleExpenseDeleted]);
 }

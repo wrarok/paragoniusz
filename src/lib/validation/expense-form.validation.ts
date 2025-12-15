@@ -1,31 +1,31 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 /**
  * Error messages for expense form validation
  */
 export const EXPENSE_FORM_ERRORS = {
   AMOUNT: {
-    REQUIRED: 'Kwota jest wymagana',
-    INVALID: 'Kwota musi być prawidłową liczbą',
-    POSITIVE: 'Kwota musi być większa od 0',
-    MAX_DECIMALS: 'Kwota może mieć maksymalnie 2 miejsca dziesiętne',
-    MAX_VALUE: 'Kwota nie może przekroczyć 99 999 999,99',
+    REQUIRED: "Kwota jest wymagana",
+    INVALID: "Kwota musi być prawidłową liczbą",
+    POSITIVE: "Kwota musi być większa od 0",
+    MAX_DECIMALS: "Kwota może mieć maksymalnie 2 miejsca dziesiętne",
+    MAX_VALUE: "Kwota nie może przekroczyć 99 999 999,99",
   },
   CATEGORY: {
-    REQUIRED: 'Kategoria jest wymagana',
-    INVALID: 'Wybierz prawidłową kategorię',
+    REQUIRED: "Kategoria jest wymagana",
+    INVALID: "Wybierz prawidłową kategorię",
   },
   DATE: {
-    REQUIRED: 'Data jest wymagana',
-    INVALID: 'Wprowadź prawidłową datę',
-    FUTURE: 'Data nie może być w przyszłości',
-    OLD_WARNING: 'Ta data jest starsza niż 1 rok',
+    REQUIRED: "Data jest wymagana",
+    INVALID: "Wprowadź prawidłową datę",
+    FUTURE: "Data nie może być w przyszłości",
+    OLD_WARNING: "Ta data jest starsza niż 1 rok",
   },
   CURRENCY: {
-    INVALID: 'Nieprawidłowy kod waluty',
+    INVALID: "Nieprawidłowy kod waluty",
   },
   FORM: {
-    NO_CHANGES: 'Nie wykryto zmian',
+    NO_CHANGES: "Nie wykryto zmian",
   },
 } as const;
 
@@ -81,7 +81,7 @@ export const expenseDateSchema = z
   .refine(
     (val) => {
       // Check if date is valid - parse as local date
-      const [year, month, day] = val.split('-').map(Number);
+      const [year, month, day] = val.split("-").map(Number);
       if (!year || !month || !day) return false;
       const date = new Date(year, month - 1, day);
       return !isNaN(date.getTime());
@@ -91,7 +91,7 @@ export const expenseDateSchema = z
   .refine(
     (val) => {
       // Check if date is not in the future - parse as local date
-      const [year, month, day] = val.split('-').map(Number);
+      const [year, month, day] = val.split("-").map(Number);
       const date = new Date(year, month - 1, day);
       const today = new Date();
       today.setHours(23, 59, 59, 999); // End of today in local time
@@ -104,10 +104,7 @@ export const expenseDateSchema = z
  * Schema for validating currency field
  * Currently only PLN is supported in MVP
  */
-export const currencySchema = z
-  .string()
-  .length(3, EXPENSE_FORM_ERRORS.CURRENCY.INVALID)
-  .default('PLN');
+export const currencySchema = z.string().length(3, EXPENSE_FORM_ERRORS.CURRENCY.INVALID).default("PLN");
 
 /**
  * Complete form schema for creating/editing expenses
@@ -127,22 +124,19 @@ export type ExpenseFormSchemaType = z.infer<typeof expenseFormSchema>;
 /**
  * Validates a single field and returns error message if invalid
  */
-export function validateField(
-  field: keyof ExpenseFormSchemaType,
-  value: string
-): string | undefined {
+export function validateField(field: keyof ExpenseFormSchemaType, value: string): string | undefined {
   try {
     switch (field) {
-      case 'amount':
+      case "amount":
         amountSchema.parse(value);
         break;
-      case 'category_id':
+      case "category_id":
         categoryIdSchema.parse(value);
         break;
-      case 'expense_date':
+      case "expense_date":
         expenseDateSchema.parse(value);
         break;
-      case 'currency':
+      case "currency":
         currencySchema.parse(value);
         break;
     }
@@ -151,7 +145,7 @@ export function validateField(
     if (error instanceof z.ZodError) {
       return error.errors[0]?.message;
     }
-    return 'Validation error';
+    return "Validation error";
   }
 }
 
@@ -172,7 +166,7 @@ export function validateForm(data: ExpenseFormSchemaType): Record<string, string
       });
       return errors;
     }
-    return { _form: 'Błąd walidacji' };
+    return { _form: "Błąd walidacji" };
   }
 }
 
@@ -181,9 +175,9 @@ export function validateForm(data: ExpenseFormSchemaType): Record<string, string
  */
 export function isDateOlderThanOneYear(dateString: string): boolean {
   // Parse as local date (YYYY-MM-DD)
-  const [year, month, day] = dateString.split('-').map(Number);
+  const [year, month, day] = dateString.split("-").map(Number);
   if (!year || !month || !day) return false;
-  
+
   const date = new Date(year, month - 1, day);
   const oneYearAgo = new Date();
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);

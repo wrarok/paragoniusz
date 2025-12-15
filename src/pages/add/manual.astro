@@ -81,8 +81,9 @@ try {
     <!-- Main Content -->
     <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {error ? (
-        <!-- Error State -->
-        <div
+        <div>
+          <!-- Error State -->
+          <div
           class="rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4"
           role="alert"
         >
@@ -117,14 +118,17 @@ try {
             </div>
           </div>
         </div>
+        </div>
       ) : (
-        <!-- Form Card -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <ExpenseForm
-            mode="add"
-            categories={categories}
-            client:load
-          />
+        <div>
+          <!-- Form Card -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <ExpenseForm
+              mode="add"
+              categories={categories}
+              client:load
+            />
+          </div>
         </div>
       )}
     </main>

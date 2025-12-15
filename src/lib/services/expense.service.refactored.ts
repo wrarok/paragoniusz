@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '../../db/supabase.client';
+import type { SupabaseClient } from "../../db/supabase.client";
 import type {
   ExpenseDTO,
   ExpenseListDTO,
@@ -6,17 +6,17 @@ import type {
   CreateExpenseCommand,
   UpdateExpenseCommand,
   BatchExpenseItem,
-} from '../../types';
-import { ExpenseRepository } from '../repositories/expense.repository';
-import { ExpenseQueryBuilder } from '../builders/expense-query.builder';
-import { ExpenseTransformer } from '../transformers/expense.transformer';
+} from "../../types";
+import { ExpenseRepository } from "../repositories/expense.repository";
+import { ExpenseQueryBuilder } from "../builders/expense-query.builder";
+import { ExpenseTransformer } from "../transformers/expense.transformer";
 
 /**
  * Service for expense business logic (Refactored)
- * 
+ *
  * Orchestrates repository, query builder, and transformer.
  * Contains only business logic, no data access or transformation code.
- * 
+ *
  * Implements SOLID principles:
  * - Single Responsibility: Only orchestration and business logic
  * - Open/Closed: Extensible through dependency injection
@@ -36,9 +36,7 @@ export class ExpenseService {
    * @param categoryIds - Array of category UUIDs to validate
    * @returns Validation result with list of invalid IDs
    */
-  async validateCategories(
-    categoryIds: string[]
-  ): Promise<{ valid: boolean; invalidIds: string[] }> {
+  async validateCategories(categoryIds: string[]): Promise<{ valid: boolean; invalidIds: string[] }> {
     const invalidIds = await this.repository.validateCategories(categoryIds);
     return {
       valid: invalidIds.length === 0,
@@ -60,22 +58,15 @@ export class ExpenseService {
 
   /**
    * List expenses with filtering, sorting, and pagination
-   * 
+   *
    * Executes main query and count query in parallel for better performance.
    * Uses query builder to eliminate filter duplication.
-   * 
+   *
    * @param params - Query parameters for filtering, sorting, and pagination
    * @returns Paginated list of expenses with total count
    */
   async list(params: ExpenseQueryParams): Promise<ExpenseListDTO> {
-    const {
-      limit = 50,
-      offset = 0,
-      from_date,
-      to_date,
-      category_id,
-      sort = 'expense_date.desc',
-    } = params;
+    const { limit = 50, offset = 0, from_date, to_date, category_id, sort = "expense_date.desc" } = params;
 
     // Build query using query builder
     this.queryBuilder
@@ -129,10 +120,7 @@ export class ExpenseService {
    * @param updateData - Partial expense data to update
    * @returns Updated expense DTO or null if not found
    */
-  async update(
-    expenseId: string,
-    updateData: UpdateExpenseCommand
-  ): Promise<ExpenseDTO | null> {
+  async update(expenseId: string, updateData: UpdateExpenseCommand): Promise<ExpenseDTO | null> {
     const updatePayload = this.transformer.toUpdateData(updateData);
     const updated = await this.repository.update(expenseId, updatePayload);
     return updated ? this.transformer.toDTO(updated) : null;
@@ -148,15 +136,15 @@ export class ExpenseService {
       const deleted = await this.repository.delete(expenseId);
 
       if (!deleted) {
-        return { success: false, error: 'Expense not found' };
+        return { success: false, error: "Expense not found" };
       }
 
       return { success: true };
     } catch (error) {
-      console.error('Unexpected error in deleteExpense:', error);
+      console.error("Unexpected error in deleteExpense:", error);
       return {
         success: false,
-        error: 'An unexpected error occurred',
+        error: "An unexpected error occurred",
       };
     }
   }
@@ -164,10 +152,10 @@ export class ExpenseService {
 
 /**
  * Factory function for creating ExpenseService with dependencies
- * 
+ *
  * Provides convenient way to instantiate service with all dependencies.
  * Used for backward compatibility and in tests.
- * 
+ *
  * @param supabase - Supabase client instance
  * @returns Fully configured ExpenseService instance
  */
@@ -213,10 +201,7 @@ export async function createExpensesBatch(
  * Retrieves a paginated list of expenses for the authenticated user
  * @deprecated Use ExpenseService.list() instead
  */
-export async function listExpenses(
-  supabase: SupabaseClient,
-  params: ExpenseQueryParams
-): Promise<ExpenseListDTO> {
+export async function listExpenses(supabase: SupabaseClient, params: ExpenseQueryParams): Promise<ExpenseListDTO> {
   const service = createExpenseService(supabase);
   return service.list(params);
 }
@@ -225,10 +210,7 @@ export async function listExpenses(
  * Retrieves a single expense by ID
  * @deprecated Use ExpenseService.getById() instead
  */
-export async function getExpenseById(
-  supabase: SupabaseClient,
-  expenseId: string
-): Promise<ExpenseDTO | null> {
+export async function getExpenseById(supabase: SupabaseClient, expenseId: string): Promise<ExpenseDTO | null> {
   const service = createExpenseService(supabase);
   return service.getById(expenseId);
 }

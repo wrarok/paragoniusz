@@ -1,5 +1,5 @@
-import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
 
 interface EmptyStateProps {
   message?: string;
@@ -9,7 +9,7 @@ interface EmptyStateProps {
 
 export function EmptyState({
   message = "Nie dodałeś jeszcze żadnych wydatków",
-  ctaText = 'Dodaj swój pierwszy wydatek',
+  ctaText = "Dodaj swój pierwszy wydatek",
   onCtaClick,
 }: EmptyStateProps) {
   return (

@@ -1,10 +1,10 @@
-import type { LoginLinkProps } from '../../types/auth.types';
+import type { LoginLinkProps } from "../../types/auth.types";
 
 /**
  * Login link component
  * Provides navigation to the login page for existing users
  */
-export function LoginLink({ className = '' }: LoginLinkProps) {
+export function LoginLink({ className = "" }: LoginLinkProps) {
   return (
     <div className={`text-center text-sm ${className}`}>
       <span className="text-muted-foreground">Masz już konto? </span>

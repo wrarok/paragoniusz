@@ -1,14 +1,14 @@
 /**
  * Receipt Service (Refactored)
- * 
+ *
  * Handles receipt-related operations using Chain of Responsibility pattern.
- * 
+ *
  * Refactored to implement:
  * - Chain of Responsibility pattern for processing pipeline
  * - Separation of concerns (each step is independent)
  * - Improved testability (steps can be tested individually)
  * - Easier extensibility (add/remove steps without affecting others)
- * 
+ *
  * The processing pipeline consists of 5 steps:
  * 1. ConsentValidationStep - Verify AI consent
  * 2. FileOwnershipValidationStep - Verify file ownership
@@ -17,8 +17,8 @@
  * 5. CategoryMappingStep - Map categories and build response
  */
 
-import type { SupabaseClient } from '../../db/supabase.client';
-import type { UploadReceiptResponseDTO, ProcessReceiptResponseDTO } from '../../types';
+import type { SupabaseClient } from "../../db/supabase.client";
+import type { UploadReceiptResponseDTO, ProcessReceiptResponseDTO } from "../../types";
 
 import {
   ConsentValidationStep,
@@ -28,12 +28,12 @@ import {
   CategoryMappingStep,
   type ProcessingStep,
   type ProcessingContext,
-} from '../processing/receipt-processing-steps';
-import { CategoryMappingService } from '../processing/category-mapping.service';
+} from "../processing/receipt-processing-steps";
+import { CategoryMappingService } from "../processing/category-mapping.service";
 
 /**
  * Service for handling receipt-related operations (Refactored)
- * 
+ *
  * Uses Chain of Responsibility pattern for processing receipts.
  * Each step in the pipeline is isolated, testable, and reusable.
  */
@@ -42,13 +42,13 @@ export class ReceiptService {
 
   /**
    * Creates a new Receipt service instance
-   * 
+   *
    * Initializes the processing pipeline with all required steps.
    * Steps are executed in order, and each step receives the output
    * of the previous step via ProcessingContext.
-   * 
+   *
    * @param supabase - Supabase client for database and storage operations
-   * 
+   *
    * @example
    * ```typescript
    * const service = new ReceiptService(supabase);
@@ -72,17 +72,17 @@ export class ReceiptService {
 
   /**
    * Uploads a receipt image to Supabase Storage
-   * 
+   *
    * The file is stored in a user-specific directory with a UUID-based filename
    * to prevent path traversal attacks and filename collisions.
-   * 
+   *
    * Storage path format: receipts/{user_id}/{file_id}.{ext}
-   * 
+   *
    * @param file - The image file to upload
    * @param userId - The ID of the user uploading the file
    * @returns Upload metadata including file_id, file_path, and uploaded_at
    * @throws Error if upload to Supabase Storage fails
-   * 
+   *
    * @example
    * ```typescript
    * const file = new File([blob], 'receipt.jpg', { type: 'image/jpeg' });
@@ -105,12 +105,10 @@ export class ReceiptService {
     const arrayBuffer = await file.arrayBuffer();
 
     // Upload to Supabase Storage
-    const { data, error } = await this.supabase.storage
-      .from('receipts')
-      .upload(filePath, arrayBuffer, {
-        contentType: file.type,
-        upsert: false, // Don't overwrite existing files
-      });
+    const { data, error } = await this.supabase.storage.from("receipts").upload(filePath, arrayBuffer, {
+      contentType: file.type,
+      upsert: false, // Don't overwrite existing files
+    });
 
     // Handle upload errors
     if (error) {
@@ -146,7 +144,7 @@ export class ReceiptService {
    *   - 'FORBIDDEN' - File doesn't belong to user
    *   - 'RATE_LIMIT_EXCEEDED' - AI processing rate limit hit
    *   - 'PROCESSING_TIMEOUT' - AI processing timed out
-   * 
+   *
    * @example
    * ```typescript
    * try {
@@ -161,10 +159,7 @@ export class ReceiptService {
    * }
    * ```
    */
-  async processReceipt(
-    filePath: string,
-    userId: string
-  ): Promise<ProcessReceiptResponseDTO> {
+  async processReceipt(filePath: string, userId: string): Promise<ProcessReceiptResponseDTO> {
     // Initialize context with input data
     let context: ProcessingContext = {
       filePath,
@@ -179,7 +174,7 @@ export class ReceiptService {
 
     // Return result from final step
     if (!context.result) {
-      throw new Error('Pipeline failed to produce result');
+      throw new Error("Pipeline failed to produce result");
     }
 
     return context.result;
@@ -187,23 +182,23 @@ export class ReceiptService {
 
   /**
    * Maps MIME type to file extension
-   * 
+   *
    * Supports common image formats used for receipts:
    * - JPEG (.jpg)
    * - PNG (.png)
    * - HEIC (.heic) - iPhone photos
-   * 
+   *
    * @param mimeType - The MIME type of the file
    * @returns The corresponding file extension (with dot)
    * @private
    */
   private getFileExtension(mimeType: string): string {
     const mimeToExt: Record<string, string> = {
-      'image/jpeg': '.jpg',
-      'image/png': '.png',
-      'image/heic': '.heic',
+      "image/jpeg": ".jpg",
+      "image/png": ".png",
+      "image/heic": ".heic",
     };
 
-    return mimeToExt[mimeType] || '.jpg';
+    return mimeToExt[mimeType] || ".jpg";
   }
 }

@@ -1,6 +1,6 @@
-import { useAddExpenseModal } from '../hooks/useAddExpenseModal';
-import { AddExpenseModal } from './AddExpenseModal';
-import { AddExpenseModalTrigger } from './AddExpenseModalTrigger';
+import { useAddExpenseModal } from "../hooks/useAddExpenseModal";
+import { AddExpenseModal } from "./AddExpenseModal";
+import { AddExpenseModalTrigger } from "./AddExpenseModalTrigger";
 
 /**
  * AddExpenseModalContainer Component
@@ -8,17 +8,8 @@ import { AddExpenseModalTrigger } from './AddExpenseModalTrigger';
  * Manages all state through the useAddExpenseModal hook
  */
 export function AddExpenseModalContainer() {
-  const {
-    isOpen,
-    isLoading,
-    error,
-    profile,
-    openModal,
-    closeModal,
-    selectManual,
-    selectAI,
-    retry,
-  } = useAddExpenseModal();
+  const { isOpen, isLoading, error, profile, openModal, closeModal, selectManual, selectAI, retry } =
+    useAddExpenseModal();
 
   return (
     <>
@@ -39,11 +30,11 @@ export function AddExpenseModalContainer() {
 }
 
 // Export individual components for flexibility
-export { AddExpenseModal } from './AddExpenseModal';
-export { AddExpenseModalTrigger } from './AddExpenseModalTrigger';
-export { LoadingState } from './LoadingState';
-export { ErrorState } from './ErrorState';
-export { ActionButtons } from './ActionButtons';
-export { ManualAddButton } from './ManualAddButton';
-export { AIAddButton } from './AIAddButton';
-export { ConsentInfoMessage } from './ConsentInfoMessage';
+export { AddExpenseModal } from "./AddExpenseModal";
+export { AddExpenseModalTrigger } from "./AddExpenseModalTrigger";
+export { LoadingState } from "./LoadingState";
+export { ErrorState } from "./ErrorState";
+export { ActionButtons } from "./ActionButtons";
+export { ManualAddButton } from "./ManualAddButton";
+export { AIAddButton } from "./AIAddButton";
+export { ConsentInfoMessage } from "./ConsentInfoMessage";

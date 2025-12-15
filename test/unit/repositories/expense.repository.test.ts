@@ -1,8 +1,12 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ExpenseRepository, type DatabaseExpense, type InsertExpense } from '../../../src/lib/repositories/expense.repository';
-import { ExpenseQueryBuilder } from '../../../src/lib/builders/expense-query.builder';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import {
+  ExpenseRepository,
+  type DatabaseExpense,
+  type InsertExpense,
+} from "../../../src/lib/repositories/expense.repository";
+import { ExpenseQueryBuilder } from "../../../src/lib/builders/expense-query.builder";
 
-describe('ExpenseRepository', () => {
+describe("ExpenseRepository", () => {
   // Mock Supabase client
   const createMockSupabase = () => {
     const mockQuery = {
@@ -33,20 +37,20 @@ describe('ExpenseRepository', () => {
     repository = new ExpenseRepository(mockSupabase as any);
   });
 
-  describe('findById', () => {
-    it('should find expense by ID', async () => {
+  describe("findById", () => {
+    it("should find expense by ID", async () => {
       const mockExpense: DatabaseExpense = {
-        id: '123',
-        user_id: 'user-1',
-        category_id: 'cat-1',
-        amount: 100.50,
-        expense_date: '2024-01-15',
-        currency: 'PLN',
+        id: "123",
+        user_id: "user-1",
+        category_id: "cat-1",
+        amount: 100.5,
+        expense_date: "2024-01-15",
+        currency: "PLN",
         created_by_ai: false,
         was_ai_suggestion_edited: false,
-        created_at: '2024-01-15T10:00:00Z',
-        updated_at: '2024-01-15T10:00:00Z',
-        category: { id: 'cat-1', name: 'Food' },
+        created_at: "2024-01-15T10:00:00Z",
+        updated_at: "2024-01-15T10:00:00Z",
+        category: { id: "cat-1", name: "Food" },
       };
 
       mockSupabase.mockQuery.single.mockResolvedValue({
@@ -54,59 +58,59 @@ describe('ExpenseRepository', () => {
         error: null,
       });
 
-      const result = await repository.findById('123');
+      const result = await repository.findById("123");
 
-      expect(mockSupabase.from).toHaveBeenCalledWith('expenses');
-      expect(mockSupabase.mockQuery.select).toHaveBeenCalledWith('*, category:categories(id, name)');
-      expect(mockSupabase.mockQuery.eq).toHaveBeenCalledWith('id', '123');
+      expect(mockSupabase.from).toHaveBeenCalledWith("expenses");
+      expect(mockSupabase.mockQuery.select).toHaveBeenCalledWith("*, category:categories(id, name)");
+      expect(mockSupabase.mockQuery.eq).toHaveBeenCalledWith("id", "123");
       expect(result).toEqual(mockExpense);
     });
 
-    it('should return null when expense not found', async () => {
+    it("should return null when expense not found", async () => {
       mockSupabase.mockQuery.single.mockResolvedValue({
         data: null,
-        error: { code: 'PGRST116', message: 'Not found' },
+        error: { code: "PGRST116", message: "Not found" },
       });
 
-      const result = await repository.findById('nonexistent');
+      const result = await repository.findById("nonexistent");
 
       expect(result).toBeNull();
     });
 
-    it('should throw error for other database errors', async () => {
+    it("should throw error for other database errors", async () => {
       mockSupabase.mockQuery.single.mockResolvedValue({
         data: null,
-        error: { code: 'SOME_ERROR', message: 'Database error' },
+        error: { code: "SOME_ERROR", message: "Database error" },
       });
 
-      await expect(repository.findById('123')).rejects.toThrow();
+      await expect(repository.findById("123")).rejects.toThrow();
     });
   });
 
-  describe('findMany', () => {
-    it('should find expenses using query builder', async () => {
+  describe("findMany", () => {
+    it("should find expenses using query builder", async () => {
       const mockExpenses: DatabaseExpense[] = [
         {
-          id: '1',
-          user_id: 'user-1',
-          category_id: 'cat-1',
-          amount: 10.50,
-          expense_date: '2024-01-15',
-          currency: 'PLN',
+          id: "1",
+          user_id: "user-1",
+          category_id: "cat-1",
+          amount: 10.5,
+          expense_date: "2024-01-15",
+          currency: "PLN",
           created_by_ai: false,
           was_ai_suggestion_edited: false,
-          created_at: '2024-01-15T10:00:00Z',
-          updated_at: '2024-01-15T10:00:00Z',
-          category: { id: 'cat-1', name: 'Food' },
+          created_at: "2024-01-15T10:00:00Z",
+          updated_at: "2024-01-15T10:00:00Z",
+          category: { id: "cat-1", name: "Food" },
         },
       ];
 
       const queryBuilder = new ExpenseQueryBuilder();
-      queryBuilder.withCategory('cat-1');
+      queryBuilder.withCategory("cat-1");
 
       // Mock the promise chain
       const mockPromise = Promise.resolve({ data: mockExpenses, error: null });
-      vi.spyOn(queryBuilder, 'build').mockReturnValue(mockPromise as any);
+      vi.spyOn(queryBuilder, "build").mockReturnValue(mockPromise as any);
 
       const result = await repository.findMany(queryBuilder);
 
@@ -114,33 +118,33 @@ describe('ExpenseRepository', () => {
       expect(result).toEqual(mockExpenses);
     });
 
-    it('should return empty array when no expenses found', async () => {
+    it("should return empty array when no expenses found", async () => {
       const queryBuilder = new ExpenseQueryBuilder();
-      
+
       const mockPromise = Promise.resolve({ data: [], error: null });
-      vi.spyOn(queryBuilder, 'build').mockReturnValue(mockPromise as any);
+      vi.spyOn(queryBuilder, "build").mockReturnValue(mockPromise as any);
 
       const result = await repository.findMany(queryBuilder);
 
       expect(result).toEqual([]);
     });
 
-    it('should throw error on database failure', async () => {
+    it("should throw error on database failure", async () => {
       const queryBuilder = new ExpenseQueryBuilder();
-      
-      const mockPromise = Promise.resolve({ data: null, error: { message: 'Database error' } });
-      vi.spyOn(queryBuilder, 'build').mockReturnValue(mockPromise as any);
 
-      await expect(repository.findMany(queryBuilder)).rejects.toThrow('Failed to fetch expenses');
+      const mockPromise = Promise.resolve({ data: null, error: { message: "Database error" } });
+      vi.spyOn(queryBuilder, "build").mockReturnValue(mockPromise as any);
+
+      await expect(repository.findMany(queryBuilder)).rejects.toThrow("Failed to fetch expenses");
     });
   });
 
-  describe('count', () => {
-    it('should count expenses using query builder', async () => {
+  describe("count", () => {
+    it("should count expenses using query builder", async () => {
       const queryBuilder = new ExpenseQueryBuilder();
 
       const mockPromise = Promise.resolve({ count: 42, error: null });
-      vi.spyOn(queryBuilder, 'buildCountQuery').mockReturnValue(mockPromise as any);
+      vi.spyOn(queryBuilder, "buildCountQuery").mockReturnValue(mockPromise as any);
 
       const result = await repository.count(queryBuilder);
 
@@ -148,45 +152,45 @@ describe('ExpenseRepository', () => {
       expect(result).toBe(42);
     });
 
-    it('should return 0 when no expenses', async () => {
+    it("should return 0 when no expenses", async () => {
       const queryBuilder = new ExpenseQueryBuilder();
 
       const mockPromise = Promise.resolve({ count: 0, error: null });
-      vi.spyOn(queryBuilder, 'buildCountQuery').mockReturnValue(mockPromise as any);
+      vi.spyOn(queryBuilder, "buildCountQuery").mockReturnValue(mockPromise as any);
 
       const result = await repository.count(queryBuilder);
 
       expect(result).toBe(0);
     });
 
-    it('should throw error on database failure', async () => {
+    it("should throw error on database failure", async () => {
       const queryBuilder = new ExpenseQueryBuilder();
 
-      const mockPromise = Promise.resolve({ count: null, error: { message: 'Database error' } });
-      vi.spyOn(queryBuilder, 'buildCountQuery').mockReturnValue(mockPromise as any);
+      const mockPromise = Promise.resolve({ count: null, error: { message: "Database error" } });
+      vi.spyOn(queryBuilder, "buildCountQuery").mockReturnValue(mockPromise as any);
 
-      await expect(repository.count(queryBuilder)).rejects.toThrow('Failed to count expenses');
+      await expect(repository.count(queryBuilder)).rejects.toThrow("Failed to count expenses");
     });
   });
 
-  describe('create', () => {
-    it('should create expense', async () => {
+  describe("create", () => {
+    it("should create expense", async () => {
       const insertData: InsertExpense = {
-        user_id: 'user-1',
-        category_id: 'cat-1',
+        user_id: "user-1",
+        category_id: "cat-1",
         amount: 100,
-        expense_date: '2024-01-15',
-        currency: 'PLN',
+        expense_date: "2024-01-15",
+        currency: "PLN",
         created_by_ai: false,
         was_ai_suggestion_edited: false,
       };
 
       const mockCreated: DatabaseExpense = {
-        id: 'new-123',
+        id: "new-123",
         ...insertData,
-        created_at: '2024-01-15T10:00:00Z',
-        updated_at: '2024-01-15T10:00:00Z',
-        category: { id: 'cat-1', name: 'Food' },
+        created_at: "2024-01-15T10:00:00Z",
+        updated_at: "2024-01-15T10:00:00Z",
+        category: { id: "cat-1", name: "Food" },
       };
 
       mockSupabase.mockQuery.single.mockResolvedValue({
@@ -196,49 +200,49 @@ describe('ExpenseRepository', () => {
 
       const result = await repository.create(insertData);
 
-      expect(mockSupabase.from).toHaveBeenCalledWith('expenses');
+      expect(mockSupabase.from).toHaveBeenCalledWith("expenses");
       expect(mockSupabase.mockQuery.insert).toHaveBeenCalledWith(insertData);
       expect(result).toEqual(mockCreated);
     });
 
-    it('should throw error on creation failure', async () => {
+    it("should throw error on creation failure", async () => {
       const insertData: InsertExpense = {
-        user_id: 'user-1',
-        category_id: 'cat-1',
+        user_id: "user-1",
+        category_id: "cat-1",
         amount: 100,
-        expense_date: '2024-01-15',
-        currency: 'PLN',
+        expense_date: "2024-01-15",
+        currency: "PLN",
         created_by_ai: false,
         was_ai_suggestion_edited: false,
       };
 
       mockSupabase.mockQuery.single.mockResolvedValue({
         data: null,
-        error: { message: 'Insert failed' },
+        error: { message: "Insert failed" },
       });
 
       await expect(repository.create(insertData)).rejects.toThrow();
     });
   });
 
-  describe('createBatch', () => {
-    it('should create multiple expenses', async () => {
+  describe("createBatch", () => {
+    it("should create multiple expenses", async () => {
       const insertData: InsertExpense[] = [
         {
-          user_id: 'user-1',
-          category_id: 'cat-1',
+          user_id: "user-1",
+          category_id: "cat-1",
           amount: 10,
-          expense_date: '2024-01-15',
-          currency: 'PLN',
+          expense_date: "2024-01-15",
+          currency: "PLN",
           created_by_ai: true,
           was_ai_suggestion_edited: false,
         },
         {
-          user_id: 'user-1',
-          category_id: 'cat-2',
+          user_id: "user-1",
+          category_id: "cat-2",
           amount: 20,
-          expense_date: '2024-01-16',
-          currency: 'PLN',
+          expense_date: "2024-01-16",
+          currency: "PLN",
           created_by_ai: true,
           was_ai_suggestion_edited: false,
         },
@@ -246,22 +250,22 @@ describe('ExpenseRepository', () => {
 
       const mockCreated: DatabaseExpense[] = [
         {
-          id: '1',
+          id: "1",
           ...insertData[0],
-          created_at: '2024-01-15T10:00:00Z',
-          updated_at: '2024-01-15T10:00:00Z',
-          category: { id: 'cat-1', name: 'Food' },
+          created_at: "2024-01-15T10:00:00Z",
+          updated_at: "2024-01-15T10:00:00Z",
+          category: { id: "cat-1", name: "Food" },
         },
         {
-          id: '2',
+          id: "2",
           ...insertData[1],
-          created_at: '2024-01-16T10:00:00Z',
-          updated_at: '2024-01-16T10:00:00Z',
-          category: { id: 'cat-2', name: 'Transport' },
+          created_at: "2024-01-16T10:00:00Z",
+          updated_at: "2024-01-16T10:00:00Z",
+          category: { id: "cat-2", name: "Transport" },
         },
       ];
 
-      mockSupabase.mockQuery.select.mockResolvedValue({
+      mockSupabase.mockQuery.order.mockResolvedValue({
         data: mockCreated,
         error: null,
       });
@@ -272,14 +276,14 @@ describe('ExpenseRepository', () => {
       expect(result).toEqual(mockCreated);
     });
 
-    it('should throw error on batch creation failure', async () => {
+    it("should throw error on batch creation failure", async () => {
       const insertData: InsertExpense[] = [
         {
-          user_id: 'user-1',
-          category_id: 'cat-1',
+          user_id: "user-1",
+          category_id: "cat-1",
           amount: 10,
-          expense_date: '2024-01-15',
-          currency: 'PLN',
+          expense_date: "2024-01-15",
+          currency: "PLN",
           created_by_ai: false,
           was_ai_suggestion_edited: false,
         },
@@ -287,32 +291,32 @@ describe('ExpenseRepository', () => {
 
       mockSupabase.mockQuery.select.mockResolvedValue({
         data: null,
-        error: { message: 'Batch insert failed' },
+        error: { message: "Batch insert failed" },
       });
 
       await expect(repository.createBatch(insertData)).rejects.toThrow();
     });
   });
 
-  describe('update', () => {
-    it('should update expense', async () => {
+  describe("update", () => {
+    it("should update expense", async () => {
       const updateData: Partial<InsertExpense> = {
         amount: 200,
-        category_id: 'cat-2',
+        category_id: "cat-2",
       };
 
       const mockUpdated: DatabaseExpense = {
-        id: '123',
-        user_id: 'user-1',
-        category_id: 'cat-2',
+        id: "123",
+        user_id: "user-1",
+        category_id: "cat-2",
         amount: 200,
-        expense_date: '2024-01-15',
-        currency: 'PLN',
+        expense_date: "2024-01-15",
+        currency: "PLN",
         created_by_ai: false,
         was_ai_suggestion_edited: false,
-        created_at: '2024-01-15T10:00:00Z',
-        updated_at: '2024-01-15T11:00:00Z',
-        category: { id: 'cat-2', name: 'Transport' },
+        created_at: "2024-01-15T10:00:00Z",
+        updated_at: "2024-01-15T11:00:00Z",
+        category: { id: "cat-2", name: "Transport" },
       };
 
       mockSupabase.mockQuery.single.mockResolvedValue({
@@ -320,36 +324,36 @@ describe('ExpenseRepository', () => {
         error: null,
       });
 
-      const result = await repository.update('123', updateData);
+      const result = await repository.update("123", updateData);
 
       expect(mockSupabase.mockQuery.update).toHaveBeenCalledWith(updateData);
-      expect(mockSupabase.mockQuery.eq).toHaveBeenCalledWith('id', '123');
+      expect(mockSupabase.mockQuery.eq).toHaveBeenCalledWith("id", "123");
       expect(result).toEqual(mockUpdated);
     });
 
-    it('should return null when expense not found', async () => {
+    it("should return null when expense not found", async () => {
       mockSupabase.mockQuery.single.mockResolvedValue({
         data: null,
-        error: { code: 'PGRST116', message: 'Not found' },
+        error: { code: "PGRST116", message: "Not found" },
       });
 
-      const result = await repository.update('nonexistent', { amount: 100 });
+      const result = await repository.update("nonexistent", { amount: 100 });
 
       expect(result).toBeNull();
     });
 
-    it('should throw error on update failure', async () => {
+    it("should throw error on update failure", async () => {
       mockSupabase.mockQuery.single.mockResolvedValue({
         data: null,
-        error: { code: 'SOME_ERROR', message: 'Update failed' },
+        error: { code: "SOME_ERROR", message: "Update failed" },
       });
 
-      await expect(repository.update('123', { amount: 100 })).rejects.toThrow();
+      await expect(repository.update("123", { amount: 100 })).rejects.toThrow();
     });
   });
 
-  describe('delete', () => {
-    it('should delete expense and return true', async () => {
+  describe("delete", () => {
+    it("should delete expense and return true", async () => {
       // Mock delete to return an object with eq method
       mockSupabase.mockQuery.delete.mockReturnValue({
         eq: vi.fn().mockResolvedValue({
@@ -358,13 +362,13 @@ describe('ExpenseRepository', () => {
         }),
       });
 
-      const result = await repository.delete('123');
+      const result = await repository.delete("123");
 
-      expect(mockSupabase.mockQuery.delete).toHaveBeenCalledWith({ count: 'exact' });
+      expect(mockSupabase.mockQuery.delete).toHaveBeenCalledWith({ count: "exact" });
       expect(result).toBe(true);
     });
 
-    it('should return false when expense not found', async () => {
+    it("should return false when expense not found", async () => {
       mockSupabase.mockQuery.delete.mockReturnValue({
         eq: vi.fn().mockResolvedValue({
           error: null,
@@ -372,60 +376,60 @@ describe('ExpenseRepository', () => {
         }),
       });
 
-      const result = await repository.delete('nonexistent');
+      const result = await repository.delete("nonexistent");
 
       expect(result).toBe(false);
     });
 
-    it('should throw error on delete failure', async () => {
+    it("should throw error on delete failure", async () => {
       mockSupabase.mockQuery.delete.mockReturnValue({
         eq: vi.fn().mockResolvedValue({
-          error: { message: 'Delete failed' },
+          error: { message: "Delete failed" },
           count: null,
         }),
       });
 
-      await expect(repository.delete('123')).rejects.toThrow();
+      await expect(repository.delete("123")).rejects.toThrow();
     });
   });
 
-  describe('validateCategories', () => {
-    it('should return empty array when all categories valid', async () => {
+  describe("validateCategories", () => {
+    it("should return empty array when all categories valid", async () => {
       mockSupabase.mockQuery.in.mockResolvedValue({
-        data: [{ id: 'cat-1' }, { id: 'cat-2' }],
+        data: [{ id: "cat-1" }, { id: "cat-2" }],
         error: null,
       });
 
-      const result = await repository.validateCategories(['cat-1', 'cat-2']);
+      const result = await repository.validateCategories(["cat-1", "cat-2"]);
 
       expect(result).toEqual([]);
     });
 
-    it('should return invalid IDs', async () => {
+    it("should return invalid IDs", async () => {
       mockSupabase.mockQuery.in.mockResolvedValue({
-        data: [{ id: 'cat-1' }],
+        data: [{ id: "cat-1" }],
         error: null,
       });
 
-      const result = await repository.validateCategories(['cat-1', 'cat-2', 'cat-3']);
+      const result = await repository.validateCategories(["cat-1", "cat-2", "cat-3"]);
 
-      expect(result).toEqual(['cat-2', 'cat-3']);
+      expect(result).toEqual(["cat-2", "cat-3"]);
     });
 
-    it('should return empty array for empty input', async () => {
+    it("should return empty array for empty input", async () => {
       const result = await repository.validateCategories([]);
 
       expect(result).toEqual([]);
       expect(mockSupabase.from).not.toHaveBeenCalled();
     });
 
-    it('should throw error on database failure', async () => {
+    it("should throw error on database failure", async () => {
       mockSupabase.mockQuery.in.mockResolvedValue({
         data: null,
-        error: { message: 'Database error' },
+        error: { message: "Database error" },
       });
 
-      await expect(repository.validateCategories(['cat-1'])).rejects.toThrow();
+      await expect(repository.validateCategories(["cat-1"])).rejects.toThrow();
     });
   });
 });

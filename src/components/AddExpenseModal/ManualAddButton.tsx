@@ -1,6 +1,6 @@
-import { PencilLine } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import type { ManualAddButtonProps } from '../../types/modal.types';
+import { PencilLine } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import type { ManualAddButtonProps } from "../../types/modal.types";
 
 /**
  * ManualAddButton Component
@@ -20,9 +20,7 @@ export function ManualAddButton({ onClick, disabled = false }: ManualAddButtonPr
         </div>
         <div className="flex-1 text-left">
           <div className="font-semibold">Dodaj ręcznie</div>
-          <div className="text-xs text-muted-foreground">
-            Wprowadź szczegóły wydatku samodzielnie
-          </div>
+          <div className="text-xs text-muted-foreground">Wprowadź szczegóły wydatku samodzielnie</div>
         </div>
       </div>
     </Button>

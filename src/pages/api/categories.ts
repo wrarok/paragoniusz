@@ -1,6 +1,6 @@
-import type { APIRoute } from 'astro';
-import { getAllCategories } from '../../lib/services/category.service';
-import type { APIErrorResponse } from '../../types';
+import type { APIRoute } from "astro";
+import { getAllCategories } from "../../lib/services/category.service";
+import type { APIErrorResponse } from "../../types";
 
 /**
  * GET /api/categories
@@ -22,22 +22,22 @@ export const GET: APIRoute = async ({ locals }) => {
     // Return success response
     return new Response(JSON.stringify(categories), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     // Log error for debugging and monitoring
-    console.error('Error fetching categories:', error);
+    console.error("Error fetching categories:", error);
 
     // Return generic error response without exposing internal details
     const errorResponse: APIErrorResponse = {
       error: {
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Wystąpił nieoczekiwany błąd podczas pobierania kategorii',
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Wystąpił nieoczekiwany błąd podczas pobierania kategorii",
       },
     };
     return new Response(JSON.stringify(errorResponse), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   }
 };

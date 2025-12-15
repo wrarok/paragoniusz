@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -8,12 +8,12 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useDeleteAccount } from '../hooks/useDeleteAccount';
-import { AlertTriangle } from 'lucide-react';
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useDeleteAccount } from "../hooks/useDeleteAccount";
+import { AlertTriangle } from "lucide-react";
 
 interface DeleteAccountModalProps {
   isOpen: boolean;
@@ -26,11 +26,11 @@ interface DeleteAccountModalProps {
  */
 export function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps) {
   const { deleteAccount } = useDeleteAccount();
-  const [confirmationText, setConfirmationText] = useState('');
+  const [confirmationText, setConfirmationText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isConfirmationValid = confirmationText === 'USUŃ';
+  const isConfirmationValid = confirmationText === "USUŃ";
 
   const handleConfirm = async () => {
     if (!isConfirmationValid) return;
@@ -49,7 +49,7 @@ export function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps)
 
   const handleClose = () => {
     if (isDeleting) return; // Prevent closing while deleting
-    setConfirmationText('');
+    setConfirmationText("");
     setError(null);
     onClose();
   };
@@ -64,11 +64,10 @@ export function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps)
           </AlertDialogTitle>
           <AlertDialogDescription className="space-y-4">
             <p className="text-base font-semibold">
-              Ta operacja jest nieodwracalna. Spowoduje trwałe usunięcie Twojego konta i wszystkich danych z naszych serwerów.
+              Ta operacja jest nieodwracalna. Spowoduje trwałe usunięcie Twojego konta i wszystkich danych z naszych
+              serwerów.
             </p>
-            <p>
-              Wszystkie Twoje wydatki, kategorie i informacje profilowe zostaną trwale usunięte.
-            </p>
+            <p>Wszystkie Twoje wydatki, kategorie i informacje profilowe zostaną trwale usunięte.</p>
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -103,7 +102,7 @@ export function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps)
             onClick={handleConfirm}
             className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
           >
-            {isDeleting ? 'Usuwanie...' : 'Potwierdź usunięcie'}
+            {isDeleting ? "Usuwanie..." : "Potwierdź usunięcie"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

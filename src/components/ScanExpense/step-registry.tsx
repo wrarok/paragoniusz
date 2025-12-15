@@ -1,7 +1,7 @@
-import type { ComponentType } from 'react';
-import type { ProcessingStep as FlowStep } from '@/types/scan-flow.types';
-import type { CategoryDTO, APIErrorResponse } from '@/types';
-import type { ExpenseVerificationFormValues } from '@/lib/validation/expense-verification.validation';
+import type { ComponentType } from "react";
+import type { ProcessingStep as FlowStep } from "@/types/scan-flow.types";
+import type { CategoryDTO, APIErrorResponse } from "@/types";
+import type { ExpenseVerificationFormValues } from "@/lib/validation/expense-verification.validation";
 import {
   LoadingStep,
   ConsentStep,
@@ -11,12 +11,12 @@ import {
   SavingStep,
   CompleteStep,
   ErrorStep,
-} from './steps';
+} from "./steps";
 
 /**
  * Props required by each step component
  */
-type StepProps = {
+interface StepProps {
   consent: {
     onAccept: () => Promise<void>;
     onCancel: () => void;
@@ -43,15 +43,13 @@ type StepProps = {
     onAddManually: () => void;
     onCancel: () => void;
   };
-};
+}
 
 /**
  * Step component registry - maps step names to their components
  */
 type StepRegistry = {
-  [K in FlowStep]: K extends keyof StepProps
-    ? ComponentType<StepProps[K]>
-    : ComponentType<Record<string, never>>;
+  [K in FlowStep]: K extends keyof StepProps ? ComponentType<StepProps[K]> : ComponentType<Record<string, never>>;
 };
 
 /**
@@ -76,12 +74,10 @@ export const loadingStep = LoadingStep;
  * Type guard to check if a step requires props
  */
 export function stepRequiresProps(step: FlowStep): step is keyof StepProps {
-  return step in (['consent', 'upload', 'processing', 'verification', 'error'] as const);
+  return step in (["consent", "upload", "processing", "verification", "error"] as const);
 }
 
 /**
  * Get props type for a specific step
  */
-export type StepPropsFor<T extends FlowStep> = T extends keyof StepProps
-  ? StepProps[T]
-  : Record<string, never>;
+export type StepPropsFor<T extends FlowStep> = T extends keyof StepProps ? StepProps[T] : Record<string, never>;

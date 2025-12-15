@@ -9,7 +9,8 @@
     ║ TOTAL:        Your Finances    ║
     ║               Under Control    ║
     ╚════════════════════════════════╝
-```
+
+````
 
 # Paragoniusz
 
@@ -88,22 +89,25 @@ The current MVP intentionally excludes:
   ```bash
   # Using nvm (recommended)
   nvm use
-  
+
   # Or install specific version
   nvm install 22.14.0
-  ```
+````
+
 - **Package Manager**: npm (comes with Node.js) or pnpm
 - **Supabase Account**: [Sign up for free](https://supabase.com/)
 
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/yourusername/paragoniusz.git
    cd paragoniusz
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    # or
@@ -111,8 +115,9 @@ The current MVP intentionally excludes:
    ```
 
 3. **Environment Setup**
-   
+
    Create a `.env` file in the root directory (use `.env.example` as template):
+
    ```env
    SUPABASE_URL=your_supabase_project_url
    SUPABASE_KEY=your_supabase_anon_key
@@ -130,61 +135,66 @@ The current MVP intentionally excludes:
    - Generate a new API key
 
 4. **Database Setup**
-   
+
    Run Supabase migrations (if available):
+
    ```bash
    # Initialize Supabase locally (optional)
    npx supabase init
-   
+
    # Link to your project
    npx supabase link --project-ref your-project-ref
-   
+
    # Apply migrations
    npx supabase db push
    ```
 
 5. **Start Development Server**
+
    ```bash
    npm run dev
    ```
-   
+
    The application will be available at `http://localhost:4321`
 
 ## 📜 Available Scripts
 
 ### Development
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start development server with hot reload |
-| `npm run dev:e2e` | Start development server in test mode |
-| `npm run build` | Build production-ready static site |
-| `npm run preview` | Preview production build locally |
-| `npm run astro` | Run Astro CLI commands |
-| `npm run lint` | Check code for linting errors |
-| `npm run lint:fix` | Automatically fix linting errors |
-| `npm run format` | Format code with Prettier |
+
+| Script             | Description                              |
+| ------------------ | ---------------------------------------- |
+| `npm run dev`      | Start development server with hot reload |
+| `npm run dev:e2e`  | Start development server in test mode    |
+| `npm run build`    | Build production-ready static site       |
+| `npm run preview`  | Preview production build locally         |
+| `npm run astro`    | Run Astro CLI commands                   |
+| `npm run lint`     | Check code for linting errors            |
+| `npm run lint:fix` | Automatically fix linting errors         |
+| `npm run format`   | Format code with Prettier                |
 
 ### Testing
-| Script | Description |
-|--------|-------------|
-| `npm run test` | Run tests in watch mode |
-| `npm run test:unit` | Run unit tests once |
-| `npm run test:watch` | Run unit tests in watch mode |
-| `npm run test:ui` | Open Vitest UI for unit tests |
-| `npm run test:coverage` | Generate unit test coverage report |
-| `npm run test:integration` | Run integration tests with database |
-| `npm run test:integration:watch` | Run integration tests in watch mode |
-| `npm run test:integration:ui` | Open Vitest UI for integration tests |
-| `npm run test:e2e` | Run end-to-end tests with Playwright |
-| `npm run test:e2e:ui` | Run E2E tests in interactive UI mode |
-| `npm run test:e2e:headed` | Run E2E tests in headed browser mode |
-| `npm run test:e2e:mobile` | Run E2E tests on mobile emulator |
-| `npm run test:e2e:critical` | Run critical E2E scenarios only |
-| `npm run test:all` | Run all tests (unit + integration + e2e) |
+
+| Script                           | Description                              |
+| -------------------------------- | ---------------------------------------- |
+| `npm run test`                   | Run tests in watch mode                  |
+| `npm run test:unit`              | Run unit tests once                      |
+| `npm run test:watch`             | Run unit tests in watch mode             |
+| `npm run test:ui`                | Open Vitest UI for unit tests            |
+| `npm run test:coverage`          | Generate unit test coverage report       |
+| `npm run test:integration`       | Run integration tests with database      |
+| `npm run test:integration:watch` | Run integration tests in watch mode      |
+| `npm run test:integration:ui`    | Open Vitest UI for integration tests     |
+| `npm run test:e2e`               | Run end-to-end tests with Playwright     |
+| `npm run test:e2e:ui`            | Run E2E tests in interactive UI mode     |
+| `npm run test:e2e:headed`        | Run E2E tests in headed browser mode     |
+| `npm run test:e2e:mobile`        | Run E2E tests on mobile emulator         |
+| `npm run test:e2e:critical`      | Run critical E2E scenarios only          |
+| `npm run test:all`               | Run all tests (unit + integration + e2e) |
 
 ### Pre-commit Hooks
 
 The project uses **Husky** and **lint-staged** to ensure code quality:
+
 - TypeScript/TSX/Astro files: Auto-fixed with ESLint
 - JSON/CSS/Markdown files: Auto-formatted with Prettier
 
@@ -193,24 +203,28 @@ The project uses **Husky** and **lint-staged** to ensure code quality:
 The project follows a comprehensive testing pyramid approach:
 
 ### Unit Tests (70% coverage target)
+
 - **Framework**: Vitest with Happy-DOM
 - **Scope**: Business logic, services, utilities, components
 - **Location**: `test/unit/**/*.test.ts`
 - **Run**: `npm run test:unit`
 
 ### Integration Tests (20% coverage target)
+
 - **Framework**: Vitest with Testcontainers
 - **Scope**: Database RLS policies, API endpoints, Supabase integration
 - **Location**: `test/integration/**/*.test.ts`
 - **Run**: `npm run test:integration`
 
 ### E2E Tests (10% coverage target)
+
 - **Framework**: Playwright
 - **Scope**: Complete user flows, cross-browser testing
 - **Location**: `e2e/**/*.spec.ts`
 - **Run**: `npm run test:e2e`
 
 **Quality Metrics:**
+
 - Overall coverage: 70% (lines, functions, branches, statements)
 - Critical paths: 100% (validation, security, financial data)
 - Flaky tests: <5%
@@ -224,24 +238,23 @@ See [Testing Documentation](TESTING.md) for detailed guidelines.
 The project uses GitHub Actions for continuous integration and deployment:
 
 ### Pipeline Jobs
+
 1. **Lint & Type Check** (~2 min) - Code quality verification
 2. **Unit Tests** (~3 min) - Fast business logic tests
 3. **Integration Tests** (~5 min) - Database and API integration
 4. **Production Build** (~4 min) - Build verification
 
 ### Triggers
+
 - ✅ Push to `master`/`main` branch
 - ✅ Pull requests to `master`/`main`
 - ✅ Manual workflow dispatch
 
 ### Status & Artifacts
+
 - Pipeline duration: ~9-10 minutes
 - Coverage reports retained for 7 days
 - Build artifacts available for deployment
-
-### Required GitHub Secrets
-- `SUPABASE_URL` - Your Supabase project URL
-- `SUPABASE_ANON_KEY` - Your Supabase anonymous key
 
 See [CI/CD Documentation](.ai/ci-cd-setup.md) for detailed information.
 
@@ -250,6 +263,7 @@ See [CI/CD Documentation](.ai/ci-cd-setup.md) for detailed information.
 ### MVP Features (Current Development)
 
 #### Authentication & Account Management
+
 - User registration with email and password
 - Secure login with "Remember me" option
 - Session management and logout
@@ -257,18 +271,21 @@ See [CI/CD Documentation](.ai/ci-cd-setup.md) for detailed information.
 - Account deletion with data removal
 
 #### Dashboard
+
 - Monthly expense summary (current month)
 - Pie chart visualization (top 5 categories + "Other")
 - Chronological list of recent expenses
 - Empty state for new users
 
 #### Expense Management
+
 - Manual expense entry (amount, category, date)
 - Edit existing expenses
 - Delete expenses with confirmation
 - Predefined, server-managed categories
 
 #### AI Receipt Processing
+
 - Upload receipt photos from device gallery
 - Automatic item recognition and categorization
 - Category-based expense aggregation
@@ -293,6 +310,7 @@ See [CI/CD Documentation](.ai/ci-cd-setup.md) for detailed information.
 **Architecture**: JAMstack with serverless elements
 
 **Key Milestones**:
+
 - ✅ Project setup and tech stack configuration
 - 🔄 Authentication system implementation
 - 🔄 Dashboard and expense management
@@ -311,12 +329,14 @@ This project is currently under development. License information will be added u
 ## 🔗 Related Documentation
 
 ### Project Documentation
+
 - [Product Requirements Document](.ai/project-prd.md) - Detailed feature specifications and user stories
 - [Technical Stack Document](.ai/tech-stack.md) - In-depth architecture and technology choices
 - [CI/CD Setup](.ai/ci-cd-setup.md) - Pipeline configuration and workflows
 - [Testing Guide](TESTING.md) - Testing strategy and best practices
 
 ### External Resources
+
 - [Astro Documentation](https://docs.astro.build/)
 - [Supabase Documentation](https://supabase.com/docs)
 - [React Documentation](https://react.dev/)

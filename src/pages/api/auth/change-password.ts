@@ -1,12 +1,12 @@
-import type { APIRoute } from 'astro';
-import { createSupabaseServerInstance } from '../../../db/supabase.server';
+import type { APIRoute } from "astro";
+import { createSupabaseServerInstance } from "../../../db/supabase.server";
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   const { newPassword } = await request.json();
 
-  const supabase = createSupabaseServerInstance({ 
-    cookies, 
-    headers: request.headers 
+  const supabase = createSupabaseServerInstance({
+    cookies,
+    headers: request.headers,
   });
 
   // Update password using SSR client (has access to session in cookies)

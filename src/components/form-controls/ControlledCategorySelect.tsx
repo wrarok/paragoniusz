@@ -1,20 +1,14 @@
 /**
  * Controlled Category Select Component
- * 
+ *
  * Reusable controlled select component for React Hook Form.
  * Handles category selection with validation and error display.
  */
 
-import { Controller, type Control, type FieldPath, type FieldValues } from 'react-hook-form';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import type { CategoryDTO } from '@/types';
+import { Controller, type Control, type FieldPath, type FieldValues } from "react-hook-form";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import type { CategoryDTO } from "@/types";
 
 interface ControlledCategorySelectProps<T extends FieldValues> {
   control: Control<T>;
@@ -27,7 +21,7 @@ interface ControlledCategorySelectProps<T extends FieldValues> {
 
 /**
  * Controlled category select for React Hook Form
- * 
+ *
  * @example
  * ```tsx
  * <ControlledCategorySelect
@@ -43,7 +37,7 @@ export function ControlledCategorySelect<T extends FieldValues>({
   name,
   categories,
   onEdit,
-  label = 'Kategoria',
+  label = "Kategoria",
   disabled = false,
 }: ControlledCategorySelectProps<T>) {
   return (
@@ -61,11 +55,7 @@ export function ControlledCategorySelect<T extends FieldValues>({
             }}
             disabled={disabled}
           >
-            <SelectTrigger
-              id={String(name)}
-              aria-invalid={!!fieldState.error}
-              className="w-full"
-            >
+            <SelectTrigger id={String(name)} aria-invalid={!!fieldState.error} className="w-full">
               <SelectValue placeholder="Wybierz kategorię" />
             </SelectTrigger>
             <SelectContent>
@@ -76,11 +66,7 @@ export function ControlledCategorySelect<T extends FieldValues>({
               ))}
             </SelectContent>
           </Select>
-          {fieldState.error && (
-            <p className="text-destructive text-sm mt-1">
-              {fieldState.error.message}
-            </p>
-          )}
+          {fieldState.error && <p className="text-destructive text-sm mt-1">{fieldState.error.message}</p>}
         </div>
       )}
     />

@@ -1,7 +1,7 @@
-import type { ActionButtonsProps } from '../../types/modal.types';
-import { ManualAddButton } from './ManualAddButton';
-import { AIAddButton } from './AIAddButton';
-import { ConsentInfoMessage } from './ConsentInfoMessage';
+import type { ActionButtonsProps } from "../../types/modal.types";
+import { ManualAddButton } from "./ManualAddButton";
+import { AIAddButton } from "./AIAddButton";
+import { ConsentInfoMessage } from "./ConsentInfoMessage";
 
 /**
  * ActionButtons Component
@@ -21,10 +21,10 @@ export function ActionButtons({ profile, onSelectManual, onSelectAI }: ActionBut
 
       {/* Consent Info Message - Only visible without consent */}
       {!hasAIConsent && (
-        <ConsentInfoMessage 
+        <ConsentInfoMessage
           onNavigateToSettings={() => {
-            window.location.href = '/settings';
-          }} 
+            window.location.href = "/settings";
+          }}
         />
       )}
     </div>

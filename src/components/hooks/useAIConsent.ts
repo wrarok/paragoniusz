@@ -1,10 +1,10 @@
-import { useState, useCallback } from 'react';
-import { ScanFlowAPIService } from '@/lib/services/scan-flow.service';
-import type { APIErrorResponse } from '@/types';
+import { useState, useCallback } from "react";
+import { checkAIConsent, grantAIConsent } from "@/lib/services/scan-flow.service";
+import type { APIErrorResponse } from "@/types";
 
 /**
  * Hook do zarządzania zgodą AI użytkownika
- * 
+ *
  * Obsługuje sprawdzanie i udzielanie zgody na przetwarzanie AI
  */
 export function useAIConsent() {
@@ -14,7 +14,7 @@ export function useAIConsent() {
 
   /**
    * Sprawdź czy użytkownik ma udzieloną zgodę AI
-   * 
+   *
    * @returns true jeśli zgoda została udzielona, false w przeciwnym razie
    */
   const checkConsent = useCallback(async () => {
@@ -22,13 +22,13 @@ export function useAIConsent() {
     setError(null);
 
     try {
-      const profile = await ScanFlowAPIService.checkAIConsent();
+      const profile = await checkAIConsent();
       setHasConsent(profile.ai_consent_given);
       return profile.ai_consent_given;
     } catch (err) {
       const apiError = err as APIErrorResponse;
       setError(apiError);
-      console.error('Error checking AI consent:', apiError);
+      console.error("Error checking AI consent:", apiError);
       return false;
     } finally {
       setIsLoading(false);
@@ -37,7 +37,7 @@ export function useAIConsent() {
 
   /**
    * Udziel zgody AI
-   * 
+   *
    * @returns true jeśli zgoda została pomyślnie udzielona, false w przypadku błędu
    */
   const grantConsent = useCallback(async () => {
@@ -45,13 +45,13 @@ export function useAIConsent() {
     setError(null);
 
     try {
-      const profile = await ScanFlowAPIService.grantAIConsent();
+      const profile = await grantAIConsent();
       setHasConsent(profile.ai_consent_given);
       return true;
     } catch (err) {
       const apiError = err as APIErrorResponse;
       setError(apiError);
-      console.error('Error granting AI consent:', apiError);
+      console.error("Error granting AI consent:", apiError);
       return false;
     } finally {
       setIsLoading(false);

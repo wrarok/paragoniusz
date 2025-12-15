@@ -58,6 +58,17 @@ const reactConfig = tseslint.config({
 
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
+  {
+    ignores: [
+      "e2e/**/*",
+      "test/**/*",
+      "supabase/functions/**/*",
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/*.spec.ts",
+      "**/*.spec.tsx",
+    ],
+  },
   baseConfig,
   jsxA11yConfig,
   reactConfig,

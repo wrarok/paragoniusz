@@ -1,16 +1,16 @@
-import { useMemo, useState } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Separator } from '@/components/ui/separator';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { CheckCircle2, AlertCircle, Calendar, DollarSign, Edit2 } from 'lucide-react';
-import { ExpenseVerificationItem } from './ExpenseVerificationItem';
-import type { CategoryDTO } from '../../types';
-import type { EditableExpense } from '../../types/scan-flow.types';
+import { useMemo, useState } from "react";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { CheckCircle2, AlertCircle, Calendar, DollarSign, Edit2 } from "lucide-react";
+import { ExpenseVerificationItem } from "./ExpenseVerificationItem";
+import type { CategoryDTO } from "../../types";
+import type { EditableExpense } from "../../types/scan-flow.types";
 
-type ExpenseVerificationListProps = {
+interface ExpenseVerificationListProps {
   expenses: EditableExpense[];
   categories: CategoryDTO[];
   receiptDate: string;
@@ -22,7 +22,7 @@ type ExpenseVerificationListProps = {
   onSave: () => Promise<void>;
   onCancel: () => void;
   isSaving: boolean;
-};
+}
 
 export function ExpenseVerificationList({
   expenses,
@@ -43,7 +43,7 @@ export function ExpenseVerificationList({
     if (expenses.length === 0) {
       return {
         isValid: false,
-        errors: ['Wymagany jest co najmniej jeden wydatek'],
+        errors: ["Wymagany jest co najmniej jeden wydatek"],
       };
     }
 
@@ -51,7 +51,7 @@ export function ExpenseVerificationList({
     let hasInvalidAmount = false;
     let hasInvalidCategory = false;
 
-    expenses.forEach((expense, index) => {
+    expenses.forEach((expense) => {
       const amount = parseFloat(expense.amount);
       if (!expense.amount || isNaN(amount) || amount <= 0) {
         hasInvalidAmount = true;
@@ -63,11 +63,11 @@ export function ExpenseVerificationList({
     });
 
     if (hasInvalidAmount) {
-      errors.push('Wszystkie wydatki muszą mieć prawidłową kwotę większą niż 0');
+      errors.push("Wszystkie wydatki muszą mieć prawidłową kwotę większą niż 0");
     }
 
     if (hasInvalidCategory) {
-      errors.push('Wszystkie wydatki muszą mieć wybraną kategorię');
+      errors.push("Wszystkie wydatki muszą mieć wybraną kategorię");
     }
 
     return {
@@ -86,10 +86,10 @@ export function ExpenseVerificationList({
   const formatDate = (dateString: string): string => {
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('pl-PL', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
+      return date.toLocaleDateString("pl-PL", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
       });
     } catch {
       return dateString;
@@ -98,8 +98,8 @@ export function ExpenseVerificationList({
 
   const formatCurrency = (amount: number, currencyCode: string): string => {
     try {
-      return new Intl.NumberFormat('pl-PL', {
-        style: 'currency',
+      return new Intl.NumberFormat("pl-PL", {
+        style: "currency",
         currency: currencyCode,
       }).format(amount);
     } catch {
@@ -113,9 +113,7 @@ export function ExpenseVerificationList({
       <Card>
         <CardHeader>
           <CardTitle>Zweryfikuj wyodrębnione wydatki</CardTitle>
-          <CardDescription>
-            Przejrzyj i edytuj wydatki wyodrębnione z paragonu
-          </CardDescription>
+          <CardDescription>Przejrzyj i edytuj wydatki wyodrębnione z paragonu</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -164,12 +162,7 @@ export function ExpenseVerificationList({
                     <p className="text-xs text-muted-foreground">Data paragonu</p>
                     <p className="text-sm font-medium">{formatDate(receiptDate)}</p>
                   </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setIsEditingDate(true)}
-                    className="h-8 w-8 p-0"
-                  >
+                  <Button size="sm" variant="ghost" onClick={() => setIsEditingDate(true)} className="h-8 w-8 p-0">
                     <Edit2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -179,9 +172,7 @@ export function ExpenseVerificationList({
               <DollarSign className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="text-xs text-muted-foreground">Suma oryginalna</p>
-                <p className="text-sm font-medium">
-                  {formatCurrency(parseFloat(totalAmount), currency)}
-                </p>
+                <p className="text-sm font-medium">{formatCurrency(parseFloat(totalAmount), currency)}</p>
               </div>
             </div>
           </div>
@@ -216,13 +207,9 @@ export function ExpenseVerificationList({
       {/* Expense Items */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">
-            Wydatki ({expenses.length})
-          </h3>
+          <h3 className="text-lg font-semibold">Wydatki ({expenses.length})</h3>
           {expenses.length > 0 && (
-            <p className="text-sm text-muted-foreground">
-              Obliczona suma: {formatCurrency(calculatedTotal, currency)}
-            </p>
+            <p className="text-sm text-muted-foreground">Obliczona suma: {formatCurrency(calculatedTotal, currency)}</p>
           )}
         </div>
 
@@ -262,12 +249,8 @@ export function ExpenseVerificationList({
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  Obliczona suma różni się od oryginalnej sumy z paragonu o{' '}
-                  {formatCurrency(
-                    Math.abs(calculatedTotal - parseFloat(totalAmount)),
-                    currency
-                  )}
-                  . Sprawdź kwoty.
+                  Obliczona suma różni się od oryginalnej sumy z paragonu o{" "}
+                  {formatCurrency(Math.abs(calculatedTotal - parseFloat(totalAmount)), currency)}. Sprawdź kwoty.
                 </AlertDescription>
               </Alert>
             )}
@@ -276,18 +259,13 @@ export function ExpenseVerificationList({
 
             <div className="text-sm text-muted-foreground space-y-1">
               <p>• Wszystkie wydatki zostaną zapisane z datą paragonu: {formatDate(receiptDate)}</p>
-              <p>• Wydatki oznaczone jako "Edytowane" będą oflagowane jako zmodyfikowane z sugestii AI</p>
+              <p>• Wydatki oznaczone jako &quot;Edytowane&quot; będą oflagowane jako zmodyfikowane z sugestii AI</p>
               <p>• Możesz edytować te wydatki później z panelu głównego</p>
             </div>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col sm:flex-row gap-3">
-          <Button
-            variant="outline"
-            onClick={onCancel}
-            disabled={isSaving}
-            className="w-full sm:w-auto"
-          >
+          <Button variant="outline" onClick={onCancel} disabled={isSaving} className="w-full sm:w-auto">
             Anuluj
           </Button>
           <Button
@@ -295,7 +273,9 @@ export function ExpenseVerificationList({
             disabled={!validation.isValid || isSaving || expenses.length === 0}
             className="w-full sm:flex-1"
           >
-            {isSaving ? 'Zapisywanie...' : `Zapisz ${expenses.length} ${expenses.length === 1 ? 'wydatek' : expenses.length < 5 ? 'wydatki' : 'wydatków'}`}
+            {isSaving
+              ? "Zapisywanie..."
+              : `Zapisz ${expenses.length} ${expenses.length === 1 ? "wydatek" : expenses.length < 5 ? "wydatki" : "wydatków"}`}
           </Button>
         </CardFooter>
       </Card>

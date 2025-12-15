@@ -1,4 +1,4 @@
-import type { LoginFormData, LoginValidationErrors } from '../../types/auth.types';
+import type { LoginFormData, LoginValidationErrors } from "../../types/auth.types";
 
 /**
  * Email validation regex pattern (RFC 5322 compliant)
@@ -11,12 +11,12 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * @returns Error message if invalid, undefined if valid
  */
 export function validateEmail(email: string): string | undefined {
-  if (!email || email.trim() === '') {
-    return 'Email jest wymagany';
+  if (!email || email.trim() === "") {
+    return "Email jest wymagany";
   }
 
   if (!EMAIL_REGEX.test(email)) {
-    return 'Wprowadź poprawny adres email';
+    return "Wprowadź poprawny adres email";
   }
 
   return undefined;
@@ -28,8 +28,8 @@ export function validateEmail(email: string): string | undefined {
  * @returns Error message if invalid, undefined if valid
  */
 export function validatePassword(password: string): string | undefined {
-  if (!password || password.trim() === '') {
-    return 'Hasło jest wymagane';
+  if (!password || password.trim() === "") {
+    return "Hasło jest wymagane";
   }
 
   return undefined;

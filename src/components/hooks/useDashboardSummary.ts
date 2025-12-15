@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import type { DashboardSummaryDTO } from '../../types';
-import type { DashboardState } from '../../types/dashboard.types';
+import { useState, useEffect } from "react";
+import type { DashboardSummaryDTO } from "../../types";
+import type { DashboardState } from "../../types/dashboard.types";
 
 interface UseDashboardSummaryOptions {
   initialData?: DashboardSummaryDTO;
@@ -25,15 +25,15 @@ export function useDashboardSummary({ initialData, month }: UseDashboardSummaryO
       try {
         const params = new URLSearchParams();
         if (month) {
-          params.append('month', month);
+          params.append("month", month);
         }
 
-        const url = `/api/dashboard/summary${params.toString() ? `?${params.toString()}` : ''}`;
+        const url = `/api/dashboard/summary${params.toString() ? `?${params.toString()}` : ""}`;
         const response = await fetch(url);
 
         if (!response.ok) {
           if (response.status === 401) {
-            window.location.href = '/login';
+            window.location.href = "/login";
             return;
           }
           throw new Error(`Failed to fetch dashboard summary: ${response.statusText}`);
@@ -42,9 +42,9 @@ export function useDashboardSummary({ initialData, month }: UseDashboardSummaryO
         const data: DashboardSummaryDTO = await response.json();
         setState({ summary: data, isLoading: false, error: null });
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to load dashboard summary';
+        const errorMessage = error instanceof Error ? error.message : "Failed to load dashboard summary";
         setState((prev) => ({ ...prev, isLoading: false, error: errorMessage }));
-        console.error('Error fetching dashboard summary:', error);
+        console.error("Error fetching dashboard summary:", error);
       }
     };
 
@@ -57,15 +57,15 @@ export function useDashboardSummary({ initialData, month }: UseDashboardSummaryO
     try {
       const params = new URLSearchParams();
       if (month) {
-        params.append('month', month);
+        params.append("month", month);
       }
 
-      const url = `/api/dashboard/summary${params.toString() ? `?${params.toString()}` : ''}`;
+      const url = `/api/dashboard/summary${params.toString() ? `?${params.toString()}` : ""}`;
       const response = await fetch(url);
 
       if (!response.ok) {
         if (response.status === 401) {
-          window.location.href = '/login';
+          window.location.href = "/login";
           return;
         }
         throw new Error(`Failed to fetch dashboard summary: ${response.statusText}`);
@@ -74,9 +74,9 @@ export function useDashboardSummary({ initialData, month }: UseDashboardSummaryO
       const data: DashboardSummaryDTO = await response.json();
       setState({ summary: data, isLoading: false, error: null });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load dashboard summary';
+      const errorMessage = error instanceof Error ? error.message : "Failed to load dashboard summary";
       setState((prev) => ({ ...prev, isLoading: false, error: errorMessage }));
-      console.error('Error refreshing dashboard summary:', error);
+      console.error("Error refreshing dashboard summary:", error);
     }
   };
 

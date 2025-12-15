@@ -111,7 +111,7 @@ Konfiguracja w [`playwright.config.ts`](../playwright.config.ts):
 - **Timeout:** 30s per test
 - **Retries:** 2 (tylko w CI)
 - **Workers:** 1 (sequential execution)
-- **Browsers:** 
+- **Browsers:**
   - Desktop: Chromium
   - Mobile: Samsung Galaxy A35 5G (Android)
 
@@ -128,17 +128,17 @@ import {
   logoutUser,
   getTestUser,
   cleanupTestUsers,
-  deleteTestUser
-} from './helpers/auth.helpers';
+  deleteTestUser,
+} from "./helpers/auth.helpers";
 
 // Login with test user credentials
 await loginUser(page);
 
 // Login with custom credentials
-await loginUser(page, 'custom@test.pl', 'CustomPass123!');
+await loginUser(page, "custom@test.pl", "CustomPass123!");
 
 // Register new user (automatycznie dodany do listy do czyszczenia)
-const user = await registerUser(page, 'new@test.pl', 'SecurePass123!');
+const user = await registerUser(page, "new@test.pl", "SecurePass123!");
 
 // Get test user from environment
 const testUser = getTestUser();
@@ -147,13 +147,14 @@ const testUser = getTestUser();
 await logoutUser(page);
 
 // Manualne czyszczenie (zwykle niepotrzebne - działa automatycznie)
-await deleteTestUser('test-123@test.pl');
+await deleteTestUser("test-123@test.pl");
 await cleanupTestUsers(); // Usuwa wszystkich utworzonych użytkowników testowych
 ```
 
 **Automatyczne czyszczenie:** Wszyscy użytkownicy utworzeni przez `registerUser()` są automatycznie usuwani po zakończeniu wszystkich testów dzięki globalTeardown.
 
 **Whitelist:** Następujący użytkownicy NIGDY nie są usuwani:
+
 - `test@test.com`
 - `test-b@test.com`
 - `wra@acme.com`
@@ -161,28 +162,28 @@ await cleanupTestUsers(); // Usuwa wszystkich utworzonych użytkowników testowy
 ### Expense Helpers
 
 ```typescript
-import { 
-  createExpense, 
+import {
+  createExpense,
   createMultipleExpenses,
   deleteAllExpenses,
   getTotalSpent,
-  filterByDateRange
-} from './helpers/expense.helpers';
+  filterByDateRange,
+} from "./helpers/expense.helpers";
 
 // Create single expense
-await createExpense(page, { amount: '50.00', category: 'żywność' });
+await createExpense(page, { amount: "50.00", category: "żywność" });
 
 // Create multiple expenses
 await createMultipleExpenses(page, [
-  { amount: '100.00', category: 'żywność', date: '2024-01-15' },
-  { amount: '50.00', category: 'transport', date: '2024-01-16' }
+  { amount: "100.00", category: "żywność", date: "2024-01-15" },
+  { amount: "50.00", category: "transport", date: "2024-01-16" },
 ]);
 
 // Get total spent
 const total = await getTotalSpent(page);
 
 // Filter by date range
-await filterByDateRange(page, '2024-01-01', '2024-01-31');
+await filterByDateRange(page, "2024-01-01", "2024-01-31");
 
 // Cleanup
 await deleteAllExpenses(page);
@@ -197,26 +198,26 @@ import {
   verifyExtractedData,
   editExpenseItem,
   saveAllExpenses,
-  giveAIConsent
-} from './helpers/receipt.helpers';
+  giveAIConsent,
+} from "./helpers/receipt.helpers";
 
 // Ensure AI consent
 await giveAIConsent(page);
 
 // Upload and process receipt
-await uploadReceipt(page, './e2e/fixtures/receipts/grocery-receipt.jpg');
+await uploadReceipt(page, "./e2e/fixtures/receipts/grocery-receipt.jpg");
 const processed = await waitForAIProcessing(page, 25000);
 
 if (processed) {
   // Verify extracted data
   await verifyExtractedData(page, {
-    totalAmount: '45.50',
-    itemCount: 3
+    totalAmount: "45.50",
+    itemCount: 3,
   });
-  
+
   // Edit one item
-  await editExpenseItem(page, 0, '50.00');
-  
+  await editExpenseItem(page, 0, "50.00");
+
   // Save all
   await saveAllExpenses(page);
 }
@@ -225,11 +226,7 @@ if (processed) {
 ### Setup Helpers
 
 ```typescript
-import { 
-  setupCleanEnvironment,
-  setupWithExpenses,
-  getDateString
-} from './helpers/setup.helpers';
+import { setupCleanEnvironment, setupWithExpenses, getDateString } from "./helpers/setup.helpers";
 
 // Clean setup (login + delete all expenses)
 await setupCleanEnvironment(page);
@@ -252,10 +249,11 @@ const nextWeek = getDateString(7);
 Umieść sample receipt images w `e2e/fixtures/receipts/`:
 
 **Wymagane pliki:**
+
 1. **grocery-receipt.jpg** - Paragon spożywczy (3-5 items, ~45 PLN)
 2. **multi-item-receipt.jpg** - Wiele pozycji (8-10+ items)
-4. **corrupted-receipt.jpg** - Uszkodzony plik (error testing)
-5. **slow-receipt.jpg** - Duży plik 5-10 MB (timeout testing)
+3. **corrupted-receipt.jpg** - Uszkodzony plik (error testing)
+4. **slow-receipt.jpg** - Duży plik 5-10 MB (timeout testing)
 
 ⚠️ **Uwaga:** Pliki receipt są gitignored. Zobacz [`fixtures/README.md`](fixtures/README.md) dla szczegółów.
 
@@ -268,6 +266,7 @@ Umieść sample receipt images w `e2e/fixtures/receipts/`:
 **Plik:** [`receipt-scanning.spec.ts`](receipt-scanning.spec.ts)
 
 **Główny przepływ:**
+
 - ✅ Upload → AI Processing → Verify Data → Edit → Save
 - ✅ Timeout handling
 - ✅ Invalid file types
@@ -279,6 +278,7 @@ Umieść sample receipt images w `e2e/fixtures/receipts/`:
 - ✅ Concurrent uploads
 
 **Metryki:**
+
 - AI Processing: < 20s
 - Error handling: wszystkie edge cases
 - User feedback: loading indicators, retry buttons
@@ -288,6 +288,7 @@ Umieść sample receipt images w `e2e/fixtures/receipts/`:
 **Plik:** [`user-onboarding.spec.ts`](user-onboarding.spec.ts)
 
 **Główny przepływ:**
+
 - ✅ Registration → Login → First Expense
 - ✅ Welcome message
 - ✅ Form guidance
@@ -301,6 +302,7 @@ Umieść sample receipt images w `e2e/fixtures/receipts/`:
 **Plik:** [`dashboard-analytics.spec.ts`](dashboard-analytics.spec.ts)
 
 **Główny przepływ:**
+
 - ✅ Multiple expenses → Correct analytics
 - ✅ Date range filtering
 - ✅ Category filtering
@@ -310,6 +312,7 @@ Umieść sample receipt images w `e2e/fixtures/receipts/`:
 - ✅ Export data
 
 **Metryki:**
+
 - Dashboard Load: < 2s
 - Filter execution: < 1s
 - Real-time updates without refresh
@@ -319,6 +322,7 @@ Umieść sample receipt images w `e2e/fixtures/receipts/`:
 **Plik:** [`performance.spec.ts`](performance.spec.ts)
 
 **Główne metryki:**
+
 - ✅ Dashboard load: < 2s
 - ✅ Receipt processing: < 20s
 - ✅ Form open: < 500ms
@@ -333,6 +337,7 @@ Umieść sample receipt images w `e2e/fixtures/receipts/`:
 **Device:** Samsung Galaxy A35 5G (1080x2340)
 
 **Główne testy:**
+
 - ✅ Mobile navigation
 - ✅ Touch gestures
 - ✅ Mobile form inputs
@@ -364,10 +369,10 @@ test.describe('Feature Name', () => {
   test('should do something', async ({ page }) => {
     // Arrange
     await createMultipleExpenses(page, [...]);
-    
+
     // Act
     await page.click('button');
-    
+
     // Assert
     expect(await page.textContent('h1')).toContain('Expected');
   });
@@ -381,10 +386,10 @@ test.describe('Feature Name', () => {
 await page.waitForSelector('[data-testid="expense-card"]', { timeout: 5000 });
 
 // ✅ DOBRE: Wait for URL change
-await page.waitForURL('/dashboard');
+await page.waitForURL("/dashboard");
 
 // ✅ DOBRE: Wait for network idle
-await page.waitForLoadState('networkidle');
+await page.waitForLoadState("networkidle");
 
 // ⚠️ UNIKAJ: Fixed timeouts (tylko gdy konieczne)
 await page.waitForTimeout(1000);
@@ -400,20 +405,20 @@ await page.click('[data-testid="add-expense-button"]');
 await page.click('button[type="submit"]');
 
 // ✅ OK: Text content
-await page.click('text=Dodaj wydatek');
+await page.click("text=Dodaj wydatek");
 
 // ❌ UNIKAJ: CSS classes (mogą się zmieniać)
-await page.click('.btn-primary');
+await page.click(".btn-primary");
 ```
 
 ### Assertions
 
 ```typescript
 // ✅ DOBRE: Specific assertions
-expect(await page.textContent('[data-testid="total"]')).toBe('100.00');
+expect(await page.textContent('[data-testid="total"]')).toBe("100.00");
 
 // ✅ DOBRE: Visual assertions
-expect(await page.isVisible('text=Success')).toBe(true);
+expect(await page.isVisible("text=Success")).toBe(true);
 
 // ✅ DOBRE: Multiple checks
 const count = await page.locator('[data-testid="item"]').count();
@@ -482,6 +487,7 @@ npx playwright show-trace test-results/.../trace.zip
 ### Common Issues
 
 **Problem:** "File not found" dla receipt fixtures
+
 ```bash
 # Solution: Sprawdź czy receipt images są w miejscu
 ls e2e/fixtures/receipts/
@@ -490,12 +496,14 @@ ls e2e/fixtures/receipts/
 ```
 
 **Problem:** Test timeout w CI
+
 ```bash
 # Solution: Zwiększ timeout w playwright.config.ts
 timeout: 60 * 1000 // 60s
 ```
 
 **Problem:** Flaky tests
+
 ```bash
 # Solution: Dodaj explicit waits
 await page.waitForSelector('[data-testid="element"]');
@@ -503,6 +511,7 @@ await page.waitForLoadState('networkidle');
 ```
 
 **Problem:** Rate limiting (429) w testach
+
 ```bash
 # Solution: Testy używają suite-level authentication
 # Jeśli problem persists, zwiększ delays między requests
@@ -556,21 +565,25 @@ Po zakończeniu wszystkich testów, system automatycznie usuwa utworzonych użyt
 System czyszczenia ma **3 warstwy ochrony** przed usunięciem produkcyjnych użytkowników:
 
 **Warstwa 1: Tracking tylko z testów**
+
 - Tylko użytkownicy utworzeni przez `registerUser()` w testach są dodawani do `createdTestUsers`
 - Użytkownicy zarejestrowani przez UI produkcyjne NIGDY nie trafiają na listę
 
 **Warstwa 2: Whitelist**
+
 - Następujący użytkownicy są na whiteliście i NIGDY nie będą usunięci:
   - `test@test.com` - Główny użytkownik testowy
   - `test-b@test.com` - Backup użytkownik testowy
   - `wra@acme.com` - Użytkownik produkcyjny
 
 **Warstwa 3: Pattern Matching**
+
 - System usuwa TYLKO emaile pasujące do wzorca: `test-{timestamp}{random}@test.pl`
 - Przykłady emails testowych: `test-1733864123456abc@test.pl`
 - Wszystkie inne emaile są automatycznie chronione
 
 **Przykłady:**
+
 - ✅ `test-1733864123456abc@test.pl` - zostanie usunięty (test pattern)
 - ❌ `john@example.com` - NIE zostanie usunięty (nie pasuje do pattern)
 - ❌ `test@test.com` - NIE zostanie usunięty (whitelist)
@@ -581,13 +594,13 @@ System czyszczenia ma **3 warstwy ochrony** przed usunięciem produkcyjnych uży
 Jeśli potrzebujesz manualnie wyczyścić testowych użytkowników:
 
 ```typescript
-import { cleanupTestUsers, deleteTestUser } from './helpers/auth.helpers';
+import { cleanupTestUsers, deleteTestUser } from "./helpers/auth.helpers";
 
 // Usuń wszystkich utworzonych w obecnej sesji
 await cleanupTestUsers();
 
 // Usuń konkretnego użytkownika
-await deleteTestUser('specific-user@test.pl');
+await deleteTestUser("specific-user@test.pl");
 ```
 
 **Happy Testing! 🎉**

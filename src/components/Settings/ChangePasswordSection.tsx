@@ -1,5 +1,5 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChangePasswordForm } from './ChangePasswordForm';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChangePasswordForm } from "./ChangePasswordForm";
 
 /**
  * ChangePasswordSection - Container for password change functionality
@@ -10,9 +10,7 @@ export function ChangePasswordSection() {
     <Card>
       <CardHeader>
         <CardTitle>Zmień hasło</CardTitle>
-        <CardDescription>
-          Zaktualizuj swoje hasło, aby zabezpieczyć konto
-        </CardDescription>
+        <CardDescription>Zaktualizuj swoje hasło, aby zabezpieczyć konto</CardDescription>
       </CardHeader>
       <CardContent>
         <ChangePasswordForm />

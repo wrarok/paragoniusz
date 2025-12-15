@@ -1,5 +1,5 @@
-import type { SupabaseClient } from '../../db/supabase.client';
-import type { DashboardSummaryDTO, CategorySummaryDTO, AIMetricsDTO } from '../../types';
+import type { SupabaseClient } from "../../db/supabase.client";
+import type { DashboardSummaryDTO, CategorySummaryDTO, AIMetricsDTO } from "../../types";
 
 /**
  * Service for handling dashboard summary operations
@@ -15,18 +15,14 @@ export class DashboardService {
    * @param toDate - End date in YYYY-MM-DD format
    * @returns Dashboard summary with aggregated expense data
    */
-  async getSummary(
-    userId: string,
-    fromDate: string,
-    toDate: string
-  ): Promise<DashboardSummaryDTO> {
+  async getSummary(userId: string, fromDate: string, toDate: string): Promise<DashboardSummaryDTO> {
     // Query expenses with category join
     const { data: expenses, error } = await this.supabase
-      .from('expenses')
-      .select('id, amount, currency, created_by_ai, was_ai_suggestion_edited, category_id, categories(id, name)')
-      .eq('user_id', userId)
-      .gte('expense_date', fromDate)
-      .lte('expense_date', toDate);
+      .from("expenses")
+      .select("id, amount, currency, created_by_ai, was_ai_suggestion_edited, category_id, categories(id, name)")
+      .eq("user_id", userId)
+      .gte("expense_date", fromDate)
+      .lte("expense_date", toDate);
 
     if (error) {
       throw new Error(`Failed to fetch expenses: ${error.message}`);
@@ -43,17 +39,20 @@ export class DashboardService {
     const expenseCount = expenses.length;
 
     // Group expenses by category
-    const categoryMap = new Map<string | null, {
-      id: string | null;
-      name: string;
-      amount: number;
-      count: number;
-    }>();
+    const categoryMap = new Map<
+      string | null,
+      {
+        id: string | null;
+        name: string;
+        amount: number;
+        count: number;
+      }
+    >();
 
     expenses.forEach((expense) => {
       const categoryId = expense.category_id;
-      const categoryName = expense.categories?.name || 'Other';
-      
+      const categoryName = expense.categories?.name || "Other";
+
       const existing = categoryMap.get(categoryId);
       if (existing) {
         existing.amount += Number(expense.amount);
@@ -83,11 +82,10 @@ export class DashboardService {
     const aiCreatedCount = expenses.filter((e) => e.created_by_ai).length;
     const aiEditedCount = expenses.filter((e) => e.was_ai_suggestion_edited).length;
     const aiCreatedPercentage = Number(((aiCreatedCount / expenseCount) * 100).toFixed(1));
-    
+
     // AI accuracy: percentage of AI-created expenses that were NOT edited
-    const aiAccuracyPercentage = aiCreatedCount > 0
-      ? Number((((aiCreatedCount - aiEditedCount) / aiCreatedCount) * 100).toFixed(1))
-      : 0;
+    const aiAccuracyPercentage =
+      aiCreatedCount > 0 ? Number((((aiCreatedCount - aiEditedCount) / aiCreatedCount) * 100).toFixed(1)) : 0;
 
     const aiMetrics: AIMetricsDTO = {
       ai_created_count: aiCreatedCount,
@@ -127,8 +125,8 @@ export class DashboardService {
         from_date: fromDate,
         to_date: toDate,
       },
-      total_amount: '0.00',
-      currency: 'PLN',
+      total_amount: "0.00",
+      currency: "PLN",
       expense_count: 0,
       categories: [],
       ai_metrics: {

@@ -47,7 +47,7 @@ import type {
   OpenRouterAPIResponse,
   ResponseSchema,
   ResponseFormat,
-} from '../../types/openrouter.types';
+} from "../../types/openrouter.types";
 
 import {
   OpenRouterError,
@@ -57,11 +57,11 @@ import {
   RateLimitError,
   ValidationError,
   APIError,
-} from '../errors/openrouter.errors';
+} from "../errors/openrouter.errors";
 
-import { HTTPClientService } from '../http/http-client.service';
-import { ExponentialBackoffStrategy, withRetry } from '../strategies/retry.strategy';
-import { OpenRouterRequestBuilder } from '../builders/openrouter-request.builder';
+import { HTTPClientService } from "../http/http-client.service";
+import { ExponentialBackoffStrategy, withRetry } from "../strategies/retry.strategy";
+import { OpenRouterRequestBuilder } from "../builders/openrouter-request.builder";
 
 /**
  * OpenRouter Service Class (Refactored)
@@ -115,20 +115,18 @@ export class OpenRouterService {
     requestBuilder?: OpenRouterRequestBuilder
   ) {
     // Validate API key is present
-    if (!config.apiKey || config.apiKey.trim() === '') {
-      throw new ValidationError('API key is required');
+    if (!config.apiKey || config.apiKey.trim() === "") {
+      throw new ValidationError("API key is required");
     }
 
     this.apiKey = config.apiKey;
-    this.baseUrl = config.baseUrl || 'https://openrouter.ai/api/v1';
+    this.baseUrl = config.baseUrl || "https://openrouter.ai/api/v1";
     this.timeout = config.timeout || 20000; // 20 seconds default per PRD requirement
-    this.defaultModel = config.defaultModel || 'openai/gpt-4o-mini';
+    this.defaultModel = config.defaultModel || "openai/gpt-4o-mini";
 
     // Initialize dependencies (allow injection for testing/customization)
     this.httpClient = httpClient || new HTTPClientService();
-    this.retryStrategy = retryStrategy || new ExponentialBackoffStrategy(
-      config.retryAttempts || 3
-    );
+    this.retryStrategy = retryStrategy || new ExponentialBackoffStrategy(config.retryAttempts || 3);
     this.requestBuilder = requestBuilder || new OpenRouterRequestBuilder();
   }
 
@@ -164,20 +162,18 @@ export class OpenRouterService {
    * console.log(result.data); // Typed as ReceiptData
    * ```
    */
-  async chatCompletion<T>(
-    options: ChatCompletionOptions
-  ): Promise<ChatCompletionResponse<T>> {
+  async chatCompletion<T>(options: ChatCompletionOptions): Promise<ChatCompletionResponse<T>> {
     try {
       // Build request using builder
       const request = this.buildRequest(options);
 
-      console.log(`[OpenRouter] Calling LLM: ${request.model}`);
+      // Log which model is being called (only in development)
+      if (import.meta.env.DEV) {
+        console.log(`[OpenRouter] Calling LLM: ${request.model}`);
+      }
 
       // Execute with retry logic
-      const response = await withRetry(
-        () => this.executeRequest(request),
-        this.retryStrategy
-      );
+      const response = await withRetry(() => this.executeRequest(request), this.retryStrategy);
 
       // Parse and validate response
       return this.parseResponse<T>(response as OpenRouterAPIResponse);
@@ -208,7 +204,7 @@ export class OpenRouterService {
    */
   public buildResponseFormat(schema: ResponseSchema): ResponseFormat {
     return {
-      type: 'json_schema',
+      type: "json_schema",
       json_schema: {
         name: schema.name,
         strict: true,
@@ -263,16 +259,16 @@ export class OpenRouterService {
    * @throws {NetworkError} For network failures
    * @private
    */
-  private async executeRequest(request: any): Promise<unknown> {
+  private async executeRequest(request: unknown): Promise<unknown> {
     try {
       const response = await this.httpClient.postWithTimeout<OpenRouterAPIResponse>(
         `${this.baseUrl}/chat/completions`,
         request,
         this.timeout,
         {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'HTTP-Referer': 'https://paragoniusz.app',
-          'X-Title': 'Paragoniusz',
+          Authorization: `Bearer ${this.apiKey}`,
+          "HTTP-Referer": "https://paragoniusz.app",
+          "X-Title": "Paragoniusz",
         }
       );
 
@@ -280,19 +276,19 @@ export class OpenRouterService {
     } catch (error) {
       // Classify errors based on error message or type
       if (error instanceof Error) {
-        if (error.message === 'REQUEST_TIMEOUT') {
+        if (error.message === "REQUEST_TIMEOUT") {
           throw new TimeoutError();
         }
-        if (error.message.includes('HTTP 401') || error.message.includes('HTTP 403')) {
+        if (error.message.includes("HTTP 401") || error.message.includes("HTTP 403")) {
           throw new AuthenticationError(error.message);
         }
-        if (error.message.includes('HTTP 429')) {
+        if (error.message.includes("HTTP 429")) {
           throw new RateLimitError(error.message);
         }
-        if (error.message.includes('HTTP 400')) {
+        if (error.message.includes("HTTP 400")) {
           throw new ValidationError(error.message);
         }
-        if (error.message.includes('HTTP')) {
+        if (error.message.includes("HTTP")) {
           // Extract status code if present
           const statusMatch = error.message.match(/HTTP (\d+)/);
           const status = statusMatch ? parseInt(statusMatch[1]) : 500;
@@ -319,7 +315,7 @@ export class OpenRouterService {
     const content = apiResponse.choices[0]?.message?.content;
 
     if (!content) {
-      throw new ValidationError('No content in API response');
+      throw new ValidationError("No content in API response");
     }
 
     // Parse JSON content
@@ -327,16 +323,17 @@ export class OpenRouterService {
     try {
       data = JSON.parse(content) as T;
     } catch (error) {
-      throw new ValidationError(
-        'Failed to parse response as JSON',
-        error instanceof Error ? error.message : undefined
-      );
+      throw new ValidationError("Failed to parse response as JSON", error instanceof Error ? error.message : undefined);
     }
 
-    // Log successful response
-    console.log(`[OpenRouter] Response received from: ${apiResponse.model}`);
-    if (apiResponse.usage) {
-      console.log(`[OpenRouter] Token usage - Prompt: ${apiResponse.usage.prompt_tokens}, Completion: ${apiResponse.usage.completion_tokens}, Total: ${apiResponse.usage.total_tokens}`);
+    // Log successful response (only in development)
+    if (import.meta.env.DEV) {
+      console.log(`[OpenRouter] Response received from: ${apiResponse.model}`);
+      if (apiResponse.usage) {
+        console.log(
+          `[OpenRouter] Token usage - Prompt: ${apiResponse.usage.prompt_tokens}, Completion: ${apiResponse.usage.completion_tokens}, Total: ${apiResponse.usage.total_tokens}`
+        );
+      }
     }
 
     return {
@@ -365,12 +362,12 @@ export class OpenRouterService {
     }
 
     // Handle network errors
-    if (error instanceof TypeError && error.message.includes('fetch')) {
+    if (error instanceof TypeError && error.message.includes("fetch")) {
       throw new NetworkError(error.message);
     }
 
     // Generic fallback
-    const message = error instanceof Error ? error.message : 'Unknown error occurred';
-    throw new OpenRouterError(message, 'UNKNOWN_ERROR');
+    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    throw new OpenRouterError(message, "UNKNOWN_ERROR");
   }
 }

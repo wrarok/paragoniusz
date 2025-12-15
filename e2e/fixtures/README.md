@@ -7,9 +7,11 @@ Place receipt image samples in `receipts/` directory for testing AI receipt scan
 ### Required Files:
 
 #### 1. **grocery-receipt.jpg** ✅ Required
+
 Standard grocery receipt with multiple food items.
 
 **Requirements:**
+
 - Format: JPG or PNG
 - Size: < 5 MB
 - Items: 3-5 food items
@@ -17,6 +19,7 @@ Standard grocery receipt with multiple food items.
 - Polish language receipt preferred
 
 **Expected Data Structure:**
+
 ```json
 {
   "total": "45.50",
@@ -31,8 +34,8 @@ Standard grocery receipt with multiple food items.
 
 ---
 
-
 **Requirements:**
+
 - Format: JPG or PNG
 - Size: < 5 MB
 - Items: 2-3 items (food/drinks)
@@ -40,6 +43,7 @@ Standard grocery receipt with multiple food items.
 - Category: restauracje
 
 **Expected Data Structure:**
+
 ```json
 {
   "total": "40.00",
@@ -54,9 +58,11 @@ Standard grocery receipt with multiple food items.
 ---
 
 #### 3. **multi-item-receipt.jpg** ✅ Required
+
 Receipt with many items (8-10+) from various categories.
 
 **Requirements:**
+
 - Format: JPG or PNG
 - Size: < 5 MB
 - Items: 8-10 items minimum
@@ -68,9 +74,11 @@ Receipt with many items (8-10+) from various categories.
 ---
 
 #### 4. **corrupted-receipt.jpg** ⚠️ For Error Testing
+
 Corrupted or unreadable image file.
 
 **Requirements:**
+
 - Format: JPG or PNG
 - Content: Blurry, damaged, or unreadable text
 - Alternative: Empty/blank image
@@ -80,9 +88,11 @@ Corrupted or unreadable image file.
 ---
 
 #### 5. **slow-receipt.jpg** ⏱️ For Timeout Testing
+
 Large file that may trigger processing timeout.
 
 **Requirements:**
+
 - Format: JPG
 - Size: 5-10 MB
 - Resolution: Very high (4000x6000px or higher)
@@ -94,11 +104,13 @@ Large file that may trigger processing timeout.
 ## 📝 General Image Requirements
 
 ### Format Support:
+
 - ✅ JPEG (.jpg, .jpeg)
 - ✅ PNG (.png)
 - ✅ HEIC (.heic) - Apple Photos format
 
 ### Quality Guidelines:
+
 - **Resolution:** 1000x1500px minimum (except slow-receipt)
 - **Text Clarity:** All text must be clearly readable
 - **Lighting:** Good lighting, no shadows
@@ -106,6 +118,7 @@ Large file that may trigger processing timeout.
 - **Language:** Polish receipts preferred for realistic testing
 
 ### What to Avoid:
+
 - ❌ Receipts with personal information (blur if needed)
 - ❌ Receipts with credit card numbers
 - ❌ Extremely faded or damaged receipts (except corrupted-receipt test)
@@ -116,6 +129,7 @@ Large file that may trigger processing timeout.
 ## 🔧 Creating Test Fixtures
 
 ### Option 1: Use Real Receipts
+
 1. Take clear photos of receipts with your phone
 2. Crop and adjust brightness if needed
 3. Blur any sensitive information
@@ -123,13 +137,16 @@ Large file that may trigger processing timeout.
 5. Place in `e2e/fixtures/receipts/` directory
 
 ### Option 2: Generate Sample Receipts
+
 1. Use online receipt generator tools
 2. Configure with Polish text and items
 3. Download as image
 4. Rename according to naming convention
 
 ### Option 3: Use Sample Images (Development Only)
+
 For initial testing, you can use placeholder images:
+
 ```bash
 # Create placeholder images (requires ImageMagick)
 convert -size 1000x1500 xc:white -pointsize 30 \
@@ -142,16 +159,17 @@ convert -size 1000x1500 xc:white -pointsize 30 \
 ## 📊 Fixture Usage in Tests
 
 ### Example: Loading Receipt in Test
-```typescript
-import { test } from '@playwright/test';
-import { uploadReceipt, waitForAIProcessing } from './helpers/receipt.helpers';
 
-test('should process grocery receipt', async ({ page }) => {
-  await page.goto('/expenses/scan');
-  
+```typescript
+import { test } from "@playwright/test";
+import { uploadReceipt, waitForAIProcessing } from "./helpers/receipt.helpers";
+
+test("should process grocery receipt", async ({ page }) => {
+  await page.goto("/expenses/scan");
+
   // Upload fixture
-  await uploadReceipt(page, './e2e/fixtures/receipts/grocery-receipt.jpg');
-  
+  await uploadReceipt(page, "./e2e/fixtures/receipts/grocery-receipt.jpg");
+
   // Wait for AI processing
   const processed = await waitForAIProcessing(page);
   expect(processed).toBe(true);
@@ -162,7 +180,8 @@ test('should process grocery receipt', async ({ page }) => {
 
 ## 🔒 Security & Privacy
 
-**IMPORTANT:** 
+**IMPORTANT:**
+
 - ⚠️ All receipt image files are **gitignored** (see `.gitignore`)
 - ⚠️ Never commit actual receipt images to version control
 - ⚠️ Blur or remove any personal information before using real receipts
@@ -180,6 +199,7 @@ Since fixtures are gitignored, share them with your team via:
 4. **Document Instructions:** This README explains how to obtain/create them
 
 **Setup Instructions for New Developers:**
+
 ```bash
 # 1. Clone repository
 git clone <repo-url>
@@ -205,7 +225,7 @@ npm run test:e2e
 Before running E2E tests, verify:
 
 - [ ] All 5 required receipt images are present
-- [ ] Images meet size and format requirements  
+- [ ] Images meet size and format requirements
 - [ ] grocery-receipt.jpg has ~3-5 items, ~45 PLN total
 - [ ] multi-item-receipt.jpg has 8+ items
 - [ ] corrupted-receipt.jpg is unreadable/damaged
@@ -218,20 +238,26 @@ Before running E2E tests, verify:
 ## 🆘 Troubleshooting
 
 ### Problem: "File not found" error in tests
+
 **Solution:** Verify fixture path is relative to project root:
+
 ```typescript
-'./e2e/fixtures/receipts/grocery-receipt.jpg'  // ✅ Correct
-'../fixtures/receipts/grocery-receipt.jpg'     // ❌ Wrong
+"./e2e/fixtures/receipts/grocery-receipt.jpg"; // ✅ Correct
+"../fixtures/receipts/grocery-receipt.jpg"; // ❌ Wrong
 ```
 
 ### Problem: AI processing always fails
-**Solution:** 
+
+**Solution:**
+
 1. Check image quality (blur, low resolution)
 2. Verify file isn't corrupted
 3. Try with a clearer receipt image
 
 ### Problem: Timeout on all receipts
+
 **Solution:**
+
 1. Check internet connection (OpenRouter API requires network)
 2. Verify `.env.test` has correct Supabase credentials
 3. Check if OpenRouter API is accessible

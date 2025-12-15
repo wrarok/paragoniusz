@@ -1,7 +1,12 @@
-import { useState, useCallback, type FormEvent } from 'react';
-import type { LoginFormData, LoginValidationErrors, LoginFormProps } from '../../types/auth.types';
-import { validateLoginForm, validateEmail, validatePassword, hasValidationErrors } from '../../lib/validation/login.validation';
-import { loginUser } from '../../lib/services/auth.service';
+import { useState, useCallback, type FormEvent } from "react";
+import type { LoginFormData, LoginValidationErrors, LoginFormProps } from "../../types/auth.types";
+import {
+  validateLoginForm,
+  validateEmail,
+  validatePassword,
+  hasValidationErrors,
+} from "../../lib/validation/login.validation";
+import { loginUser } from "../../lib/services/auth.service";
 
 /**
  * Custom hook for managing login form state and logic
@@ -9,13 +14,13 @@ import { loginUser } from '../../lib/services/auth.service';
  * @returns Form state and handlers
  */
 export function useLoginForm(props?: LoginFormProps) {
-  const { redirectTo = '/', onSuccess } = props || {};
+  const { redirectTo = "/", onSuccess } = props || {};
 
   // Form state
   const [formData, setFormData] = useState<LoginFormData>({
-    email: '',
-    password: '',
-    rememberMe: false
+    email: "",
+    password: "",
+    rememberMe: false,
   });
 
   const [errors, setErrors] = useState<LoginValidationErrors>({});
@@ -26,106 +31,111 @@ export function useLoginForm(props?: LoginFormProps) {
    * Handles input field changes
    * Clears error for the field being edited
    */
-  const handleInputChange = useCallback((field: keyof LoginFormData, value: string | boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-
-    // Clear error for this field when user starts typing
-    if (errors[field as keyof LoginValidationErrors]) {
-      setErrors(prev => ({
+  const handleInputChange = useCallback(
+    (field: keyof LoginFormData, value: string | boolean) => {
+      setFormData((prev) => ({
         ...prev,
-        [field]: undefined
+        [field]: value,
       }));
-    }
-  }, [errors]);
+
+      // Clear error for this field when user starts typing
+      if (errors[field as keyof LoginValidationErrors]) {
+        setErrors((prev) => ({
+          ...prev,
+          [field]: undefined,
+        }));
+      }
+    },
+    [errors]
+  );
 
   /**
    * Handles field blur events for immediate validation feedback
    */
-  const handleBlur = useCallback((field: keyof LoginFormData) => {
-    let error: string | undefined;
+  const handleBlur = useCallback(
+    (field: keyof LoginFormData) => {
+      let error: string | undefined;
 
-    if (field === 'email') {
-      error = validateEmail(formData.email);
-    } else if (field === 'password') {
-      error = validatePassword(formData.password);
-    }
+      if (field === "email") {
+        error = validateEmail(formData.email);
+      } else if (field === "password") {
+        error = validatePassword(formData.password);
+      }
 
-    if (error) {
-      setErrors(prev => ({
-        ...prev,
-        [field]: error
-      }));
-    }
-  }, [formData]);
+      if (error) {
+        setErrors((prev) => ({
+          ...prev,
+          [field]: error,
+        }));
+      }
+    },
+    [formData]
+  );
 
   /**
    * Toggles password visibility
    */
   const togglePasswordVisibility = useCallback(() => {
-    setShowPassword(prev => !prev);
+    setShowPassword((prev) => !prev);
   }, []);
 
   /**
    * Handles form submission
    */
-  const handleSubmit = useCallback(async (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    async (e: FormEvent) => {
+      e.preventDefault();
 
-    // Clear general error
-    setErrors(prev => ({ ...prev, general: undefined }));
+      // Clear general error
+      setErrors((prev) => ({ ...prev, general: undefined }));
 
-    // Validate all fields
-    const validationErrors = validateLoginForm(formData);
+      // Validate all fields
+      const validationErrors = validateLoginForm(formData);
 
-    if (hasValidationErrors(validationErrors)) {
-      setErrors(validationErrors);
-      
-      // Focus first invalid field (only on client side)
-      if (typeof window !== 'undefined') {
-        const firstErrorField = Object.keys(validationErrors)[0];
-        const fieldElement = document.querySelector(`[name="${firstErrorField}"]`) as HTMLElement;
-        fieldElement?.focus();
-      }
-      
-      return;
-    }
+      if (hasValidationErrors(validationErrors)) {
+        setErrors(validationErrors);
 
-    // Submit form
-    setIsSubmitting(true);
+        // Focus first invalid field (only on client side)
+        if (typeof window !== "undefined") {
+          const firstErrorField = Object.keys(validationErrors)[0];
+          const fieldElement = document.querySelector(`[name="${firstErrorField}"]`) as HTMLElement;
+          fieldElement?.focus();
+        }
 
-    try {
-      const result = await loginUser(
-        formData.email,
-        formData.password,
-        formData.rememberMe
-      );
-
-      if (!result.success) {
-        setErrors({
-          general: result.error || 'Login failed. Please try again.'
-        });
-        setIsSubmitting(false);
         return;
       }
 
-      // Success - call callback if provided
-      if (onSuccess) {
-        onSuccess();
-      }
+      // Submit form
+      setIsSubmitting(true);
 
-      // Redirect to target page
-      window.location.href = redirectTo;
-    } catch (error) {
-      console.error('Login error:', error);
-      setErrors({
-        general: 'An unexpected error occurred. Please try again.'
-      });
-      setIsSubmitting(false);
-    }
-  }, [formData, redirectTo, onSuccess]);
+      try {
+        const result = await loginUser(formData.email, formData.password);
+
+        if (!result.success) {
+          setErrors({
+            general: result.error || "Login failed. Please try again.",
+          });
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Success - call callback if provided
+        if (onSuccess) {
+          onSuccess();
+        }
+
+        // Redirect to target page
+        window.location.href = redirectTo;
+      } catch (error) {
+        console.error("Login error:", error);
+        setErrors({
+          general: "An unexpected error occurred. Please try again.",
+        });
+        setIsSubmitting(false);
+      }
+    },
+    [formData, redirectTo, onSuccess]
+  );
 
   return {
     formData,
@@ -135,6 +145,6 @@ export function useLoginForm(props?: LoginFormProps) {
     handleInputChange,
     handleBlur,
     handleSubmit,
-    togglePasswordVisibility
+    togglePasswordVisibility,
   };
 }

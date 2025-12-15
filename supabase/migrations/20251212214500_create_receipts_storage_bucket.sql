@@ -4,14 +4,12 @@
 -- considerations: rls policies ensure users can only access their own receipts
 
 -- create receipts bucket for storing receipt images
-insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+insert into storage.buckets (id, name)
 values (
   'receipts',
-  'receipts',
-  false, -- private bucket, requires authentication
-  10485760, -- 10mb max file size
-  array['image/jpeg', 'image/png', 'image/heic'] -- allowed image types
-);
+  'receipts'
+)
+on conflict (id) do nothing;
 
 -- rls policy: allow authenticated users to upload receipts to their own folder
 create policy "users can upload receipts to their own folder"

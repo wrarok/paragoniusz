@@ -1,12 +1,12 @@
 /**
  * Database Test Helpers
- * 
+ *
  * Helper utilities for managing database operations in integration tests.
  */
 
-import { createClient } from '@supabase/supabase-js';
-import type { Database } from '../../src/db/database.types';
-import { TEST_USER } from '../integration-setup';
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "../../src/db/database.types";
+import { TEST_USER } from "../integration-setup";
 
 /**
  * Creates a Supabase client for integration tests
@@ -17,7 +17,7 @@ export function createTestClient() {
   const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Missing SUPABASE_URL or SUPABASE_ANON_KEY in environment variables');
+    throw new Error("Missing SUPABASE_URL or SUPABASE_ANON_KEY in environment variables");
   }
 
   return createClient<Database>(supabaseUrl, supabaseKey, {
@@ -32,24 +32,19 @@ export function createTestClient() {
  * Cleans test data using provided authenticated client
  * Preferred for suite-level tests to avoid creating new sessions
  */
-export async function cleanTestDataWithClient(
-  supabase: ReturnType<typeof createClient<Database>>,
-) {
+export async function cleanTestDataWithClient(supabase: ReturnType<typeof createClient<Database>>) {
   try {
     // Delete all test user's expenses
-    const { error: expensesError } = await supabase
-      .from('expenses')
-      .delete()
-      .eq('user_id', TEST_USER.id);
+    const { error: expensesError } = await supabase.from("expenses").delete().eq("user_id", TEST_USER.id);
 
     if (expensesError) {
-      console.error('Error cleaning expenses:', expensesError);
+      console.error("Error cleaning expenses:", expensesError);
       throw expensesError;
     }
 
-    console.log('✅ Test data cleaned successfully');
+    console.log("✅ Test data cleaned successfully");
   } catch (error) {
-    console.error('❌ Failed to clean test data:', error);
+    console.error("❌ Failed to clean test data:", error);
     throw error;
   }
 }
@@ -62,7 +57,7 @@ export async function cleanTestDataWithClient(
  */
 export async function cleanTestData() {
   // Import here to avoid circular dependency
-  const { createAuthenticatedClient } = await import('./test-auth.ts');
+  const { createAuthenticatedClient } = await import("./test-auth.ts");
   const supabase = await createAuthenticatedClient();
 
   await cleanTestDataWithClient(supabase);
@@ -75,13 +70,10 @@ export async function cleanTestData() {
 export async function getCategories() {
   const supabase = createTestClient();
 
-  const { data, error } = await supabase
-    .from('categories')
-    .select('*')
-    .order('name');
+  const { data, error } = await supabase.from("categories").select("*").order("name");
 
   if (error) {
-    console.error('Error fetching categories:', error);
+    console.error("Error fetching categories:", error);
     throw error;
   }
 
@@ -94,11 +86,7 @@ export async function getCategories() {
 export async function getCategoryByName(name: string) {
   const supabase = createTestClient();
 
-  const { data, error } = await supabase
-    .from('categories')
-    .select('*')
-    .ilike('name', name)
-    .single();
+  const { data, error } = await supabase.from("categories").select("*").ilike("name", name).single();
 
   if (error) {
     console.error(`Error fetching category "${name}":`, error);
@@ -113,32 +101,30 @@ export async function getCategoryByName(name: string) {
  */
 export async function verifyCategoriesSetup() {
   const categories = await getCategories();
-  
+
   const requiredCategories = [
-    'żywność',
-    'transport',
-    'media',
-    'rozrywka',
-    'zdrowie',
-    'edukacja',
-    'odzież',
-    'restauracje',
-    'mieszkanie',
-    'ubezpieczenia',
-    'higiena',
-    'prezenty',
-    'podróże',
-    'subskrypcje',
-    'inne',
+    "żywność",
+    "transport",
+    "media",
+    "rozrywka",
+    "zdrowie",
+    "edukacja",
+    "odzież",
+    "restauracje",
+    "mieszkanie",
+    "ubezpieczenia",
+    "higiena",
+    "prezenty",
+    "podróże",
+    "subskrypcje",
+    "inne",
   ];
 
   const categoryNames = categories.map((c) => c.name.toLowerCase());
   const missing = requiredCategories.filter((name) => !categoryNames.includes(name));
 
   if (missing.length > 0) {
-    throw new Error(
-      `Missing required categories: ${missing.join(', ')}. Please run migrations.`
-    );
+    throw new Error(`Missing required categories: ${missing.join(", ")}. Please run migrations.`);
   }
 
   return categories;
@@ -150,17 +136,14 @@ export async function verifyCategoriesSetup() {
  */
 export async function cleanTestDataUserB(supabase: ReturnType<typeof createClient<Database>>, userBId: string) {
   // Delete all expenses for User B
-  const { error: expensesError } = await supabase
-    .from('expenses')
-    .delete()
-    .eq('user_id', userBId);
+  const { error: expensesError } = await supabase.from("expenses").delete().eq("user_id", userBId);
 
   if (expensesError) {
-    console.error('Failed to clean User B expenses:', expensesError);
+    console.error("Failed to clean User B expenses:", expensesError);
     throw expensesError;
   }
 
-  console.log('✅ Test data cleaned for User B');
+  console.log("✅ Test data cleaned for User B");
 }
 
 /**
@@ -177,19 +160,19 @@ export async function createTestExpense(
   }
 ) {
   const { data: expense, error } = await supabase
-    .from('expenses')
+    .from("expenses")
     .insert({
       user_id: data.user_id || TEST_USER.id,
       category_id: data.category_id,
       amount: parseFloat(data.amount), // Convert string to number for database
       expense_date: data.expense_date,
-      currency: 'PLN',
+      currency: "PLN",
     })
     .select()
     .single();
 
   if (error) {
-    console.error('Error creating test expense:', error);
+    console.error("Error creating test expense:", error);
     throw error;
   }
 

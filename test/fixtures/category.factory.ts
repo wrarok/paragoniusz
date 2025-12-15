@@ -1,31 +1,33 @@
-import { faker } from '@faker-js/faker/locale/pl';
+import { faker } from "@faker-js/faker/locale/pl";
 
 /**
  * Predefined Polish category names matching the database
  */
 const POLISH_CATEGORIES = [
-  { name: 'Żywność', icon: '🍔' },
-  { name: 'Transport', icon: '🚗' },
-  { name: 'Rachunki', icon: '💡' },
-  { name: 'Rozrywka', icon: '🎬' },
-  { name: 'Zdrowie', icon: '💊' },
-  { name: 'Odzież', icon: '👕' },
-  { name: 'Dom', icon: '🏠' },
-  { name: 'Edukacja', icon: '📚' },
-  { name: 'Inne', icon: '📦' },
+  { name: "Żywność", icon: "🍔" },
+  { name: "Transport", icon: "🚗" },
+  { name: "Rachunki", icon: "💡" },
+  { name: "Rozrywka", icon: "🎬" },
+  { name: "Zdrowie", icon: "💊" },
+  { name: "Odzież", icon: "👕" },
+  { name: "Dom", icon: "🏠" },
+  { name: "Edukacja", icon: "📚" },
+  { name: "Inne", icon: "📦" },
 ] as const;
 
 /**
  * Factory for creating test category data
  */
-export function createCategory(overrides?: Partial<{
-  id: string;
-  name: string;
-  icon: string;
-  created_at: string;
-}>) {
+export function createCategory(
+  overrides?: Partial<{
+    id: string;
+    name: string;
+    icon: string;
+    created_at: string;
+  }>
+) {
   const randomCategory = faker.helpers.arrayElement(POLISH_CATEGORIES);
-  
+
   return {
     id: faker.string.uuid(),
     name: randomCategory.name,

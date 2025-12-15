@@ -1,6 +1,11 @@
-import type { APIRoute } from 'astro';
-import { getExpenseById, deleteExpense, updateExpense, validateCategories } from '../../../lib/services/expense.service';
-import { ExpenseIdSchema, UpdateExpenseSchema } from '../../../lib/validation/expense.validation';
+import type { APIRoute } from "astro";
+import {
+  getExpenseById,
+  deleteExpense,
+  updateExpense,
+  validateCategories,
+} from "../../../lib/services/expense.service.refactored";
+import { ExpenseIdSchema, UpdateExpenseSchema } from "../../../lib/validation/expense.validation";
 
 /**
  * GET /api/expenses/{id}
@@ -21,17 +26,17 @@ export const GET: APIRoute = async (context) => {
       return new Response(
         JSON.stringify({
           error: {
-            code: 'INVALID_INPUT',
-            message: 'Invalid expense ID format. Must be a valid UUID.',
+            code: "INVALID_INPUT",
+            message: "Invalid expense ID format. Must be a valid UUID.",
             details: {
-              field: 'id',
+              field: "id",
               provided: context.params.id,
             },
           },
         }),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
@@ -46,13 +51,13 @@ export const GET: APIRoute = async (context) => {
       return new Response(
         JSON.stringify({
           error: {
-            code: 'EXPENSE_NOT_FOUND',
-            message: 'Expense not found.',
+            code: "EXPENSE_NOT_FOUND",
+            message: "Expense not found.",
           },
         }),
         {
           status: 404,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
@@ -60,18 +65,18 @@ export const GET: APIRoute = async (context) => {
     // Return success response
     return new Response(JSON.stringify(expense), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     // Log error for debugging
-    console.error('Error in GET /api/expenses/:id:', error);
+    console.error("Error in GET /api/expenses/:id:", error);
 
     // Return generic error response
     return new Response(
       JSON.stringify({
         error: {
-          code: 'INTERNAL_ERROR',
-          message: 'An unexpected error occurred. Please try again later.',
+          code: "INTERNAL_ERROR",
+          message: "An unexpected error occurred. Please try again later.",
           details: {
             timestamp: new Date().toISOString(),
           },
@@ -79,7 +84,7 @@ export const GET: APIRoute = async (context) => {
       }),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       }
     );
   }
@@ -104,17 +109,17 @@ export const DELETE: APIRoute = async (context) => {
       return new Response(
         JSON.stringify({
           error: {
-            code: 'INVALID_INPUT',
-            message: 'Invalid expense ID format. Must be a valid UUID.',
+            code: "INVALID_INPUT",
+            message: "Invalid expense ID format. Must be a valid UUID.",
             details: {
-              field: 'id',
+              field: "id",
               provided: context.params.id,
             },
           },
         }),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
@@ -129,13 +134,13 @@ export const DELETE: APIRoute = async (context) => {
       return new Response(
         JSON.stringify({
           error: {
-            code: 'EXPENSE_NOT_FOUND',
-            message: 'Expense not found.',
+            code: "EXPENSE_NOT_FOUND",
+            message: "Expense not found.",
           },
         }),
         {
           status: 404,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
@@ -144,14 +149,14 @@ export const DELETE: APIRoute = async (context) => {
     return new Response(null, { status: 204 });
   } catch (error) {
     // Log error for debugging
-    console.error('Error in DELETE /api/expenses/:id:', error);
+    console.error("Error in DELETE /api/expenses/:id:", error);
 
     // Return generic error response
     return new Response(
       JSON.stringify({
         error: {
-          code: 'INTERNAL_ERROR',
-          message: 'An unexpected error occurred. Please try again later.',
+          code: "INTERNAL_ERROR",
+          message: "An unexpected error occurred. Please try again later.",
           details: {
             timestamp: new Date().toISOString(),
           },
@@ -159,7 +164,7 @@ export const DELETE: APIRoute = async (context) => {
       }),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       }
     );
   }
@@ -184,17 +189,17 @@ export const PATCH: APIRoute = async (context) => {
       return new Response(
         JSON.stringify({
           error: {
-            code: 'INVALID_INPUT',
-            message: 'Invalid expense ID format. Must be a valid UUID.',
+            code: "INVALID_INPUT",
+            message: "Invalid expense ID format. Must be a valid UUID.",
             details: {
-              field: 'id',
+              field: "id",
               provided: context.params.id,
             },
           },
         }),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
@@ -205,17 +210,17 @@ export const PATCH: APIRoute = async (context) => {
     let requestBody;
     try {
       requestBody = await context.request.json();
-    } catch (error) {
+    } catch {
       return new Response(
         JSON.stringify({
           error: {
-            code: 'INVALID_INPUT',
-            message: 'Invalid JSON in request body.',
+            code: "INVALID_INPUT",
+            message: "Invalid JSON in request body.",
           },
         }),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
@@ -226,14 +231,14 @@ export const PATCH: APIRoute = async (context) => {
       return new Response(
         JSON.stringify({
           error: {
-            code: 'INVALID_INPUT',
-            message: 'Invalid request payload.',
+            code: "INVALID_INPUT",
+            message: "Invalid request payload.",
             details: bodyValidation.error.flatten(),
           },
         }),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
@@ -243,13 +248,13 @@ export const PATCH: APIRoute = async (context) => {
     // 3. Validate category exists if category_id is provided
     if (updateData.category_id) {
       const categoryValidation = await validateCategories(supabase, [updateData.category_id]);
-      
+
       if (!categoryValidation.valid) {
         return new Response(
           JSON.stringify({
             error: {
-              code: 'INVALID_CATEGORY',
-              message: 'The specified category does not exist.',
+              code: "INVALID_CATEGORY",
+              message: "The specified category does not exist.",
               details: {
                 category_id: updateData.category_id,
               },
@@ -257,7 +262,7 @@ export const PATCH: APIRoute = async (context) => {
           }),
           {
             status: 422,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { "Content-Type": "application/json" },
           }
         );
       }
@@ -271,13 +276,13 @@ export const PATCH: APIRoute = async (context) => {
       return new Response(
         JSON.stringify({
           error: {
-            code: 'EXPENSE_NOT_FOUND',
-            message: 'Expense not found.',
+            code: "EXPENSE_NOT_FOUND",
+            message: "Expense not found.",
           },
         }),
         {
           status: 404,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
@@ -285,18 +290,18 @@ export const PATCH: APIRoute = async (context) => {
     // 5. Return updated expense
     return new Response(JSON.stringify(updatedExpense), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     // Log error for debugging
-    console.error('Error in PATCH /api/expenses/:id:', error);
+    console.error("Error in PATCH /api/expenses/:id:", error);
 
     // Return generic error response
     return new Response(
       JSON.stringify({
         error: {
-          code: 'INTERNAL_ERROR',
-          message: 'An unexpected error occurred. Please try again later.',
+          code: "INTERNAL_ERROR",
+          message: "An unexpected error occurred. Please try again later.",
           details: {
             timestamp: new Date().toISOString(),
           },
@@ -304,7 +309,7 @@ export const PATCH: APIRoute = async (context) => {
       }),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       }
     );
   }

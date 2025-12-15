@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import type { ProfileDTO, APIErrorResponse } from '../../types';
-import type { ProfileState } from '../../types/settings.types';
+import { useState, useEffect } from "react";
+import type { ProfileDTO, APIErrorResponse } from "../../types";
+import type { ProfileState } from "../../types/settings.types";
 
 /**
  * Custom hook for fetching and managing user profile data
@@ -17,12 +17,12 @@ export function useProfile() {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const response = await fetch('/api/profiles/me');
+      const response = await fetch("/api/profiles/me");
 
       if (!response.ok) {
         if (response.status === 401) {
           // Redirect to login on unauthorized
-          window.location.href = '/login';
+          window.location.href = "/login";
           return;
         }
 
@@ -30,7 +30,7 @@ export function useProfile() {
         setState({
           profile: null,
           isLoading: false,
-          error: errorData.error.message || 'Failed to load profile',
+          error: errorData.error.message || "Failed to load profile",
         });
         return;
       }
@@ -41,11 +41,11 @@ export function useProfile() {
         isLoading: false,
         error: null,
       });
-    } catch (error) {
+    } catch {
       setState({
         profile: null,
         isLoading: false,
-        error: 'Unable to load profile. Please check your connection.',
+        error: "Unable to load profile. Please check your connection.",
       });
     }
   };

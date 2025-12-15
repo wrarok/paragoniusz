@@ -1,12 +1,12 @@
-import { getPasswordStrengthLabel } from '../../lib/validation/register.validation';
+import { getPasswordStrengthLabel } from "../../lib/validation/register.validation";
 
 /**
  * Password strength indicator props
  */
-export type PasswordStrengthIndicatorProps = {
+export interface PasswordStrengthIndicatorProps {
   strength: number; // 0-4 score
   password: string; // Current password value
-};
+}
 
 /**
  * Visual password strength indicator
@@ -19,19 +19,19 @@ export function PasswordStrengthIndicator({ strength, password }: PasswordStreng
   }
 
   const strengthColors = [
-    'bg-destructive',      // 0: Very Weak (red)
-    'bg-orange-500',       // 1: Weak (orange)
-    'bg-yellow-500',       // 2: Fair (yellow)
-    'bg-blue-500',         // 3: Strong (blue)
-    'bg-green-500'         // 4: Very Strong (green)
+    "bg-destructive", // 0: Very Weak (red)
+    "bg-orange-500", // 1: Weak (orange)
+    "bg-yellow-500", // 2: Fair (yellow)
+    "bg-blue-500", // 3: Strong (blue)
+    "bg-green-500", // 4: Very Strong (green)
   ];
 
   const strengthTextColors = [
-    'text-destructive',
-    'text-orange-500',
-    'text-yellow-600',
-    'text-blue-500',
-    'text-green-500'
+    "text-destructive",
+    "text-orange-500",
+    "text-yellow-600",
+    "text-blue-500",
+    "text-green-500",
   ];
 
   const label = getPasswordStrengthLabel(strength);
@@ -43,9 +43,7 @@ export function PasswordStrengthIndicator({ strength, password }: PasswordStreng
     <div className="space-y-2" aria-live="polite" aria-atomic="true">
       <div className="flex items-center justify-between">
         <span className="text-sm text-muted-foreground">Siła hasła:</span>
-        <span className={`text-sm font-medium ${textColorClass}`}>
-          {label}
-        </span>
+        <span className={`text-sm font-medium ${textColorClass}`}>{label}</span>
       </div>
       <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
         <div

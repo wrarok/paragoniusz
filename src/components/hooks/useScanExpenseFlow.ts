@@ -1,30 +1,18 @@
-import { useState, useCallback, useEffect } from 'react';
-import { ScanFlowAPIService } from '@/lib/services/scan-flow.service';
-import { useAIConsent } from './useAIConsent';
-import { useFileUpload } from './useFileUpload';
-import type {
-  CategoryDTO,
-  ProcessReceiptResponseDTO,
-  CreateExpenseBatchCommand,
-  APIErrorResponse,
-} from '@/types';
-import type { ExpenseVerificationFormValues } from '@/lib/validation/expense-verification.validation';
+import { useState, useCallback, useEffect } from "react";
+import { processReceipt as processReceiptAPI, saveExpensesBatch } from "@/lib/services/scan-flow.service";
+import { useAIConsent } from "./useAIConsent";
+import { useFileUpload } from "./useFileUpload";
+import type { CategoryDTO, ProcessReceiptResponseDTO, CreateExpenseBatchCommand, APIErrorResponse } from "@/types";
+import type { ExpenseVerificationFormValues } from "@/lib/validation/expense-verification.validation";
 
 /**
  * Typy kroków flow skanowania paragonu
  */
-export type ScanFlowStep =
-  | 'consent'
-  | 'upload'
-  | 'processing'
-  | 'verification'
-  | 'saving'
-  | 'complete'
-  | 'error';
+export type ScanFlowStep = "consent" | "upload" | "processing" | "verification" | "saving" | "complete" | "error";
 
 /**
  * Hook do zarządzania flow skanowania wydatków z paragonów
- * 
+ *
  * Orchestruje proces: zgoda AI -> upload -> przetwarzanie AI -> weryfikacja -> zapis
  * Wykorzystuje wyspecjalizowane hooki do poszczególnych kroków
  */
@@ -34,7 +22,7 @@ export function useScanExpenseFlow() {
   const fileUpload = useFileUpload();
 
   // State flow
-  const [step, setStep] = useState<ScanFlowStep>('upload');
+  const [step, setStep] = useState<ScanFlowStep>("upload");
   const [processedData, setProcessedData] = useState<ProcessReceiptResponseDTO | null>(null);
   const [categories, setCategories] = useState<CategoryDTO[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -46,36 +34,36 @@ export function useScanExpenseFlow() {
    */
   const fetchCategories = useCallback(async () => {
     try {
-      const response = await fetch('/api/categories');
+      const response = await fetch("/api/categories");
       if (!response.ok) {
-        throw new Error('Nie udało się pobrać kategorii');
+        throw new Error("Nie udało się pobrać kategorii");
       }
       const data = await response.json();
       setCategories(data.data);
     } catch (err) {
-      console.error('Error fetching categories:', err);
+      console.error("Error fetching categories:", err);
     }
   }, []);
 
   /**
    * Przetwórz paragon używając AI
-   * 
+   *
    * @param filePath - Ścieżka do uploadowanego pliku
    */
   const processReceipt = useCallback(async (filePath: string) => {
     setIsProcessing(true);
-    setStep('processing');
+    setStep("processing");
     setError(null);
 
     try {
-      const result = await ScanFlowAPIService.processReceipt(filePath);
+      const result = await processReceiptAPI(filePath);
       setProcessedData(result);
-      setStep('verification');
+      setStep("verification");
     } catch (err) {
       const apiError = err as APIErrorResponse;
       setError(apiError);
-      setStep('error');
-      console.error('Error processing receipt:', apiError);
+      setStep("error");
+      console.error("Error processing receipt:", apiError);
     } finally {
       setIsProcessing(false);
     }
@@ -83,18 +71,18 @@ export function useScanExpenseFlow() {
 
   /**
    * Upload pliku i automatycznie rozpocznij przetwarzanie
-   * 
+   *
    * @param file - Plik do uploadu
    */
   const uploadAndProcess = useCallback(
     async (file: File) => {
       const uploadResult = await fileUpload.validateAndUpload(file);
-      
+
       if (uploadResult) {
         await processReceipt(uploadResult.file_path);
       } else {
         // Błąd walidacji lub uploadu - ustaw step na error
-        setStep('error');
+        setStep("error");
       }
     },
     [fileUpload, processReceipt]
@@ -102,52 +90,49 @@ export function useScanExpenseFlow() {
 
   /**
    * Zapisz zweryfikowane wydatki (dane z React Hook Form)
-   * 
+   *
    * @param formData - Dane formularza z React Hook Form
    */
-  const saveExpenses = useCallback(
-    async (formData: ExpenseVerificationFormValues) => {
-      setIsSaving(true);
-      setStep('saving');
-      setError(null);
+  const saveExpenses = useCallback(async (formData: ExpenseVerificationFormValues) => {
+    setIsSaving(true);
+    setStep("saving");
+    setError(null);
 
-      try {
-        // Konwersja danych z formularza do komendy API
-        const command: CreateExpenseBatchCommand = {
-          expenses: formData.expenses.map((expense) => ({
-            category_id: expense.category_id,
-            amount: expense.amount.toFixed(2),
-            expense_date: formData.receipt_date,
-            currency: formData.currency,
-            created_by_ai: true,
-            was_ai_suggestion_edited: expense.isEdited,
-          })),
-        };
+    try {
+      // Konwersja danych z formularza do komendy API
+      const command: CreateExpenseBatchCommand = {
+        expenses: formData.expenses.map((expense) => ({
+          category_id: expense.category_id,
+          amount: expense.amount.toFixed(2),
+          expense_date: formData.receipt_date,
+          currency: formData.currency,
+          created_by_ai: true,
+          was_ai_suggestion_edited: expense.isEdited,
+        })),
+      };
 
-        await ScanFlowAPIService.saveExpensesBatch(command);
-        setStep('complete');
+      await saveExpensesBatch(command);
+      setStep("complete");
 
-        // Przekieruj do dashboardu po pomyślnym zapisie
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 1500);
-      } catch (err) {
-        const apiError = err as APIErrorResponse;
-        setError(apiError);
-        setStep('error');
-        console.error('Error saving expenses:', apiError);
-      } finally {
-        setIsSaving(false);
-      }
-    },
-    []
-  );
+      // Przekieruj do dashboardu po pomyślnym zapisie
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1500);
+    } catch (err) {
+      const apiError = err as APIErrorResponse;
+      setError(apiError);
+      setStep("error");
+      console.error("Error saving expenses:", apiError);
+    } finally {
+      setIsSaving(false);
+    }
+  }, []);
 
   /**
    * Resetuj flow do początkowego stanu
    */
   const resetFlow = useCallback(() => {
-    setStep('upload');
+    setStep("upload");
     setProcessedData(null);
     setError(null);
     setIsProcessing(false);
@@ -159,7 +144,7 @@ export function useScanExpenseFlow() {
    * Anuluj flow i wróć do dashboardu
    */
   const cancelFlow = useCallback(() => {
-    window.location.href = '/';
+    window.location.href = "/";
   }, []);
 
   /**
@@ -168,14 +153,14 @@ export function useScanExpenseFlow() {
   useEffect(() => {
     const init = async () => {
       const hasConsent = await aiConsent.checkConsent();
-      
+
       if (!hasConsent) {
-        setStep('consent');
+        setStep("consent");
       }
-      
+
       await fetchCategories();
     };
-    
+
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Uruchom tylko raz przy montowaniu komponentu
@@ -191,15 +176,15 @@ export function useScanExpenseFlow() {
     isProcessing,
     isSaving,
     error: aggregatedError,
-    
+
     // AI Consent
     hasAIConsent: aiConsent.hasConsent,
     grantAIConsent: aiConsent.grantConsent,
-    
+
     // File Upload
     uploadedFile: fileUpload.uploadedFile,
     isUploading: fileUpload.isUploading,
-    
+
     // Actions
     uploadAndProcess,
     saveExpenses,

@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
-import { ExpenseQueryBuilder } from '../../../src/lib/builders/expense-query.builder';
+import { describe, it, expect, vi } from "vitest";
+import { ExpenseQueryBuilder } from "../../../src/lib/builders/expense-query.builder";
 
-describe('ExpenseQueryBuilder', () => {
+describe("ExpenseQueryBuilder", () => {
   // Mock Supabase client
   const createMockSupabase = () => {
     const mockQuery = {
@@ -19,36 +19,36 @@ describe('ExpenseQueryBuilder', () => {
     };
   };
 
-  describe('withDateRange', () => {
-    it('should add from_date filter', () => {
+  describe("withDateRange", () => {
+    it("should add from_date filter", () => {
       const builder = new ExpenseQueryBuilder();
-      builder.withDateRange('2024-01-01');
+      builder.withDateRange("2024-01-01");
 
       expect(builder).toBeDefined();
     });
 
-    it('should add to_date filter', () => {
+    it("should add to_date filter", () => {
       const builder = new ExpenseQueryBuilder();
-      builder.withDateRange(undefined, '2024-12-31');
+      builder.withDateRange(undefined, "2024-12-31");
 
       expect(builder).toBeDefined();
     });
 
-    it('should add both from_date and to_date filters', () => {
+    it("should add both from_date and to_date filters", () => {
       const builder = new ExpenseQueryBuilder();
-      builder.withDateRange('2024-01-01', '2024-12-31');
+      builder.withDateRange("2024-01-01", "2024-12-31");
 
       expect(builder).toBeDefined();
     });
 
-    it('should return this for chaining', () => {
+    it("should return this for chaining", () => {
       const builder = new ExpenseQueryBuilder();
-      const result = builder.withDateRange('2024-01-01');
+      const result = builder.withDateRange("2024-01-01");
 
       expect(result).toBe(builder);
     });
 
-    it('should handle undefined values', () => {
+    it("should handle undefined values", () => {
       const builder = new ExpenseQueryBuilder();
       builder.withDateRange(undefined, undefined);
 
@@ -56,22 +56,22 @@ describe('ExpenseQueryBuilder', () => {
     });
   });
 
-  describe('withCategory', () => {
-    it('should add category filter', () => {
+  describe("withCategory", () => {
+    it("should add category filter", () => {
       const builder = new ExpenseQueryBuilder();
-      builder.withCategory('cat-1');
+      builder.withCategory("cat-1");
 
       expect(builder).toBeDefined();
     });
 
-    it('should return this for chaining', () => {
+    it("should return this for chaining", () => {
       const builder = new ExpenseQueryBuilder();
-      const result = builder.withCategory('cat-1');
+      const result = builder.withCategory("cat-1");
 
       expect(result).toBe(builder);
     });
 
-    it('should handle undefined category', () => {
+    it("should handle undefined category", () => {
       const builder = new ExpenseQueryBuilder();
       builder.withCategory(undefined);
 
@@ -79,52 +79,52 @@ describe('ExpenseQueryBuilder', () => {
     });
   });
 
-  describe('withSort', () => {
-    it('should parse ascending sort', () => {
+  describe("withSort", () => {
+    it("should parse ascending sort", () => {
       const builder = new ExpenseQueryBuilder();
-      builder.withSort('expense_date.asc');
+      builder.withSort("expense_date.asc");
 
       expect(builder).toBeDefined();
     });
 
-    it('should parse descending sort', () => {
+    it("should parse descending sort", () => {
       const builder = new ExpenseQueryBuilder();
-      builder.withSort('expense_date.desc');
+      builder.withSort("expense_date.desc");
 
       expect(builder).toBeDefined();
     });
 
-    it('should return this for chaining', () => {
+    it("should return this for chaining", () => {
       const builder = new ExpenseQueryBuilder();
-      const result = builder.withSort('amount.desc');
+      const result = builder.withSort("amount.desc");
 
       expect(result).toBe(builder);
     });
 
-    it('should handle different column names', () => {
+    it("should handle different column names", () => {
       const builder = new ExpenseQueryBuilder();
-      builder.withSort('amount.asc');
+      builder.withSort("amount.asc");
 
       expect(builder).toBeDefined();
     });
   });
 
-  describe('withPagination', () => {
-    it('should add pagination config', () => {
+  describe("withPagination", () => {
+    it("should add pagination config", () => {
       const builder = new ExpenseQueryBuilder();
       builder.withPagination(0, 50);
 
       expect(builder).toBeDefined();
     });
 
-    it('should return this for chaining', () => {
+    it("should return this for chaining", () => {
       const builder = new ExpenseQueryBuilder();
       const result = builder.withPagination(10, 20);
 
       expect(result).toBe(builder);
     });
 
-    it('should handle different offset and limit values', () => {
+    it("should handle different offset and limit values", () => {
       const builder = new ExpenseQueryBuilder();
       builder.withPagination(100, 10);
 
@@ -132,59 +132,59 @@ describe('ExpenseQueryBuilder', () => {
     });
   });
 
-  describe('build', () => {
-    it('should build basic query without filters', () => {
+  describe("build", () => {
+    it("should build basic query without filters", () => {
       const mock = createMockSupabase();
       const builder = new ExpenseQueryBuilder();
 
       builder.build(mock as any);
 
-      expect(mock.from).toHaveBeenCalledWith('expenses');
-      expect(mock.mockQuery.select).toHaveBeenCalledWith('*, category:categories(id, name)');
+      expect(mock.from).toHaveBeenCalledWith("expenses");
+      expect(mock.mockQuery.select).toHaveBeenCalledWith("*, category:categories(id, name)");
     });
 
-    it('should apply date range filters', () => {
+    it("should apply date range filters", () => {
       const mock = createMockSupabase();
       const builder = new ExpenseQueryBuilder();
 
-      builder.withDateRange('2024-01-01', '2024-12-31');
+      builder.withDateRange("2024-01-01", "2024-12-31");
       builder.build(mock as any);
 
-      expect(mock.mockQuery.gte).toHaveBeenCalledWith('expense_date', '2024-01-01');
-      expect(mock.mockQuery.lte).toHaveBeenCalledWith('expense_date', '2024-12-31');
+      expect(mock.mockQuery.gte).toHaveBeenCalledWith("expense_date", "2024-01-01");
+      expect(mock.mockQuery.lte).toHaveBeenCalledWith("expense_date", "2024-12-31");
     });
 
-    it('should apply category filter', () => {
+    it("should apply category filter", () => {
       const mock = createMockSupabase();
       const builder = new ExpenseQueryBuilder();
 
-      builder.withCategory('cat-1');
+      builder.withCategory("cat-1");
       builder.build(mock as any);
 
-      expect(mock.mockQuery.eq).toHaveBeenCalledWith('category_id', 'cat-1');
+      expect(mock.mockQuery.eq).toHaveBeenCalledWith("category_id", "cat-1");
     });
 
-    it('should apply sorting', () => {
+    it("should apply sorting", () => {
       const mock = createMockSupabase();
       const builder = new ExpenseQueryBuilder();
 
-      builder.withSort('expense_date.desc');
+      builder.withSort("expense_date.desc");
       builder.build(mock as any);
 
-      expect(mock.mockQuery.order).toHaveBeenCalledWith('expense_date', { ascending: false });
+      expect(mock.mockQuery.order).toHaveBeenCalledWith("expense_date", { ascending: false });
     });
 
-    it('should apply ascending sorting', () => {
+    it("should apply ascending sorting", () => {
       const mock = createMockSupabase();
       const builder = new ExpenseQueryBuilder();
 
-      builder.withSort('amount.asc');
+      builder.withSort("amount.asc");
       builder.build(mock as any);
 
-      expect(mock.mockQuery.order).toHaveBeenCalledWith('amount', { ascending: true });
+      expect(mock.mockQuery.order).toHaveBeenCalledWith("amount", { ascending: true });
     });
 
-    it('should apply pagination', () => {
+    it("should apply pagination", () => {
       const mock = createMockSupabase();
       const builder = new ExpenseQueryBuilder();
 
@@ -194,59 +194,55 @@ describe('ExpenseQueryBuilder', () => {
       expect(mock.mockQuery.range).toHaveBeenCalledWith(10, 29); // 10 + 20 - 1
     });
 
-    it('should apply all filters together', () => {
+    it("should apply all filters together", () => {
       const mock = createMockSupabase();
       const builder = new ExpenseQueryBuilder();
 
       builder
-        .withDateRange('2024-01-01', '2024-12-31')
-        .withCategory('cat-1')
-        .withSort('expense_date.desc')
+        .withDateRange("2024-01-01", "2024-12-31")
+        .withCategory("cat-1")
+        .withSort("expense_date.desc")
         .withPagination(0, 50);
 
       builder.build(mock as any);
 
-      expect(mock.mockQuery.gte).toHaveBeenCalledWith('expense_date', '2024-01-01');
-      expect(mock.mockQuery.lte).toHaveBeenCalledWith('expense_date', '2024-12-31');
-      expect(mock.mockQuery.eq).toHaveBeenCalledWith('category_id', 'cat-1');
-      expect(mock.mockQuery.order).toHaveBeenCalledWith('expense_date', { ascending: false });
+      expect(mock.mockQuery.gte).toHaveBeenCalledWith("expense_date", "2024-01-01");
+      expect(mock.mockQuery.lte).toHaveBeenCalledWith("expense_date", "2024-12-31");
+      expect(mock.mockQuery.eq).toHaveBeenCalledWith("category_id", "cat-1");
+      expect(mock.mockQuery.order).toHaveBeenCalledWith("expense_date", { ascending: false });
       expect(mock.mockQuery.range).toHaveBeenCalledWith(0, 49);
     });
   });
 
-  describe('buildCountQuery', () => {
-    it('should build count query without pagination', () => {
+  describe("buildCountQuery", () => {
+    it("should build count query without pagination", () => {
       const mock = createMockSupabase();
       const builder = new ExpenseQueryBuilder();
 
       builder.buildCountQuery(mock as any);
 
-      expect(mock.from).toHaveBeenCalledWith('expenses');
-      expect(mock.mockQuery.select).toHaveBeenCalledWith('*', { count: 'exact', head: true });
+      expect(mock.from).toHaveBeenCalledWith("expenses");
+      expect(mock.mockQuery.select).toHaveBeenCalledWith("*", { count: "exact", head: true });
     });
 
-    it('should apply same filters as main query', () => {
+    it("should apply same filters as main query", () => {
       const mock = createMockSupabase();
       const builder = new ExpenseQueryBuilder();
 
-      builder
-        .withDateRange('2024-01-01', '2024-12-31')
-        .withCategory('cat-1');
+      builder.withDateRange("2024-01-01", "2024-12-31").withCategory("cat-1");
 
       builder.buildCountQuery(mock as any);
 
-      expect(mock.mockQuery.gte).toHaveBeenCalledWith('expense_date', '2024-01-01');
-      expect(mock.mockQuery.lte).toHaveBeenCalledWith('expense_date', '2024-12-31');
-      expect(mock.mockQuery.eq).toHaveBeenCalledWith('category_id', 'cat-1');
+      expect(mock.mockQuery.gte).toHaveBeenCalledWith("expense_date", "2024-01-01");
+      expect(mock.mockQuery.lte).toHaveBeenCalledWith("expense_date", "2024-12-31");
+      expect(mock.mockQuery.eq).toHaveBeenCalledWith("category_id", "cat-1");
     });
 
-    it('should not apply sorting or pagination', () => {
+    it("should not apply sorting or pagination", () => {
       const mock = createMockSupabase();
       const builder = new ExpenseQueryBuilder();
 
-      builder
-        .withSort('expense_date.desc')
-        .withPagination(10, 20);
+      builder.withSort("expense_date.desc").withPagination(10, 20);
 
       builder.buildCountQuery(mock as any);
 
@@ -254,32 +250,29 @@ describe('ExpenseQueryBuilder', () => {
       expect(mock.mockQuery.range).not.toHaveBeenCalled();
     });
 
-    it('should apply filters but not sorting or pagination', () => {
+    it("should apply filters but not sorting or pagination", () => {
       const mock = createMockSupabase();
       const builder = new ExpenseQueryBuilder();
 
-      builder
-        .withDateRange('2024-01-01')
-        .withSort('expense_date.desc')
-        .withPagination(0, 50);
+      builder.withDateRange("2024-01-01").withSort("expense_date.desc").withPagination(0, 50);
 
       builder.buildCountQuery(mock as any);
 
-      expect(mock.mockQuery.gte).toHaveBeenCalledWith('expense_date', '2024-01-01');
+      expect(mock.mockQuery.gte).toHaveBeenCalledWith("expense_date", "2024-01-01");
       expect(mock.mockQuery.order).not.toHaveBeenCalled();
       expect(mock.mockQuery.range).not.toHaveBeenCalled();
     });
   });
 
-  describe('reset', () => {
-    it('should clear all filters', () => {
+  describe("reset", () => {
+    it("should clear all filters", () => {
       const mock = createMockSupabase();
       const builder = new ExpenseQueryBuilder();
 
       builder
-        .withDateRange('2024-01-01', '2024-12-31')
-        .withCategory('cat-1')
-        .withSort('expense_date.desc')
+        .withDateRange("2024-01-01", "2024-12-31")
+        .withCategory("cat-1")
+        .withSort("expense_date.desc")
         .withPagination(10, 20);
 
       builder.reset();
@@ -293,23 +286,23 @@ describe('ExpenseQueryBuilder', () => {
       expect(mock.mockQuery.range).not.toHaveBeenCalled();
     });
 
-    it('should return this for chaining', () => {
+    it("should return this for chaining", () => {
       const builder = new ExpenseQueryBuilder();
       const result = builder.reset();
 
       expect(result).toBe(builder);
     });
 
-    it('should allow reusing builder after reset', () => {
+    it("should allow reusing builder after reset", () => {
       const mock = createMockSupabase();
       const builder = new ExpenseQueryBuilder();
 
       // First use
-      builder.withCategory('cat-1').withSort('expense_date.desc');
+      builder.withCategory("cat-1").withSort("expense_date.desc");
       builder.build(mock as any);
 
       // Reset and reuse
-      builder.reset().withCategory('cat-2').withSort('amount.asc');
+      builder.reset().withCategory("cat-2").withSort("amount.asc");
       builder.build(mock as any);
 
       // Should have been called twice with different values
@@ -318,40 +311,38 @@ describe('ExpenseQueryBuilder', () => {
     });
   });
 
-  describe('filter consistency', () => {
-    it('should apply identical filters to main query and count query', () => {
+  describe("filter consistency", () => {
+    it("should apply identical filters to main query and count query", () => {
       const mainMock = createMockSupabase();
       const countMock = createMockSupabase();
       const builder = new ExpenseQueryBuilder();
 
-      builder
-        .withDateRange('2024-01-01', '2024-12-31')
-        .withCategory('cat-1');
+      builder.withDateRange("2024-01-01", "2024-12-31").withCategory("cat-1");
 
       builder.build(mainMock as any);
       builder.buildCountQuery(countMock as any);
 
       // Both should have same filter calls
-      expect(mainMock.mockQuery.gte).toHaveBeenCalledWith('expense_date', '2024-01-01');
-      expect(countMock.mockQuery.gte).toHaveBeenCalledWith('expense_date', '2024-01-01');
+      expect(mainMock.mockQuery.gte).toHaveBeenCalledWith("expense_date", "2024-01-01");
+      expect(countMock.mockQuery.gte).toHaveBeenCalledWith("expense_date", "2024-01-01");
 
-      expect(mainMock.mockQuery.lte).toHaveBeenCalledWith('expense_date', '2024-12-31');
-      expect(countMock.mockQuery.lte).toHaveBeenCalledWith('expense_date', '2024-12-31');
+      expect(mainMock.mockQuery.lte).toHaveBeenCalledWith("expense_date", "2024-12-31");
+      expect(countMock.mockQuery.lte).toHaveBeenCalledWith("expense_date", "2024-12-31");
 
-      expect(mainMock.mockQuery.eq).toHaveBeenCalledWith('category_id', 'cat-1');
-      expect(countMock.mockQuery.eq).toHaveBeenCalledWith('category_id', 'cat-1');
+      expect(mainMock.mockQuery.eq).toHaveBeenCalledWith("category_id", "cat-1");
+      expect(countMock.mockQuery.eq).toHaveBeenCalledWith("category_id", "cat-1");
     });
   });
 
-  describe('method chaining', () => {
-    it('should support fluent API chaining', () => {
+  describe("method chaining", () => {
+    it("should support fluent API chaining", () => {
       const mock = createMockSupabase();
       const builder = new ExpenseQueryBuilder();
 
       const result = builder
-        .withDateRange('2024-01-01', '2024-12-31')
-        .withCategory('cat-1')
-        .withSort('expense_date.desc')
+        .withDateRange("2024-01-01", "2024-12-31")
+        .withCategory("cat-1")
+        .withSort("expense_date.desc")
         .withPagination(0, 50);
 
       expect(result).toBe(builder);

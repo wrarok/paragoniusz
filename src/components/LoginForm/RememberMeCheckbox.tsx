@@ -1,12 +1,12 @@
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import type { RememberMeCheckboxProps } from '../../types/auth.types';
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import type { RememberMeCheckboxProps } from "../../types/auth.types";
 
 /**
  * Remember me checkbox component for session persistence
  */
 export function RememberMeCheckbox({ checked, onChange, disabled }: RememberMeCheckboxProps) {
-  const checkboxId = 'remember-me-checkbox';
+  const checkboxId = "remember-me-checkbox";
 
   return (
     <div className="flex items-center space-x-2">
@@ -17,10 +17,7 @@ export function RememberMeCheckbox({ checked, onChange, disabled }: RememberMeCh
         disabled={disabled}
         aria-label="Zapamiętaj mnie"
       />
-      <Label
-        htmlFor={checkboxId}
-        className="text-sm font-normal cursor-pointer select-none"
-      >
+      <Label htmlFor={checkboxId} className="text-sm font-normal cursor-pointer select-none">
         Zapamiętaj mnie
       </Label>
     </div>

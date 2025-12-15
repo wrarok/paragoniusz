@@ -1,9 +1,9 @@
 /**
  * Expense Form Hook - React Hook Form Version
- * 
+ *
  * Custom hook for managing expense form state using React Hook Form.
  * Handles form validation, API submission, and error handling.
- * 
+ *
  * **Refactored from manual state management (273 LOC → ~155 LOC)**
  * - Uses React Hook Form for state management
  * - Zod schema for validation
@@ -11,14 +11,14 @@
  * - Transformer for data conversions
  */
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useMemo } from 'react';
-import { expenseFormSchema, type ExpenseFormValues } from '@/lib/validation/expense-form.schema';
-import { ExpenseMutationService } from '@/lib/services/expense-mutation.service';
-import { ExpenseFormTransformer } from '@/lib/transformers/expense-form.transformer';
-import type { ExpenseFormMode } from '../ExpenseForm/types';
-import type { CategoryDTO, ExpenseDTO } from '@/types';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useCallback, useMemo } from "react";
+import { expenseFormSchema, type ExpenseFormValues } from "@/lib/validation/expense-form.schema";
+import { ExpenseMutationService } from "@/lib/services/expense-mutation.service";
+import { ExpenseFormTransformer } from "@/lib/transformers/expense-form.transformer";
+import type { ExpenseFormMode } from "../ExpenseForm/types";
+import type { CategoryDTO, ExpenseDTO } from "@/types";
 
 /**
  * Props for useExpenseForm hook
@@ -43,7 +43,7 @@ interface UseExpenseFormReturn {
 
 /**
  * Custom hook for managing expense form with React Hook Form
- * 
+ *
  * @param props - Hook configuration
  * @returns Form object and handlers
  */
@@ -59,19 +59,32 @@ export function useExpenseForm({
    * Get default form values based on mode
    */
   const getDefaultValues = useCallback((): ExpenseFormValues => {
-    if (mode === 'edit' && initialData) {
-      return ExpenseFormTransformer.fromDTO(initialData);
+    // Validate initialData for edit mode
+    if (mode === "edit" && initialData) {
+      try {
+        const transformedData = ExpenseFormTransformer.fromDTO(initialData);
+
+        // Additional validation of transformed data
+        if (!transformedData.category_id || !transformedData.amount) {
+          console.warn("Invalid initial data, falling back to default values");
+          throw new Error("Invalid initial data");
+        }
+
+        return transformedData;
+      } catch (error) {
+        console.error("Error transforming initial data:", error);
+      }
     }
-    
+
     // Get today's date in local timezone (not UTC)
     const today = new Date();
-    const localDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    
+    const localDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
     return {
-      category_id: '',
-      amount: '',
+      category_id: "",
+      amount: "",
       expense_date: localDate,
-      currency: 'PLN',
+      currency: "PLN",
     };
   }, [mode, initialData]);
 
@@ -81,7 +94,7 @@ export function useExpenseForm({
   const form = useForm<ExpenseFormValues>({
     resolver: zodResolver(expenseFormSchema),
     defaultValues: getDefaultValues(),
-    mode: 'onBlur',
+    mode: "onBlur",
   });
 
   /**
@@ -89,14 +102,29 @@ export function useExpenseForm({
    */
   const validateCategoryExists = useCallback(
     (categoryId: string): boolean => {
+      // Validate category_id is not empty
+      if (!categoryId) {
+        form.setError("category_id", {
+          message: "Kategoria jest wymagana.",
+        });
+        return false;
+      }
+
       const exists = categories.some((cat) => cat.id === categoryId);
       if (!exists) {
-        form.setError('category_id', {
-          message: 'Wybrana kategoria nie jest już dostępna.',
+        form.setError("category_id", {
+          message: "Wybrana kategoria nie jest już dostępna.",
         });
-        form.setError('root', {
-          message: 'Wybrana kategoria nie jest już dostępna. Odśwież stronę i spróbuj ponownie.',
+        form.setError("root", {
+          message: "Wybrana kategoria nie jest już dostępna. Odśwież stronę i spróbuj ponownie.",
         });
+
+        // Focus the category select field
+        const categoryField = document.querySelector('select[name="category_id"]') as HTMLElement;
+        if (categoryField) {
+          categoryField.focus();
+        }
+
         return false;
       }
       return true;
@@ -109,8 +137,8 @@ export function useExpenseForm({
    */
   const hasChanges = useCallback(
     (formData: ExpenseFormValues): boolean => {
-      if (mode !== 'edit' || !initialData) return true;
-      
+      if (mode !== "edit" || !initialData) return true;
+
       return (
         formData.category_id !== initialData.category_id ||
         formData.amount !== initialData.amount ||
@@ -134,19 +162,19 @@ export function useExpenseForm({
 
         // Check for changes in edit mode
         if (!hasChanges(data)) {
-          form.setError('root', {
-            message: 'Nie wprowadzono żadnych zmian.',
+          form.setError("root", {
+            message: "Nie wprowadzono żadnych zmian.",
           });
           return;
         }
 
         // Submit to API via service layer
-        if (mode === 'add') {
+        if (mode === "add") {
           const command = ExpenseFormTransformer.toCreateCommand(data);
           await ExpenseMutationService.create(command);
         } else {
           if (!expenseId) {
-            throw new Error('Expense ID is required for edit mode');
+            throw new Error("Expense ID is required for edit mode");
           }
           const command = ExpenseFormTransformer.toUpdateCommand(data);
           await ExpenseMutationService.update(expenseId, command);
@@ -156,12 +184,22 @@ export function useExpenseForm({
         if (onSuccess) {
           onSuccess();
         } else {
-          window.location.href = '/';
+          window.location.href = "/";
         }
       } catch (error) {
-        console.error('Form submission error:', error);
-        form.setError('root', {
-          message: error instanceof Error ? error.message : 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie.',
+        console.error("Form submission error:", error);
+
+        // Focus first invalid field if possible
+        const firstErrorField = Object.keys(form.formState.errors)[0];
+        if (firstErrorField) {
+          const errorField = document.querySelector(`[name="${firstErrorField}"]`) as HTMLElement;
+          if (errorField) {
+            errorField.focus();
+          }
+        }
+
+        form.setError("root", {
+          message: error instanceof Error ? error.message : "Wystąpił nieoczekiwany błąd. Spróbuj ponownie.",
         });
       }
     },
@@ -175,17 +213,14 @@ export function useExpenseForm({
     if (onCancel) {
       onCancel();
     } else {
-      window.location.href = '/';
+      window.location.href = "/";
     }
   }, [onCancel]);
 
   /**
    * Create submit handler that integrates with RHF
    */
-  const onSubmit = useMemo(
-    () => form.handleSubmit(handleSubmit),
-    [form, handleSubmit]
-  );
+  const onSubmit = useMemo(() => form.handleSubmit(handleSubmit), [form, handleSubmit]);
 
   return {
     form,

@@ -1,9 +1,9 @@
-import type { RegisterLinkProps } from '../../types/auth.types';
+import type { RegisterLinkProps } from "../../types/auth.types";
 
 /**
  * Link to registration page for new users
  */
-export function RegisterLink({ className = '' }: RegisterLinkProps) {
+export function RegisterLink({ className = "" }: RegisterLinkProps) {
   return (
     <div className={`text-center text-sm ${className}`}>
       <span className="text-gray-600">Nie masz konta? </span>

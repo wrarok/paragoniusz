@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import type { APIErrorResponse, ProfileDTO } from '../../types';
+import { useState, useEffect, useCallback } from "react";
+import type { APIErrorResponse, ProfileDTO } from "../../types";
 
 /**
  * Custom hook for managing Add Expense Modal state
@@ -25,10 +25,10 @@ export function useAddExpenseModal() {
     setError(null);
 
     try {
-      const response = await fetch('/api/profiles/me', {
-        method: 'GET',
+      const response = await fetch("/api/profiles/me", {
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
@@ -36,7 +36,7 @@ export function useAddExpenseModal() {
         // Handle different error status codes
         if (response.status === 401) {
           // Unauthorized - redirect to login
-          window.location.href = '/login';
+          window.location.href = "/login";
           return;
         }
 
@@ -50,12 +50,12 @@ export function useAddExpenseModal() {
       const profileData: ProfileDTO = await response.json();
       setProfile(profileData);
       setError(null);
-    } catch (err) {
+    } catch {
       // Network error or other unexpected error
       setError({
         error: {
-          code: 'NETWORK_ERROR',
-          message: 'Failed to connect to server. Please check your internet connection and try again.',
+          code: "NETWORK_ERROR",
+          message: "Failed to connect to server. Please check your internet connection and try again.",
         },
       });
     } finally {
@@ -94,7 +94,7 @@ export function useAddExpenseModal() {
   const selectManual = useCallback(() => {
     closeModal();
     // Navigate to manual expense form
-    window.location.href = '/expenses/new';
+    window.location.href = "/expenses/new";
   }, [closeModal]);
 
   /**
@@ -104,7 +104,7 @@ export function useAddExpenseModal() {
   const selectAI = useCallback(() => {
     closeModal();
     // Navigate to AI receipt scan flow
-    window.location.href = '/expenses/scan';
+    window.location.href = "/expenses/scan";
   }, [closeModal]);
 
   /**

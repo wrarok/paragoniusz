@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { OpenRouterService } from '../../../src/lib/services/openrouter.service.refactored';
-import { HTTPClientService } from '../../../src/lib/http/http-client.service';
-import { ExponentialBackoffStrategy } from '../../../src/lib/strategies/retry.strategy';
-import { OpenRouterRequestBuilder } from '../../../src/lib/builders/openrouter-request.builder';
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { OpenRouterService } from "../../../src/lib/services/openrouter.service.refactored";
+import { HTTPClientService } from "../../../src/lib/http/http-client.service";
+import { ExponentialBackoffStrategy } from "../../../src/lib/strategies/retry.strategy";
+import { OpenRouterRequestBuilder } from "../../../src/lib/builders/openrouter-request.builder";
 import {
   ValidationError,
   TimeoutError,
@@ -10,23 +10,23 @@ import {
   RateLimitError,
   NetworkError,
   APIError,
-} from '../../../src/lib/errors/openrouter.errors';
+} from "../../../src/lib/errors/openrouter.errors";
 import type {
   OpenRouterConfig,
   ChatCompletionOptions,
   OpenRouterAPIResponse,
   ResponseSchema,
   MessageContent,
-} from '../../../src/types/openrouter.types';
+} from "../../../src/types/openrouter.types";
 
 /**
  * Integration tests for OpenRouterService
- * 
+ *
  * Tests the integration of:
  * - HTTPClientService (mocked)
  * - ExponentialBackoffStrategy (mocked)
  * - OpenRouterRequestBuilder (mocked)
- * 
+ *
  * Focuses on:
  * - Constructor validation
  * - Request building and execution flow
@@ -35,7 +35,7 @@ import type {
  * - Retry logic integration
  * - Dependency injection
  */
-describe('OpenRouterService', () => {
+describe("OpenRouterService", () => {
   let service: OpenRouterService;
   let mockHttpClient: HTTPClientService;
   let mockRetryStrategy: ExponentialBackoffStrategy;
@@ -45,10 +45,10 @@ describe('OpenRouterService', () => {
   beforeEach(() => {
     // Setup configuration
     config = {
-      apiKey: 'test-api-key',
-      baseUrl: 'https://api.test.com',
+      apiKey: "test-api-key",
+      baseUrl: "https://api.test.com",
       timeout: 10000,
-      defaultModel: 'openai/gpt-4o-mini',
+      defaultModel: "openai/gpt-4o-mini",
       retryAttempts: 3,
     };
 
@@ -73,83 +73,73 @@ describe('OpenRouterService', () => {
       withResponseSchema: vi.fn().mockReturnThis(),
       withParameters: vi.fn().mockReturnThis(),
       build: vi.fn().mockReturnValue({
-        model: 'openai/gpt-4o-mini',
+        model: "openai/gpt-4o-mini",
         messages: [
-          { role: 'system', content: 'System prompt' },
-          { role: 'user', content: 'User message' },
+          { role: "system", content: "System prompt" },
+          { role: "user", content: "User message" },
         ],
         response_format: {
-          type: 'json_schema',
+          type: "json_schema",
           json_schema: {
-            name: 'test_schema',
+            name: "test_schema",
             strict: true,
-            schema: { type: 'object' },
+            schema: { type: "object" },
           },
         },
       }),
     } as any;
 
     // Mock console.log to avoid cluttering test output
-    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  describe('constructor', () => {
-    it('should create service with valid config', () => {
+  describe("constructor", () => {
+    it("should create service with valid config", () => {
       // Act
-      service = new OpenRouterService(
-        config,
-        mockHttpClient,
-        mockRetryStrategy,
-        mockRequestBuilder
-      );
+      service = new OpenRouterService(config, mockHttpClient, mockRetryStrategy, mockRequestBuilder);
 
       // Assert
       expect(service).toBeInstanceOf(OpenRouterService);
     });
 
-    it('should throw ValidationError if API key is missing', () => {
+    it("should throw ValidationError if API key is missing", () => {
       // Arrange
-      const invalidConfig = { ...config, apiKey: '' };
+      const invalidConfig = { ...config, apiKey: "" };
 
       // Act & Assert
       expect(() => new OpenRouterService(invalidConfig)).toThrow(ValidationError);
-      expect(() => new OpenRouterService(invalidConfig)).toThrow('API key is required');
+      expect(() => new OpenRouterService(invalidConfig)).toThrow("API key is required");
     });
 
-    it('should throw ValidationError if API key is only whitespace', () => {
+    it("should throw ValidationError if API key is only whitespace", () => {
       // Arrange
-      const invalidConfig = { ...config, apiKey: '   ' };
+      const invalidConfig = { ...config, apiKey: "   " };
 
       // Act & Assert
       expect(() => new OpenRouterService(invalidConfig)).toThrow(ValidationError);
     });
 
-    it('should use default values for optional config', () => {
+    it("should use default values for optional config", () => {
       // Arrange
       const minimalConfig: OpenRouterConfig = {
-        apiKey: 'test-key',
+        apiKey: "test-key",
       };
 
       // Act
-      service = new OpenRouterService(
-        minimalConfig,
-        mockHttpClient,
-        mockRetryStrategy,
-        mockRequestBuilder
-      );
+      service = new OpenRouterService(minimalConfig, mockHttpClient, mockRetryStrategy, mockRequestBuilder);
 
       // Assert - service created successfully
       expect(service).toBeInstanceOf(OpenRouterService);
     });
 
-    it('should create default dependencies if not provided', () => {
+    it("should create default dependencies if not provided", () => {
       // Arrange
       const minimalConfig: OpenRouterConfig = {
-        apiKey: 'test-key',
+        apiKey: "test-key",
       };
 
       // Act - no dependencies provided
@@ -160,28 +150,23 @@ describe('OpenRouterService', () => {
     });
   });
 
-  describe('chatCompletion()', () => {
+  describe("chatCompletion()", () => {
     beforeEach(() => {
-      service = new OpenRouterService(
-        config,
-        mockHttpClient,
-        mockRetryStrategy,
-        mockRequestBuilder
-      );
+      service = new OpenRouterService(config, mockHttpClient, mockRetryStrategy, mockRequestBuilder);
     });
 
-    it('should successfully complete chat with structured response', async () => {
+    it("should successfully complete chat with structured response", async () => {
       // Arrange
       const mockApiResponse: OpenRouterAPIResponse = {
-        id: 'test-id',
-        model: 'openai/gpt-4o-mini',
+        id: "test-id",
+        model: "openai/gpt-4o-mini",
         choices: [
           {
             message: {
-              role: 'assistant',
-              content: JSON.stringify({ result: 'success', data: 123 }),
+              role: "assistant",
+              content: JSON.stringify({ result: "success", data: 123 }),
             },
-            finish_reason: 'stop',
+            finish_reason: "stop",
             index: 0,
           },
         ],
@@ -195,11 +180,11 @@ describe('OpenRouterService', () => {
       vi.mocked(mockHttpClient.postWithTimeout).mockResolvedValue(mockApiResponse);
 
       const options: ChatCompletionOptions = {
-        systemMessage: 'You are helpful',
-        userMessage: 'Hello',
+        systemMessage: "You are helpful",
+        userMessage: "Hello",
         responseSchema: {
-          name: 'test',
-          schema: { type: 'object' },
+          name: "test",
+          schema: { type: "object" },
         },
       };
 
@@ -207,8 +192,8 @@ describe('OpenRouterService', () => {
       const result = await service.chatCompletion<{ result: string; data: number }>(options);
 
       // Assert
-      expect(result.data).toEqual({ result: 'success', data: 123 });
-      expect(result.model).toBe('openai/gpt-4o-mini');
+      expect(result.data).toEqual({ result: "success", data: 123 });
+      expect(result.model).toBe("openai/gpt-4o-mini");
       expect(result.usage).toEqual({
         prompt_tokens: 10,
         completion_tokens: 20,
@@ -216,18 +201,18 @@ describe('OpenRouterService', () => {
       });
     });
 
-    it('should build request using RequestBuilder', async () => {
+    it("should build request using RequestBuilder", async () => {
       // Arrange
       const mockApiResponse: OpenRouterAPIResponse = {
-        id: 'test-id',
-        model: 'openai/gpt-4o-mini',
+        id: "test-id",
+        model: "openai/gpt-4o-mini",
         choices: [
           {
             message: {
-              role: 'assistant',
-              content: JSON.stringify({ test: 'data' }),
+              role: "assistant",
+              content: JSON.stringify({ test: "data" }),
             },
-            finish_reason: 'stop',
+            finish_reason: "stop",
             index: 0,
           },
         ],
@@ -236,15 +221,15 @@ describe('OpenRouterService', () => {
       vi.mocked(mockHttpClient.postWithTimeout).mockResolvedValue(mockApiResponse);
 
       const schema: ResponseSchema = {
-        name: 'test_schema',
-        schema: { type: 'object', properties: { test: { type: 'string' } } },
+        name: "test_schema",
+        schema: { type: "object", properties: { test: { type: "string" } } },
       };
 
       const options: ChatCompletionOptions = {
-        systemMessage: 'System prompt',
-        userMessage: 'User message',
+        systemMessage: "System prompt",
+        userMessage: "User message",
         responseSchema: schema,
-        model: 'custom-model',
+        model: "custom-model",
         parameters: {
           temperature: 0.7,
           max_tokens: 1000,
@@ -256,9 +241,9 @@ describe('OpenRouterService', () => {
 
       // Assert - verify builder methods called correctly
       expect(mockRequestBuilder.reset).toHaveBeenCalled();
-      expect(mockRequestBuilder.withModel).toHaveBeenCalledWith('custom-model');
-      expect(mockRequestBuilder.withSystemMessage).toHaveBeenCalledWith('System prompt');
-      expect(mockRequestBuilder.withUserMessage).toHaveBeenCalledWith('User message');
+      expect(mockRequestBuilder.withModel).toHaveBeenCalledWith("custom-model");
+      expect(mockRequestBuilder.withSystemMessage).toHaveBeenCalledWith("System prompt");
+      expect(mockRequestBuilder.withUserMessage).toHaveBeenCalledWith("User message");
       expect(mockRequestBuilder.withResponseSchema).toHaveBeenCalledWith(schema);
       expect(mockRequestBuilder.withParameters).toHaveBeenCalledWith({
         temperature: 0.7,
@@ -267,15 +252,15 @@ describe('OpenRouterService', () => {
       expect(mockRequestBuilder.build).toHaveBeenCalled();
     });
 
-    it('should use default model if not specified', async () => {
+    it("should use default model if not specified", async () => {
       // Arrange
       const mockApiResponse: OpenRouterAPIResponse = {
-        id: 'test-id',
-        model: 'openai/gpt-4o-mini',
+        id: "test-id",
+        model: "openai/gpt-4o-mini",
         choices: [
           {
-            message: { role: 'assistant', content: JSON.stringify({ data: 'test' }) },
-            finish_reason: 'stop',
+            message: { role: "assistant", content: JSON.stringify({ data: "test" }) },
+            finish_reason: "stop",
             index: 0,
           },
         ],
@@ -284,9 +269,9 @@ describe('OpenRouterService', () => {
       vi.mocked(mockHttpClient.postWithTimeout).mockResolvedValue(mockApiResponse);
 
       const options: ChatCompletionOptions = {
-        systemMessage: 'Test',
-        userMessage: 'Test',
-        responseSchema: { name: 'test', schema: { type: 'object' } },
+        systemMessage: "Test",
+        userMessage: "Test",
+        responseSchema: { name: "test", schema: { type: "object" } },
         // model not specified
       };
 
@@ -294,18 +279,18 @@ describe('OpenRouterService', () => {
       await service.chatCompletion(options);
 
       // Assert - should use default model
-      expect(mockRequestBuilder.withModel).toHaveBeenCalledWith('openai/gpt-4o-mini');
+      expect(mockRequestBuilder.withModel).toHaveBeenCalledWith("openai/gpt-4o-mini");
     });
 
-    it('should execute request with correct headers and timeout', async () => {
+    it("should execute request with correct headers and timeout", async () => {
       // Arrange
       const mockApiResponse: OpenRouterAPIResponse = {
-        id: 'test-id',
-        model: 'openai/gpt-4o-mini',
+        id: "test-id",
+        model: "openai/gpt-4o-mini",
         choices: [
           {
-            message: { role: 'assistant', content: JSON.stringify({ data: 'test' }) },
-            finish_reason: 'stop',
+            message: { role: "assistant", content: JSON.stringify({ data: "test" }) },
+            finish_reason: "stop",
             index: 0,
           },
         ],
@@ -314,9 +299,9 @@ describe('OpenRouterService', () => {
       vi.mocked(mockHttpClient.postWithTimeout).mockResolvedValue(mockApiResponse);
 
       const options: ChatCompletionOptions = {
-        systemMessage: 'Test',
-        userMessage: 'Test',
-        responseSchema: { name: 'test', schema: { type: 'object' } },
+        systemMessage: "Test",
+        userMessage: "Test",
+        responseSchema: { name: "test", schema: { type: "object" } },
       };
 
       // Act
@@ -324,26 +309,26 @@ describe('OpenRouterService', () => {
 
       // Assert - verify HTTP client called with correct parameters
       expect(mockHttpClient.postWithTimeout).toHaveBeenCalledWith(
-        'https://api.test.com/chat/completions',
+        "https://api.test.com/chat/completions",
         expect.any(Object),
         10000, // timeout
         {
-          'Authorization': 'Bearer test-api-key',
-          'HTTP-Referer': 'https://paragoniusz.app',
-          'X-Title': 'Paragoniusz',
+          Authorization: "Bearer test-api-key",
+          "HTTP-Referer": "https://paragoniusz.app",
+          "X-Title": "Paragoniusz",
         }
       );
     });
 
-    it('should handle multimodal user message', async () => {
+    it("should handle multimodal user message", async () => {
       // Arrange
       const mockApiResponse: OpenRouterAPIResponse = {
-        id: 'test-id',
-        model: 'openai/gpt-4o-mini',
+        id: "test-id",
+        model: "openai/gpt-4o-mini",
         choices: [
           {
-            message: { role: 'assistant', content: JSON.stringify({ result: 'ok' }) },
-            finish_reason: 'stop',
+            message: { role: "assistant", content: JSON.stringify({ result: "ok" }) },
+            finish_reason: "stop",
             index: 0,
           },
         ],
@@ -352,14 +337,14 @@ describe('OpenRouterService', () => {
       vi.mocked(mockHttpClient.postWithTimeout).mockResolvedValue(mockApiResponse);
 
       const multimodalMessage: MessageContent[] = [
-        { type: 'text', text: 'Describe this image' },
-        { type: 'image_url', image_url: { url: 'https://example.com/image.jpg' } },
+        { type: "text", text: "Describe this image" },
+        { type: "image_url", image_url: { url: "https://example.com/image.jpg" } },
       ];
 
       const options: ChatCompletionOptions = {
-        systemMessage: 'You are helpful',
+        systemMessage: "You are helpful",
         userMessage: multimodalMessage,
-        responseSchema: { name: 'test', schema: { type: 'object' } },
+        responseSchema: { name: "test", schema: { type: "object" } },
       };
 
       // Act
@@ -370,136 +355,119 @@ describe('OpenRouterService', () => {
     });
   });
 
-  describe('Error Handling', () => {
+  describe("Error Handling", () => {
     beforeEach(() => {
-      service = new OpenRouterService(
-        config,
-        mockHttpClient,
-        mockRetryStrategy,
-        mockRequestBuilder
-      );
+      service = new OpenRouterService(config, mockHttpClient, mockRetryStrategy, mockRequestBuilder);
     });
 
-    it('should throw TimeoutError when REQUEST_TIMEOUT occurs', async () => {
+    it("should throw TimeoutError when REQUEST_TIMEOUT occurs", async () => {
       // Arrange
-      vi.mocked(mockHttpClient.postWithTimeout).mockRejectedValue(
-        new Error('REQUEST_TIMEOUT')
-      );
+      vi.mocked(mockHttpClient.postWithTimeout).mockRejectedValue(new Error("REQUEST_TIMEOUT"));
 
       const options: ChatCompletionOptions = {
-        systemMessage: 'Test',
-        userMessage: 'Test',
-        responseSchema: { name: 'test', schema: { type: 'object' } },
+        systemMessage: "Test",
+        userMessage: "Test",
+        responseSchema: { name: "test", schema: { type: "object" } },
       };
 
       // Act & Assert
       await expect(service.chatCompletion(options)).rejects.toThrow(TimeoutError);
     });
 
-    it('should throw AuthenticationError for HTTP 401', async () => {
+    it("should throw AuthenticationError for HTTP 401", async () => {
       // Arrange
-      vi.mocked(mockHttpClient.postWithTimeout).mockRejectedValue(
-        new Error('HTTP 401: Unauthorized')
-      );
+      vi.mocked(mockHttpClient.postWithTimeout).mockRejectedValue(new Error("HTTP 401: Unauthorized"));
 
       const options: ChatCompletionOptions = {
-        systemMessage: 'Test',
-        userMessage: 'Test',
-        responseSchema: { name: 'test', schema: { type: 'object' } },
+        systemMessage: "Test",
+        userMessage: "Test",
+        responseSchema: { name: "test", schema: { type: "object" } },
       };
 
       // Act & Assert
       await expect(service.chatCompletion(options)).rejects.toThrow(AuthenticationError);
     });
 
-    it('should throw AuthenticationError for HTTP 403', async () => {
+    it("should throw AuthenticationError for HTTP 403", async () => {
       // Arrange
-      vi.mocked(mockHttpClient.postWithTimeout).mockRejectedValue(
-        new Error('HTTP 403: Forbidden')
-      );
+      vi.mocked(mockHttpClient.postWithTimeout).mockRejectedValue(new Error("HTTP 403: Forbidden"));
 
       const options: ChatCompletionOptions = {
-        systemMessage: 'Test',
-        userMessage: 'Test',
-        responseSchema: { name: 'test', schema: { type: 'object' } },
+        systemMessage: "Test",
+        userMessage: "Test",
+        responseSchema: { name: "test", schema: { type: "object" } },
       };
 
       // Act & Assert
       await expect(service.chatCompletion(options)).rejects.toThrow(AuthenticationError);
     });
 
-    it('should throw RateLimitError for HTTP 429', async () => {
+    it("should throw RateLimitError for HTTP 429", async () => {
       // Arrange
-      vi.mocked(mockHttpClient.postWithTimeout).mockRejectedValue(
-        new Error('HTTP 429: Too Many Requests')
-      );
+      vi.mocked(mockHttpClient.postWithTimeout).mockRejectedValue(new Error("HTTP 429: Too Many Requests"));
 
       const options: ChatCompletionOptions = {
-        systemMessage: 'Test',
-        userMessage: 'Test',
-        responseSchema: { name: 'test', schema: { type: 'object' } },
+        systemMessage: "Test",
+        userMessage: "Test",
+        responseSchema: { name: "test", schema: { type: "object" } },
       };
 
       // Act & Assert
       await expect(service.chatCompletion(options)).rejects.toThrow(RateLimitError);
     });
 
-    it('should throw ValidationError for HTTP 400', async () => {
+    it("should throw ValidationError for HTTP 400", async () => {
       // Arrange
-      vi.mocked(mockHttpClient.postWithTimeout).mockRejectedValue(
-        new Error('HTTP 400: Bad Request')
-      );
+      vi.mocked(mockHttpClient.postWithTimeout).mockRejectedValue(new Error("HTTP 400: Bad Request"));
 
       const options: ChatCompletionOptions = {
-        systemMessage: 'Test',
-        userMessage: 'Test',
-        responseSchema: { name: 'test', schema: { type: 'object' } },
+        systemMessage: "Test",
+        userMessage: "Test",
+        responseSchema: { name: "test", schema: { type: "object" } },
       };
 
       // Act & Assert
       await expect(service.chatCompletion(options)).rejects.toThrow(ValidationError);
     });
 
-    it('should throw APIError for other HTTP errors', async () => {
+    it("should throw APIError for other HTTP errors", async () => {
       // Arrange
-      vi.mocked(mockHttpClient.postWithTimeout).mockRejectedValue(
-        new Error('HTTP 500: Internal Server Error')
-      );
+      vi.mocked(mockHttpClient.postWithTimeout).mockRejectedValue(new Error("HTTP 500: Internal Server Error"));
 
       const options: ChatCompletionOptions = {
-        systemMessage: 'Test',
-        userMessage: 'Test',
-        responseSchema: { name: 'test', schema: { type: 'object' } },
+        systemMessage: "Test",
+        userMessage: "Test",
+        responseSchema: { name: "test", schema: { type: "object" } },
       };
 
       // Act & Assert
       await expect(service.chatCompletion(options)).rejects.toThrow(APIError);
     });
 
-    it('should throw NetworkError for fetch errors', async () => {
+    it("should throw NetworkError for fetch errors", async () => {
       // Arrange
-      const fetchError = new TypeError('fetch failed');
+      const fetchError = new TypeError("fetch failed");
       vi.mocked(mockHttpClient.postWithTimeout).mockRejectedValue(fetchError);
 
       const options: ChatCompletionOptions = {
-        systemMessage: 'Test',
-        userMessage: 'Test',
-        responseSchema: { name: 'test', schema: { type: 'object' } },
+        systemMessage: "Test",
+        userMessage: "Test",
+        responseSchema: { name: "test", schema: { type: "object" } },
       };
 
       // Act & Assert
       await expect(service.chatCompletion(options)).rejects.toThrow(NetworkError);
     });
 
-    it('should throw ValidationError if response has no content', async () => {
+    it("should throw ValidationError if response has no content", async () => {
       // Arrange
       const mockApiResponse: OpenRouterAPIResponse = {
-        id: 'test-id',
-        model: 'openai/gpt-4o-mini',
+        id: "test-id",
+        model: "openai/gpt-4o-mini",
         choices: [
           {
-            message: { role: 'assistant', content: '' }, // Empty content
-            finish_reason: 'stop',
+            message: { role: "assistant", content: "" }, // Empty content
+            finish_reason: "stop",
             index: 0,
           },
         ],
@@ -508,25 +476,25 @@ describe('OpenRouterService', () => {
       vi.mocked(mockHttpClient.postWithTimeout).mockResolvedValue(mockApiResponse);
 
       const options: ChatCompletionOptions = {
-        systemMessage: 'Test',
-        userMessage: 'Test',
-        responseSchema: { name: 'test', schema: { type: 'object' } },
+        systemMessage: "Test",
+        userMessage: "Test",
+        responseSchema: { name: "test", schema: { type: "object" } },
       };
 
       // Act & Assert
       await expect(service.chatCompletion(options)).rejects.toThrow(ValidationError);
-      await expect(service.chatCompletion(options)).rejects.toThrow('No content in API response');
+      await expect(service.chatCompletion(options)).rejects.toThrow("No content in API response");
     });
 
-    it('should throw ValidationError if response content is not valid JSON', async () => {
+    it("should throw ValidationError if response content is not valid JSON", async () => {
       // Arrange
       const mockApiResponse: OpenRouterAPIResponse = {
-        id: 'test-id',
-        model: 'openai/gpt-4o-mini',
+        id: "test-id",
+        model: "openai/gpt-4o-mini",
         choices: [
           {
-            message: { role: 'assistant', content: 'Invalid JSON {{{' },
-            finish_reason: 'stop',
+            message: { role: "assistant", content: "Invalid JSON {{{" },
+            finish_reason: "stop",
             index: 0,
           },
         ],
@@ -535,35 +503,30 @@ describe('OpenRouterService', () => {
       vi.mocked(mockHttpClient.postWithTimeout).mockResolvedValue(mockApiResponse);
 
       const options: ChatCompletionOptions = {
-        systemMessage: 'Test',
-        userMessage: 'Test',
-        responseSchema: { name: 'test', schema: { type: 'object' } },
+        systemMessage: "Test",
+        userMessage: "Test",
+        responseSchema: { name: "test", schema: { type: "object" } },
       };
 
       // Act & Assert
       await expect(service.chatCompletion(options)).rejects.toThrow(ValidationError);
-      await expect(service.chatCompletion(options)).rejects.toThrow('Failed to parse response as JSON');
+      await expect(service.chatCompletion(options)).rejects.toThrow("Failed to parse response as JSON");
     });
   });
 
-  describe('buildResponseFormat()', () => {
+  describe("buildResponseFormat()", () => {
     beforeEach(() => {
-      service = new OpenRouterService(
-        config,
-        mockHttpClient,
-        mockRetryStrategy,
-        mockRequestBuilder
-      );
+      service = new OpenRouterService(config, mockHttpClient, mockRetryStrategy, mockRequestBuilder);
     });
 
-    it('should build proper response format structure', () => {
+    it("should build proper response format structure", () => {
       // Arrange
       const schema: ResponseSchema = {
-        name: 'test_schema',
+        name: "test_schema",
         schema: {
-          type: 'object',
+          type: "object",
           properties: {
-            field: { type: 'string' },
+            field: { type: "string" },
           },
         },
       };
@@ -573,25 +536,25 @@ describe('OpenRouterService', () => {
 
       // Assert
       expect(result).toEqual({
-        type: 'json_schema',
+        type: "json_schema",
         json_schema: {
-          name: 'test_schema',
+          name: "test_schema",
           strict: true,
           schema: {
-            type: 'object',
+            type: "object",
             properties: {
-              field: { type: 'string' },
+              field: { type: "string" },
             },
           },
         },
       });
     });
 
-    it('should always set strict to true', () => {
+    it("should always set strict to true", () => {
       // Arrange
       const schema: ResponseSchema = {
-        name: 'strict_test',
-        schema: { type: 'object' },
+        name: "strict_test",
+        schema: { type: "object" },
       };
 
       // Act
@@ -602,26 +565,21 @@ describe('OpenRouterService', () => {
     });
   });
 
-  describe('Logging', () => {
+  describe("Logging", () => {
     beforeEach(() => {
-      service = new OpenRouterService(
-        config,
-        mockHttpClient,
-        mockRetryStrategy,
-        mockRequestBuilder
-      );
+      service = new OpenRouterService(config, mockHttpClient, mockRetryStrategy, mockRequestBuilder);
       vi.clearAllMocks();
     });
 
-    it('should log LLM call', async () => {
+    it("should log LLM call", async () => {
       // Arrange
       const mockApiResponse: OpenRouterAPIResponse = {
-        id: 'test-id',
-        model: 'openai/gpt-4o-mini',
+        id: "test-id",
+        model: "openai/gpt-4o-mini",
         choices: [
           {
-            message: { role: 'assistant', content: JSON.stringify({ data: 'test' }) },
-            finish_reason: 'stop',
+            message: { role: "assistant", content: JSON.stringify({ data: "test" }) },
+            finish_reason: "stop",
             index: 0,
           },
         ],
@@ -630,29 +588,27 @@ describe('OpenRouterService', () => {
       vi.mocked(mockHttpClient.postWithTimeout).mockResolvedValue(mockApiResponse);
 
       const options: ChatCompletionOptions = {
-        systemMessage: 'Test',
-        userMessage: 'Test',
-        responseSchema: { name: 'test', schema: { type: 'object' } },
+        systemMessage: "Test",
+        userMessage: "Test",
+        responseSchema: { name: "test", schema: { type: "object" } },
       };
 
       // Act
       await service.chatCompletion(options);
 
       // Assert
-      expect(console.log).toHaveBeenCalledWith(
-        '[OpenRouter] Calling LLM: openai/gpt-4o-mini'
-      );
+      expect(console.log).toHaveBeenCalledWith("[OpenRouter] Calling LLM: openai/gpt-4o-mini");
     });
 
-    it('should log response and token usage', async () => {
+    it("should log response and token usage", async () => {
       // Arrange
       const mockApiResponse: OpenRouterAPIResponse = {
-        id: 'test-id',
-        model: 'openai/gpt-4o-mini',
+        id: "test-id",
+        model: "openai/gpt-4o-mini",
         choices: [
           {
-            message: { role: 'assistant', content: JSON.stringify({ data: 'test' }) },
-            finish_reason: 'stop',
+            message: { role: "assistant", content: JSON.stringify({ data: "test" }) },
+            finish_reason: "stop",
             index: 0,
           },
         ],
@@ -666,21 +622,17 @@ describe('OpenRouterService', () => {
       vi.mocked(mockHttpClient.postWithTimeout).mockResolvedValue(mockApiResponse);
 
       const options: ChatCompletionOptions = {
-        systemMessage: 'Test',
-        userMessage: 'Test',
-        responseSchema: { name: 'test', schema: { type: 'object' } },
+        systemMessage: "Test",
+        userMessage: "Test",
+        responseSchema: { name: "test", schema: { type: "object" } },
       };
 
       // Act
       await service.chatCompletion(options);
 
       // Assert
-      expect(console.log).toHaveBeenCalledWith(
-        '[OpenRouter] Response received from: openai/gpt-4o-mini'
-      );
-      expect(console.log).toHaveBeenCalledWith(
-        '[OpenRouter] Token usage - Prompt: 10, Completion: 20, Total: 30'
-      );
+      expect(console.log).toHaveBeenCalledWith("[OpenRouter] Response received from: openai/gpt-4o-mini");
+      expect(console.log).toHaveBeenCalledWith("[OpenRouter] Token usage - Prompt: 10, Completion: 20, Total: 30");
     });
   });
 });

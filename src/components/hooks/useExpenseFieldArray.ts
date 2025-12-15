@@ -1,13 +1,13 @@
 /**
  * Expense Field Array Hook
- * 
+ *
  * Custom hook for managing expense field array in React Hook Form.
  * Encapsulates field array logic, edit tracking, and removal validation.
  */
 
-import { useCallback } from 'react';
-import { useFieldArray, type Control } from 'react-hook-form';
-import type { ExpenseVerificationFormValues } from '@/lib/validation/expense-verification.validation';
+import { useCallback } from "react";
+import { useFieldArray, type Control } from "react-hook-form";
+import type { ExpenseVerificationFormValues } from "@/lib/validation/expense-verification.validation";
 
 /**
  * Props for useExpenseFieldArray hook
@@ -21,7 +21,7 @@ interface UseExpenseFieldArrayProps {
  */
 interface UseExpenseFieldArrayReturn {
   /** Field array items */
-  fields: ReturnType<typeof useFieldArray<ExpenseVerificationFormValues, 'expenses'>>['fields'];
+  fields: ReturnType<typeof useFieldArray<ExpenseVerificationFormValues, "expenses">>["fields"];
   /** Mark expense as edited */
   markAsEdited: (index: number) => void;
   /** Remove expense from array */
@@ -32,15 +32,15 @@ interface UseExpenseFieldArrayReturn {
 
 /**
  * Custom hook for managing expense field array
- * 
+ *
  * Provides simplified API for field array operations with built-in validation.
- * 
+ *
  * @example
  * ```tsx
  * const { fields, markAsEdited, removeExpense, canRemoveExpense } = useExpenseFieldArray({
  *   control
  * });
- * 
+ *
  * {fields.map((field, index) => (
  *   <ExpenseItem
  *     key={field.id}
@@ -51,12 +51,10 @@ interface UseExpenseFieldArrayReturn {
  * ))}
  * ```
  */
-export function useExpenseFieldArray({
-  control,
-}: UseExpenseFieldArrayProps): UseExpenseFieldArrayReturn {
+export function useExpenseFieldArray({ control }: UseExpenseFieldArrayProps): UseExpenseFieldArrayReturn {
   const { fields, remove, update } = useFieldArray({
     control,
-    name: 'expenses',
+    name: "expenses",
   });
 
   /**

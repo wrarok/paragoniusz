@@ -1,5 +1,5 @@
-import type { SupabaseClient } from '../../db/supabase.client';
-import type { CategoryListDTO } from '../../types';
+import type { SupabaseClient } from "../../db/supabase.client";
+import type { CategoryListDTO } from "../../types";
 
 /**
  * Fetches all categories from the database
@@ -9,10 +9,7 @@ import type { CategoryListDTO } from '../../types';
  */
 export async function getAllCategories(supabase: SupabaseClient): Promise<CategoryListDTO> {
   // Query database for all categories, selecting only required fields
-  const { data, error } = await supabase
-    .from('categories')
-    .select('id, name')
-    .order('name', { ascending: true });
+  const { data, error } = await supabase.from("categories").select("id, name").order("name", { ascending: true });
 
   if (error) {
     throw error;

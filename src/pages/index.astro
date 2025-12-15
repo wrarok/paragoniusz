@@ -72,21 +72,21 @@ try {
       </div>
     ) : (
       <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <!-- Dashboard Summary -->
+        {/* Dashboard Summary */}
         <div class="md:col-span-2 lg:col-span-1">
           <DashboardSummary client:load initialData={dashboardData} />
         </div>
 
-        <!-- Expense Pie Chart -->
+        {/* Expense Pie Chart */}
         <div class="md:col-span-2 lg:col-span-2">
-          <ExpensePieChart 
-            client:load 
-            categories={dashboardData?.categories || []} 
+          <ExpensePieChart
+            client:load
+            categories={dashboardData?.categories || []}
             isLoading={!dashboardData}
           />
         </div>
 
-        <!-- Recent Expenses List -->
+        {/* Recent Expenses List */}
         <div class="md:col-span-2 lg:col-span-3">
           <RecentExpensesList client:load initialData={expensesData} />
         </div>

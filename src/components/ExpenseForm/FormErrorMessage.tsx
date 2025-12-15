@@ -1,12 +1,12 @@
-import type { FormErrorMessageProps } from './types';
+import type { FormErrorMessageProps } from "./types";
 
 /**
  * FormErrorMessage Component
- * 
+ *
  * Reusable component for displaying inline validation error messages.
  * Provides consistent styling and accessibility attributes for error messages
  * across all form fields.
- * 
+ *
  * @param message - Error message to display
  * @param fieldId - Optional field ID for aria-describedby association
  */

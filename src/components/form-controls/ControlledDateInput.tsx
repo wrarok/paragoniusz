@@ -1,13 +1,13 @@
 /**
  * Controlled Date Input Component
- * 
+ *
  * Reusable controlled date input component for React Hook Form.
  * Handles date input with validation and error display.
  */
 
-import { Controller, type Control, type FieldPath, type FieldValues } from 'react-hook-form';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+import { Controller, type Control, type FieldPath, type FieldValues } from "react-hook-form";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 interface ControlledDateInputProps<T extends FieldValues> {
   control: Control<T>;
@@ -18,7 +18,7 @@ interface ControlledDateInputProps<T extends FieldValues> {
 
 /**
  * Controlled date input for React Hook Form
- * 
+ *
  * @example
  * ```tsx
  * <ControlledDateInput
@@ -31,7 +31,7 @@ interface ControlledDateInputProps<T extends FieldValues> {
 export function ControlledDateInput<T extends FieldValues>({
   control,
   name,
-  label = 'Data',
+  label = "Data",
   disabled = false,
 }: ControlledDateInputProps<T>) {
   return (
@@ -44,7 +44,7 @@ export function ControlledDateInput<T extends FieldValues>({
           <Input
             id={String(name)}
             type="date"
-            value={field.value ? field.value.split('T')[0] : ''}
+            value={field.value ? field.value.split("T")[0] : ""}
             onChange={(e) => {
               const dateValue = e.target.value;
               if (dateValue) {
@@ -57,11 +57,7 @@ export function ControlledDateInput<T extends FieldValues>({
             className="w-full"
             disabled={disabled}
           />
-          {fieldState.error && (
-            <p className="text-destructive text-sm mt-1">
-              {fieldState.error.message}
-            </p>
-          )}
+          {fieldState.error && <p className="text-destructive text-sm mt-1">{fieldState.error.message}</p>}
         </div>
       )}
     />

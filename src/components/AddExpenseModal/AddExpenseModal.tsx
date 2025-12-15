@@ -1,13 +1,9 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import type { AddExpenseModalProps } from '../../types/modal.types';
-import { LoadingState } from './LoadingState';
-import { ErrorState } from './ErrorState';
-import { ActionButtons } from './ActionButtons';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import type { AddExpenseModalProps } from "../../types/modal.types";
+import type { APIErrorResponse, ProfileDTO } from "../../types";
+import { LoadingState } from "./LoadingState";
+import { ErrorState } from "./ErrorState";
+import { ActionButtons } from "./ActionButtons";
 
 /**
  * AddExpenseModal Component
@@ -26,17 +22,14 @@ export function AddExpenseModal({
   onClose,
 }: AddExpenseModalProps & {
   isLoading: boolean;
-  error: any;
-  profile: any;
+  error: APIErrorResponse | null;
+  profile: ProfileDTO | null;
   onRetry: () => void;
   onClose: () => void;
 }) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent 
-        className="sm:max-w-md"
-        aria-describedby="add-expense-description"
-      >
+      <DialogContent className="sm:max-w-md" aria-describedby="add-expense-description">
         <DialogHeader>
           <DialogTitle>Dodaj wydatek</DialogTitle>
           <p id="add-expense-description" className="sr-only">
@@ -49,21 +42,11 @@ export function AddExpenseModal({
           {isLoading && <LoadingState message="Ładowanie profilu..." />}
 
           {/* Error State */}
-          {!isLoading && error && (
-            <ErrorState 
-              error={error} 
-              onRetry={onRetry}
-              onClose={onClose}
-            />
-          )}
+          {!isLoading && error && <ErrorState error={error} onRetry={onRetry} onClose={onClose} />}
 
           {/* Success State - Action Buttons */}
           {!isLoading && !error && profile && (
-            <ActionButtons
-              profile={profile}
-              onSelectManual={onSelectManual}
-              onSelectAI={onSelectAI}
-            />
+            <ActionButtons profile={profile} onSelectManual={onSelectManual} onSelectAI={onSelectAI} />
           )}
         </div>
       </DialogContent>

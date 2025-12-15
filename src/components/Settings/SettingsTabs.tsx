@@ -1,9 +1,9 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AccountInfoSection } from './AccountInfoSection';
-import { AIConsentSection } from './AIConsentSection';
-import { ChangePasswordSection } from './ChangePasswordSection';
-import { DangerZoneSection } from './DangerZoneSection';
-import type { ProfileDTO } from '../../types';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AccountInfoSection } from "./AccountInfoSection";
+import { AIConsentSection } from "./AIConsentSection";
+import { ChangePasswordSection } from "./ChangePasswordSection";
+import { DangerZoneSection } from "./DangerZoneSection";
+import type { ProfileDTO } from "../../types";
 
 interface SettingsTabsProps {
   profile: ProfileDTO;
@@ -24,10 +24,7 @@ export function SettingsTabs({ profile, onProfileUpdated }: SettingsTabsProps) {
 
       <TabsContent value="account" className="space-y-6">
         <AccountInfoSection profile={profile} />
-        <AIConsentSection
-          profile={profile}
-          onConsentUpdated={onProfileUpdated || (() => {})}
-        />
+        <AIConsentSection profile={profile} onConsentUpdated={onProfileUpdated || (() => {})} />
       </TabsContent>
 
       <TabsContent value="security" className="space-y-6">

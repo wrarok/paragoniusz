@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   ConsentValidationStep,
   FileOwnershipValidationStep,
@@ -6,15 +6,15 @@ import {
   AIProcessingStep,
   CategoryMappingStep,
   type ProcessingContext,
-} from '../../../src/lib/processing/receipt-processing-steps';
-import type { SupabaseClient } from '../../../src/db/supabase.client';
+} from "../../../src/lib/processing/receipt-processing-steps";
+import type { SupabaseClient } from "../../../src/db/supabase.client";
 
 /**
  * Unit tests for Receipt Processing Steps
- * 
+ *
  * Tests each step in the processing pipeline independently.
  * Each step receives context, performs operation, returns updated context.
- * 
+ *
  * Test coverage:
  * - ConsentValidationStep: AI consent verification
  * - FileOwnershipValidationStep: File ownership validation
@@ -22,7 +22,7 @@ import type { SupabaseClient } from '../../../src/db/supabase.client';
  * - AIProcessingStep: Edge Function invocation
  * - CategoryMappingStep: Category mapping and response building
  */
-describe('Receipt Processing Steps', () => {
+describe("Receipt Processing Steps", () => {
   let mockSupabase: SupabaseClient;
   let baseContext: ProcessingContext;
 
@@ -40,20 +40,20 @@ describe('Receipt Processing Steps', () => {
 
     // Base context for all tests
     baseContext = {
-      filePath: 'receipts/user-123/file-456.jpg',
-      userId: 'user-123',
+      filePath: "receipts/user-123/file-456.jpg",
+      userId: "user-123",
       startTime: Date.now(),
     };
   });
 
-  describe('ConsentValidationStep', () => {
+  describe("ConsentValidationStep", () => {
     let step: ConsentValidationStep;
 
     beforeEach(() => {
       step = new ConsentValidationStep(mockSupabase);
     });
 
-    it('should pass when user has given AI consent', async () => {
+    it("should pass when user has given AI consent", async () => {
       // Arrange
       const mockSelect = vi.fn().mockReturnThis();
       const mockEq = vi.fn().mockReturnThis();
@@ -72,14 +72,14 @@ describe('Receipt Processing Steps', () => {
       const result = await step.execute(baseContext);
 
       // Assert
-      expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
-      expect(mockSelect).toHaveBeenCalledWith('ai_consent_given');
-      expect(mockEq).toHaveBeenCalledWith('id', 'user-123');
+      expect(mockSupabase.from).toHaveBeenCalledWith("profiles");
+      expect(mockSelect).toHaveBeenCalledWith("ai_consent_given");
+      expect(mockEq).toHaveBeenCalledWith("id", "user-123");
       expect(result.aiConsentGiven).toBe(true);
       expect(result).toMatchObject(baseContext);
     });
 
-    it('should throw AI_CONSENT_REQUIRED when consent not given', async () => {
+    it("should throw AI_CONSENT_REQUIRED when consent not given", async () => {
       // Arrange
       const mockSelect = vi.fn().mockReturnThis();
       const mockEq = vi.fn().mockReturnThis();
@@ -95,16 +95,16 @@ describe('Receipt Processing Steps', () => {
       } as any);
 
       // Act & Assert
-      await expect(step.execute(baseContext)).rejects.toThrow('AI_CONSENT_REQUIRED');
+      await expect(step.execute(baseContext)).rejects.toThrow("AI_CONSENT_REQUIRED");
     });
 
-    it('should throw error when profile fetch fails', async () => {
+    it("should throw error when profile fetch fails", async () => {
       // Arrange
       const mockSelect = vi.fn().mockReturnThis();
       const mockEq = vi.fn().mockReturnThis();
       const mockSingle = vi.fn().mockResolvedValue({
         data: null,
-        error: { message: 'Database error' },
+        error: { message: "Database error" },
       });
 
       vi.mocked(mockSupabase.from).mockReturnValue({
@@ -114,12 +114,10 @@ describe('Receipt Processing Steps', () => {
       } as any);
 
       // Act & Assert
-      await expect(step.execute(baseContext)).rejects.toThrow(
-        'Nie udało się pobrać profilu użytkownika'
-      );
+      await expect(step.execute(baseContext)).rejects.toThrow("Nie udało się pobrać profilu użytkownika");
     });
 
-    it('should preserve existing context data', async () => {
+    it("should preserve existing context data", async () => {
       // Arrange
       const mockSelect = vi.fn().mockReturnThis();
       const mockEq = vi.fn().mockReturnThis();
@@ -136,29 +134,29 @@ describe('Receipt Processing Steps', () => {
 
       const contextWithData = {
         ...baseContext,
-        categories: [{ id: 'cat-1', name: 'Food' }],
+        categories: [{ id: "cat-1", name: "Food" }],
       };
 
       // Act
       const result = await step.execute(contextWithData);
 
       // Assert
-      expect(result.categories).toEqual([{ id: 'cat-1', name: 'Food' }]);
+      expect(result.categories).toEqual([{ id: "cat-1", name: "Food" }]);
     });
   });
 
-  describe('FileOwnershipValidationStep', () => {
+  describe("FileOwnershipValidationStep", () => {
     let step: FileOwnershipValidationStep;
 
     beforeEach(() => {
       step = new FileOwnershipValidationStep();
     });
 
-    it('should pass when file belongs to user', async () => {
+    it("should pass when file belongs to user", async () => {
       // Arrange
       const context: ProcessingContext = {
-        filePath: 'receipts/user-123/file-456.jpg',
-        userId: 'user-123',
+        filePath: "receipts/user-123/file-456.jpg",
+        userId: "user-123",
         startTime: Date.now(),
       };
 
@@ -169,23 +167,23 @@ describe('Receipt Processing Steps', () => {
       expect(result).toEqual(context);
     });
 
-    it('should throw FORBIDDEN when file belongs to different user', async () => {
+    it("should throw FORBIDDEN when file belongs to different user", async () => {
       // Arrange
       const context: ProcessingContext = {
-        filePath: 'receipts/user-999/file-456.jpg', // Different user
-        userId: 'user-123',
+        filePath: "receipts/user-999/file-456.jpg", // Different user
+        userId: "user-123",
         startTime: Date.now(),
       };
 
       // Act & Assert
-      await expect(step.execute(context)).rejects.toThrow('FORBIDDEN');
+      await expect(step.execute(context)).rejects.toThrow("FORBIDDEN");
     });
 
-    it('should extract user ID from second path segment', async () => {
+    it("should extract user ID from second path segment", async () => {
       // Arrange - test path parsing
       const context: ProcessingContext = {
-        filePath: 'receipts/abc-def-123/image.png',
-        userId: 'abc-def-123',
+        filePath: "receipts/abc-def-123/image.png",
+        userId: "abc-def-123",
         startTime: Date.now(),
       };
 
@@ -196,12 +194,12 @@ describe('Receipt Processing Steps', () => {
       expect(result).toEqual(context);
     });
 
-    it('should handle different file extensions', async () => {
+    it("should handle different file extensions", async () => {
       // Arrange
       const contexts = [
-        { filePath: 'receipts/user-123/file.jpg', userId: 'user-123' },
-        { filePath: 'receipts/user-123/file.png', userId: 'user-123' },
-        { filePath: 'receipts/user-123/file.heic', userId: 'user-123' },
+        { filePath: "receipts/user-123/file.jpg", userId: "user-123" },
+        { filePath: "receipts/user-123/file.png", userId: "user-123" },
+        { filePath: "receipts/user-123/file.heic", userId: "user-123" },
       ];
 
       // Act & Assert
@@ -212,19 +210,19 @@ describe('Receipt Processing Steps', () => {
     });
   });
 
-  describe('CategoryFetchStep', () => {
+  describe("CategoryFetchStep", () => {
     let step: CategoryFetchStep;
 
     beforeEach(() => {
       step = new CategoryFetchStep(mockSupabase);
     });
 
-    it('should fetch and return categories', async () => {
+    it("should fetch and return categories", async () => {
       // Arrange
       const mockCategories = [
-        { id: 'cat-1', name: 'Food' },
-        { id: 'cat-2', name: 'Transport' },
-        { id: 'cat-3', name: 'Entertainment' },
+        { id: "cat-1", name: "Food" },
+        { id: "cat-2", name: "Transport" },
+        { id: "cat-3", name: "Entertainment" },
       ];
 
       const mockSelect = vi.fn().mockResolvedValue({
@@ -240,16 +238,16 @@ describe('Receipt Processing Steps', () => {
       const result = await step.execute(baseContext);
 
       // Assert
-      expect(mockSupabase.from).toHaveBeenCalledWith('categories');
-      expect(mockSelect).toHaveBeenCalledWith('id, name');
+      expect(mockSupabase.from).toHaveBeenCalledWith("categories");
+      expect(mockSelect).toHaveBeenCalledWith("id, name");
       expect(result.categories).toEqual(mockCategories);
     });
 
-    it('should throw error when database query fails', async () => {
+    it("should throw error when database query fails", async () => {
       // Arrange
       const mockSelect = vi.fn().mockResolvedValue({
         data: null,
-        error: { message: 'Database error' },
+        error: { message: "Database error" },
       });
 
       vi.mocked(mockSupabase.from).mockReturnValue({
@@ -257,12 +255,10 @@ describe('Receipt Processing Steps', () => {
       } as any);
 
       // Act & Assert
-      await expect(step.execute(baseContext)).rejects.toThrow(
-        'Nie udało się pobrać kategorii'
-      );
+      await expect(step.execute(baseContext)).rejects.toThrow("Nie udało się pobrać kategorii");
     });
 
-    it('should throw error when no categories exist', async () => {
+    it("should throw error when no categories exist", async () => {
       // Arrange
       const mockSelect = vi.fn().mockResolvedValue({
         data: [],
@@ -274,12 +270,10 @@ describe('Receipt Processing Steps', () => {
       } as any);
 
       // Act & Assert
-      await expect(step.execute(baseContext)).rejects.toThrow(
-        'Nie udało się pobrać kategorii'
-      );
+      await expect(step.execute(baseContext)).rejects.toThrow("Nie udało się pobrać kategorii");
     });
 
-    it('should throw error when categories is null', async () => {
+    it("should throw error when categories is null", async () => {
       // Arrange
       const mockSelect = vi.fn().mockResolvedValue({
         data: null,
@@ -291,15 +285,13 @@ describe('Receipt Processing Steps', () => {
       } as any);
 
       // Act & Assert
-      await expect(step.execute(baseContext)).rejects.toThrow(
-        'Nie udało się pobrać kategorii'
-      );
+      await expect(step.execute(baseContext)).rejects.toThrow("Nie udało się pobrać kategorii");
     });
 
-    it('should preserve existing context data', async () => {
+    it("should preserve existing context data", async () => {
       // Arrange
       const mockSelect = vi.fn().mockResolvedValue({
-        data: [{ id: 'cat-1', name: 'Food' }],
+        data: [{ id: "cat-1", name: "Food" }],
         error: null,
       });
 
@@ -320,23 +312,23 @@ describe('Receipt Processing Steps', () => {
     });
   });
 
-  describe('AIProcessingStep', () => {
+  describe("AIProcessingStep", () => {
     let step: AIProcessingStep;
 
     beforeEach(() => {
       step = new AIProcessingStep(mockSupabase);
     });
 
-    it('should successfully process receipt and return data', async () => {
+    it("should successfully process receipt and return data", async () => {
       // Arrange
-      const mockSession = { access_token: 'test-token' };
+      const mockSession = { access_token: "test-token" };
       const mockEdgeFunctionData = {
         items: [
-          { name: 'Milk', amount: 5.5, category: 'Food' },
-          { name: 'Bread', amount: 3.0, category: 'Food' },
+          { name: "Milk", amount: 5.5, category: "Food" },
+          { name: "Bread", amount: 3.0, category: "Food" },
         ],
         total: 8.5,
-        date: '2024-01-15',
+        date: "2024-01-15",
       };
 
       vi.mocked(mockSupabase.auth.getSession).mockResolvedValue({
@@ -353,22 +345,19 @@ describe('Receipt Processing Steps', () => {
       const result = await step.execute(baseContext);
 
       // Assert
-      expect(mockSupabase.functions.invoke).toHaveBeenCalledWith(
-        'process-receipt',
-        {
-          body: { file_path: 'receipts/user-123/file-456.jpg' },
-          headers: { Authorization: 'Bearer test-token' },
-        }
-      );
+      expect(mockSupabase.functions.invoke).toHaveBeenCalledWith("process-receipt", {
+        body: { file_path: "receipts/user-123/file-456.jpg" },
+        headers: { Authorization: "Bearer test-token" },
+      });
       expect(result.edgeFunctionData).toEqual(mockEdgeFunctionData);
     });
 
-    it('should handle missing session (no auth token)', async () => {
+    it("should handle missing session (no auth token)", async () => {
       // Arrange
       const mockEdgeFunctionData = {
-        items: [{ name: 'Item', amount: 10, category: 'Food' }],
+        items: [{ name: "Item", amount: 10, category: "Food" }],
         total: 10,
-        date: '2024-01-15',
+        date: "2024-01-15",
       };
 
       vi.mocked(mockSupabase.auth.getSession).mockResolvedValue({
@@ -385,17 +374,14 @@ describe('Receipt Processing Steps', () => {
       const result = await step.execute(baseContext);
 
       // Assert
-      expect(mockSupabase.functions.invoke).toHaveBeenCalledWith(
-        'process-receipt',
-        {
-          body: { file_path: 'receipts/user-123/file-456.jpg' },
-          headers: undefined,
-        }
-      );
+      expect(mockSupabase.functions.invoke).toHaveBeenCalledWith("process-receipt", {
+        body: { file_path: "receipts/user-123/file-456.jpg" },
+        headers: undefined,
+      });
       expect(result.edgeFunctionData).toEqual(mockEdgeFunctionData);
     });
 
-    it('should throw RATE_LIMIT_EXCEEDED when rate limit hit', async () => {
+    it("should throw RATE_LIMIT_EXCEEDED when rate limit hit", async () => {
       // Arrange
       vi.mocked(mockSupabase.auth.getSession).mockResolvedValue({
         data: { session: null },
@@ -404,14 +390,14 @@ describe('Receipt Processing Steps', () => {
 
       vi.mocked(mockSupabase.functions.invoke).mockResolvedValue({
         data: null,
-        error: { message: 'Rate limit exceeded' },
+        error: { message: "Rate limit exceeded" },
       } as any);
 
       // Act & Assert
-      await expect(step.execute(baseContext)).rejects.toThrow('RATE_LIMIT_EXCEEDED');
+      await expect(step.execute(baseContext)).rejects.toThrow("RATE_LIMIT_EXCEEDED");
     });
 
-    it('should throw PROCESSING_TIMEOUT when timeout occurs', async () => {
+    it("should throw PROCESSING_TIMEOUT when timeout occurs", async () => {
       // Arrange
       vi.mocked(mockSupabase.auth.getSession).mockResolvedValue({
         data: { session: null },
@@ -420,14 +406,14 @@ describe('Receipt Processing Steps', () => {
 
       vi.mocked(mockSupabase.functions.invoke).mockResolvedValue({
         data: null,
-        error: { message: 'Request timeout' },
+        error: { message: "Request timeout" },
       } as any);
 
       // Act & Assert
-      await expect(step.execute(baseContext)).rejects.toThrow('PROCESSING_TIMEOUT');
+      await expect(step.execute(baseContext)).rejects.toThrow("PROCESSING_TIMEOUT");
     });
 
-    it('should throw generic error for other failures', async () => {
+    it("should throw generic error for other failures", async () => {
       // Arrange
       vi.mocked(mockSupabase.auth.getSession).mockResolvedValue({
         data: { session: null },
@@ -436,16 +422,14 @@ describe('Receipt Processing Steps', () => {
 
       vi.mocked(mockSupabase.functions.invoke).mockResolvedValue({
         data: null,
-        error: { message: 'Unknown error' },
+        error: { message: "Unknown error" },
       } as any);
 
       // Act & Assert
-      await expect(step.execute(baseContext)).rejects.toThrow(
-        'Przetwarzanie AI nie powiodło się: Unknown error'
-      );
+      await expect(step.execute(baseContext)).rejects.toThrow("Przetwarzanie AI nie powiodło się: Unknown error");
     });
 
-    it('should throw error when Edge Function returns no data', async () => {
+    it("should throw error when Edge Function returns no data", async () => {
       // Arrange
       vi.mocked(mockSupabase.auth.getSession).mockResolvedValue({
         data: { session: null },
@@ -458,13 +442,11 @@ describe('Receipt Processing Steps', () => {
       } as any);
 
       // Act & Assert
-      await expect(step.execute(baseContext)).rejects.toThrow(
-        'Brak danych zwróconych z przetwarzania AI'
-      );
+      await expect(step.execute(baseContext)).rejects.toThrow("Brak danych zwróconych z przetwarzania AI");
     });
   });
 
-  describe('CategoryMappingStep', () => {
+  describe("CategoryMappingStep", () => {
     let step: CategoryMappingStep;
     let mockCategoryMapper: any;
 
@@ -475,30 +457,30 @@ describe('Receipt Processing Steps', () => {
       step = new CategoryMappingStep(mockCategoryMapper);
     });
 
-    it('should successfully map categories and build response', async () => {
+    it("should successfully map categories and build response", async () => {
       // Arrange
       const contextWithData: ProcessingContext = {
         ...baseContext,
         categories: [
-          { id: 'cat-1', name: 'Food' },
-          { id: 'cat-2', name: 'Transport' },
+          { id: "cat-1", name: "Food" },
+          { id: "cat-2", name: "Transport" },
         ],
         edgeFunctionData: {
           items: [
-            { name: 'Milk', amount: 5.5, category: 'Food' },
-            { name: 'Bread', amount: 3.0, category: 'Food' },
+            { name: "Milk", amount: 5.5, category: "Food" },
+            { name: "Bread", amount: 3.0, category: "Food" },
           ],
           total: 8.5,
-          date: '2024-01-15',
+          date: "2024-01-15",
         },
       };
 
       const mockMappedExpenses = [
         {
-          category_id: 'cat-1',
-          category_name: 'Food',
-          amount: '8.50',
-          items: ['Milk - 5.50', 'Bread - 3.00'],
+          category_id: "cat-1",
+          category_name: "Food",
+          amount: "8.50",
+          items: ["Milk - 5.50", "Bread - 3.00"],
         },
       ];
 
@@ -514,66 +496,62 @@ describe('Receipt Processing Steps', () => {
       );
       expect(result.result).toMatchObject({
         expenses: mockMappedExpenses,
-        total_amount: '8.50',
-        currency: 'PLN',
-        receipt_date: '2024-01-15',
+        total_amount: "8.50",
+        currency: "PLN",
+        receipt_date: "2024-01-15",
       });
       expect(result.result?.processing_time_ms).toBeGreaterThanOrEqual(0);
     });
 
-    it('should throw error when edgeFunctionData is missing', async () => {
+    it("should throw error when edgeFunctionData is missing", async () => {
       // Arrange
       const contextMissingData: ProcessingContext = {
         ...baseContext,
-        categories: [{ id: 'cat-1', name: 'Food' }],
+        categories: [{ id: "cat-1", name: "Food" }],
         // edgeFunctionData missing
       };
 
       // Act & Assert
-      await expect(step.execute(contextMissingData)).rejects.toThrow(
-        'Missing data for category mapping'
-      );
+      await expect(step.execute(contextMissingData)).rejects.toThrow("Missing data for category mapping");
     });
 
-    it('should throw error when categories are missing', async () => {
+    it("should throw error when categories are missing", async () => {
       // Arrange
       const contextMissingCategories: ProcessingContext = {
         ...baseContext,
         edgeFunctionData: {
-          items: [{ name: 'Milk', amount: 5.5, category: 'Food' }],
+          items: [{ name: "Milk", amount: 5.5, category: "Food" }],
           total: 5.5,
-          date: '2024-01-15',
+          date: "2024-01-15",
         },
         // categories missing
       };
 
       // Act & Assert
-      await expect(step.execute(contextMissingCategories)).rejects.toThrow(
-        'Missing data for category mapping'
-      );
+      await expect(step.execute(contextMissingCategories)).rejects.toThrow("Missing data for category mapping");
     });
 
-    it('should calculate processing time correctly', async () => {
+    it("should calculate processing time correctly", async () => {
       // Arrange
       const startTime = Date.now() - 1500; // 1.5 seconds ago
       const contextWithData: ProcessingContext = {
-        filePath: 'receipts/user-123/file.jpg',
-        userId: 'user-123',
+        filePath: "receipts/user-123/file.jpg",
+        userId: "user-123",
         startTime,
-        categories: [{ id: 'cat-1', name: 'Food' }],
+        categories: [{ id: "cat-1", name: "Food" }],
         edgeFunctionData: {
-          items: [{ name: 'Item', amount: 10, category: 'Food' }],
+          items: [{ name: "Item", amount: 10, category: "Food" }],
           total: 10,
-          date: '2024-01-15',
+          date: "2024-01-15",
         },
       };
 
       mockCategoryMapper.mapExpensesWithCategories.mockResolvedValue([
         {
-          category_id: 'cat-1',
-          category_name: 'Food',
-          amount: '10.00',
-          items: ['Item - 10.00'],
+          category_id: "cat-1",
+          category_name: "Food",
+          amount: "10.00",
+          items: ["Item - 10.00"],
         },
       ]);
 
@@ -585,24 +563,24 @@ describe('Receipt Processing Steps', () => {
       expect(result.result?.processing_time_ms).toBeLessThan(3000);
     });
 
-    it('should format total amount with 2 decimal places', async () => {
+    it("should format total amount with 2 decimal places", async () => {
       // Arrange
       const contextWithData: ProcessingContext = {
         ...baseContext,
-        categories: [{ id: 'cat-1', name: 'Food' }],
+        categories: [{ id: "cat-1", name: "Food" }],
         edgeFunctionData: {
-          items: [{ name: 'Item', amount: 10.5, category: 'Food' }],
+          items: [{ name: "Item", amount: 10.5, category: "Food" }],
           total: 10.5,
-          date: '2024-01-15',
+          date: "2024-01-15",
         },
       };
 
       mockCategoryMapper.mapExpensesWithCategories.mockResolvedValue([
         {
-          category_id: 'cat-1',
-          category_name: 'Food',
-          amount: '10.50',
-          items: ['Item - 10.50'],
+          category_id: "cat-1",
+          category_name: "Food",
+          amount: "10.50",
+          items: ["Item - 10.50"],
         },
       ]);
 
@@ -610,27 +588,27 @@ describe('Receipt Processing Steps', () => {
       const result = await step.execute(contextWithData);
 
       // Assert
-      expect(result.result?.total_amount).toBe('10.50');
+      expect(result.result?.total_amount).toBe("10.50");
     });
 
-    it('should always use PLN as currency', async () => {
+    it("should always use PLN as currency", async () => {
       // Arrange
       const contextWithData: ProcessingContext = {
         ...baseContext,
-        categories: [{ id: 'cat-1', name: 'Food' }],
+        categories: [{ id: "cat-1", name: "Food" }],
         edgeFunctionData: {
-          items: [{ name: 'Item', amount: 100, category: 'Food' }],
+          items: [{ name: "Item", amount: 100, category: "Food" }],
           total: 100,
-          date: '2024-01-15',
+          date: "2024-01-15",
         },
       };
 
       mockCategoryMapper.mapExpensesWithCategories.mockResolvedValue([
         {
-          category_id: 'cat-1',
-          category_name: 'Food',
-          amount: '100.00',
-          items: ['Item - 100.00'],
+          category_id: "cat-1",
+          category_name: "Food",
+          amount: "100.00",
+          items: ["Item - 100.00"],
         },
       ]);
 
@@ -638,7 +616,7 @@ describe('Receipt Processing Steps', () => {
       const result = await step.execute(contextWithData);
 
       // Assert
-      expect(result.result?.currency).toBe('PLN');
+      expect(result.result?.currency).toBe("PLN");
     });
   });
 });

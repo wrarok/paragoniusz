@@ -4,14 +4,14 @@ import type {
   ResponseFormat,
   MessageContent,
   ModelParameters,
-} from '../../types/openrouter.types';
+} from "../../types/openrouter.types";
 
 /**
  * Builder for OpenRouter API requests
- * 
+ *
  * Provides fluent API for constructing requests.
  * Eliminates verbose conditional parameter building.
- * 
+ *
  * @example
  * ```typescript
  * const builder = new OpenRouterRequestBuilder();
@@ -47,7 +47,7 @@ export class OpenRouterRequestBuilder {
       this.request.messages = [];
     }
     this.request.messages.push({
-      role: 'system',
+      role: "system",
       content: message,
     });
     return this;
@@ -63,7 +63,7 @@ export class OpenRouterRequestBuilder {
       this.request.messages = [];
     }
     this.request.messages.push({
-      role: 'user',
+      role: "user",
       content: message,
     });
     return this;
@@ -81,9 +81,9 @@ export class OpenRouterRequestBuilder {
 
   /**
    * Set model parameters (temperature, max_tokens, top_p)
-   * 
+   *
    * Only sets parameters that are provided (undefined values ignored).
-   * 
+   *
    * @param params - Model parameters
    * @returns this builder for chaining
    */
@@ -102,24 +102,24 @@ export class OpenRouterRequestBuilder {
 
   /**
    * Build final request
-   * 
+   *
    * Validates that required fields are present.
-   * 
+   *
    * @returns Complete OpenRouter API request
    * @throws {Error} If required fields are missing
    */
   build(): OpenRouterRequest {
     if (!this.request.model || !this.request.messages) {
-      throw new Error('Model and messages are required');
+      throw new Error("Model and messages are required");
     }
     return this.request as OpenRouterRequest;
   }
 
   /**
    * Reset builder to initial state
-   * 
+   *
    * Useful for reusing the same builder instance.
-   * 
+   *
    * @returns this builder for chaining
    */
   reset(): this {
@@ -129,16 +129,16 @@ export class OpenRouterRequestBuilder {
 
   /**
    * Build response format from schema
-   * 
+   *
    * Constructs the response_format object required by OpenRouter API.
-   * 
+   *
    * @param schema - Response schema definition
    * @returns Formatted response_format object
    * @private
    */
   private buildResponseFormat(schema: ResponseSchema): ResponseFormat {
     return {
-      type: 'json_schema',
+      type: "json_schema",
       json_schema: {
         name: schema.name,
         strict: true,

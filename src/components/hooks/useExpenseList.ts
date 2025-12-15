@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import type { ExpenseListDTO, ExpenseDTO } from '../../types';
-import type { ExpenseListState, DeleteExpenseResult } from '../../types/dashboard.types';
+import { useState, useEffect, useCallback } from "react";
+import type { ExpenseListDTO } from "../../types";
+import type { ExpenseListState, DeleteExpenseResult } from "../../types/dashboard.types";
 
 interface UseExpenseListOptions {
   initialData?: ExpenseListDTO;
@@ -28,15 +28,15 @@ export function useExpenseList({ initialData, limit = 10 }: UseExpenseListOption
       try {
         const params = new URLSearchParams({
           limit: limit.toString(),
-          offset: '0',
-          sort: 'expense_date.desc',
+          offset: "0",
+          sort: "expense_date.desc",
         });
 
         const response = await fetch(`/api/expenses?${params.toString()}`);
 
         if (!response.ok) {
           if (response.status === 401) {
-            window.location.href = '/login';
+            window.location.href = "/login";
             return;
           }
           throw new Error(`Failed to fetch expenses: ${response.statusText}`);
@@ -52,9 +52,9 @@ export function useExpenseList({ initialData, limit = 10 }: UseExpenseListOption
           offset: data.data.length,
         });
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to load expenses';
+        const errorMessage = error instanceof Error ? error.message : "Failed to load expenses";
         setState((prev) => ({ ...prev, isLoading: false, error: errorMessage }));
-        console.error('Error fetching expenses:', error);
+        console.error("Error fetching expenses:", error);
       }
     };
 
@@ -72,14 +72,14 @@ export function useExpenseList({ initialData, limit = 10 }: UseExpenseListOption
       const params = new URLSearchParams({
         limit: limit.toString(),
         offset: state.offset.toString(),
-        sort: 'expense_date.desc',
+        sort: "expense_date.desc",
       });
 
       const response = await fetch(`/api/expenses?${params.toString()}`);
 
       if (!response.ok) {
         if (response.status === 401) {
-          window.location.href = '/login';
+          window.location.href = "/login";
           return;
         }
         throw new Error(`Failed to load more expenses: ${response.statusText}`);
@@ -94,22 +94,22 @@ export function useExpenseList({ initialData, limit = 10 }: UseExpenseListOption
         offset: prev.expenses.length + data.data.length,
       }));
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load more expenses';
+      const errorMessage = error instanceof Error ? error.message : "Failed to load more expenses";
       setState((prev) => ({ ...prev, isLoadingMore: false, error: errorMessage }));
-      console.error('Error loading more expenses:', error);
+      console.error("Error loading more expenses:", error);
     }
   }, [state.isLoadingMore, state.hasMore, state.offset, limit]);
 
   const deleteExpense = useCallback(async (expenseId: string): Promise<DeleteExpenseResult> => {
     try {
       const response = await fetch(`/api/expenses/${expenseId}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (!response.ok) {
         if (response.status === 401) {
-          window.location.href = '/login';
-          return { success: false, error: 'Unauthorized' };
+          window.location.href = "/login";
+          return { success: false, error: "Unauthorized" };
         }
         if (response.status === 404) {
           // Remove from local state even if not found on server
@@ -129,12 +129,12 @@ export function useExpenseList({ initialData, limit = 10 }: UseExpenseListOption
       }));
 
       // Dispatch custom event to notify other components
-      window.dispatchEvent(new CustomEvent('expense-deleted', { detail: { expenseId } }));
+      window.dispatchEvent(new CustomEvent("expense-deleted", { detail: { expenseId } }));
 
       return { success: true };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to delete expense';
-      console.error('Error deleting expense:', error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to delete expense";
+      console.error("Error deleting expense:", error);
       return { success: false, error: errorMessage };
     }
   }, []);
@@ -145,15 +145,15 @@ export function useExpenseList({ initialData, limit = 10 }: UseExpenseListOption
     try {
       const params = new URLSearchParams({
         limit: limit.toString(),
-        offset: '0',
-        sort: 'expense_date.desc',
+        offset: "0",
+        sort: "expense_date.desc",
       });
 
       const response = await fetch(`/api/expenses?${params.toString()}`);
 
       if (!response.ok) {
         if (response.status === 401) {
-          window.location.href = '/login';
+          window.location.href = "/login";
           return;
         }
         throw new Error(`Failed to refresh expenses: ${response.statusText}`);
@@ -169,9 +169,9 @@ export function useExpenseList({ initialData, limit = 10 }: UseExpenseListOption
         offset: data.data.length,
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to refresh expenses';
+      const errorMessage = error instanceof Error ? error.message : "Failed to refresh expenses";
       setState((prev) => ({ ...prev, isLoading: false, error: errorMessage }));
-      console.error('Error refreshing expenses:', error);
+      console.error("Error refreshing expenses:", error);
     }
   }, [limit]);
 
@@ -185,8 +185,8 @@ export function useExpenseList({ initialData, limit = 10 }: UseExpenseListOption
       }));
     };
 
-    window.addEventListener('expense-deleted', handleExpenseDeleted);
-    return () => window.removeEventListener('expense-deleted', handleExpenseDeleted);
+    window.addEventListener("expense-deleted", handleExpenseDeleted);
+    return () => window.removeEventListener("expense-deleted", handleExpenseDeleted);
   }, []);
 
   return {

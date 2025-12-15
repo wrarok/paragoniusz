@@ -1,12 +1,12 @@
-import { describe, it, expect, beforeAll, vi } from 'vitest';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import type { APIContext } from 'astro';
+import { describe, it, expect, beforeAll, vi } from "vitest";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { APIContext } from "astro";
 
-import type { Database } from '../../../src/db/database.types';
-import { POST } from '../../../src/pages/api/receipts/upload';
-import { createAuthenticatedClient } from '../../helpers/test-auth';
-import { TEST_USER } from '../../integration-setup';
-import { MAX_FILE_SIZE } from '../../../src/lib/validation/receipt.validation';
+import type { Database } from "../../../src/db/database.types";
+import { POST } from "../../../src/pages/api/receipts/upload";
+import { createAuthenticatedClient } from "../../helpers/test-auth";
+import { TEST_USER } from "../../integration-setup";
+import { MAX_FILE_SIZE } from "../../../src/lib/validation/receipt.validation";
 
 /**
  * Integration Tests: Receipt Upload API
@@ -22,28 +22,27 @@ import { MAX_FILE_SIZE } from '../../../src/lib/validation/receipt.validation';
  * Tests: 6 total
  */
 
-describe('API Integration: POST /api/receipts/upload', () => {
+describe("API Integration: POST /api/receipts/upload", () => {
   let supabase: SupabaseClient<Database>;
 
   beforeAll(async () => {
     supabase = await createAuthenticatedClient();
   });
 
-
   // ============================================================================
   // Authentication
   // ============================================================================
 
-  it('should reject request without authentication', async () => {
-    const file = new File([Buffer.from('content')], 'receipt.jpg', {
-      type: 'image/jpeg',
+  it("should reject request without authentication", async () => {
+    const file = new File([Buffer.from("content")], "receipt.jpg", {
+      type: "image/jpeg",
     });
-    
-    const formData = new FormData();
-    formData.append('file', file);
 
-    const request = new Request('http://localhost/api/receipts/upload', {
-      method: 'POST',
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const request = new Request("http://localhost/api/receipts/upload", {
+      method: "POST",
       body: formData,
     });
 
@@ -57,22 +56,22 @@ describe('API Integration: POST /api/receipts/upload', () => {
 
     const response = await POST(context);
     expect(response.status).toBe(401);
-    
+
     const data = await response.json();
-    expect(data.error.code).toBe('UNAUTHORIZED');
-    expect(data.error.message).toContain('authenticated');
+    expect(data.error.code).toBe("UNAUTHORIZED");
+    expect(data.error.message).toContain("uwierzytelniony");
   });
 
   // ============================================================================
   // Validation Errors
   // ============================================================================
 
-  it('should reject request with no file', async () => {
+  it("should reject request with no file", async () => {
     const formData = new FormData();
     // No file appended
 
-    const request = new Request('http://localhost/api/receipts/upload', {
-      method: 'POST',
+    const request = new Request("http://localhost/api/receipts/upload", {
+      method: "POST",
       body: formData,
     });
 
@@ -86,24 +85,24 @@ describe('API Integration: POST /api/receipts/upload', () => {
 
     const response = await POST(context);
     expect(response.status).toBe(400);
-    
+
     const data = await response.json();
-    expect(data.error.code).toBe('VALIDATION_ERROR');
-    expect(data.error.message).toContain('No file provided');
+    expect(data.error.code).toBe("VALIDATION_ERROR");
+    expect(data.error.message).toContain("Nie podano pliku");
   });
 
-  it('should reject file exceeding size limit (10MB)', async () => {
+  it("should reject file exceeding size limit (10MB)", async () => {
     // Create file larger than 10MB
     const largeBuffer = Buffer.alloc(MAX_FILE_SIZE + 1024); // 10MB + 1KB
-    const file = new File([largeBuffer], 'large-receipt.jpg', {
-      type: 'image/jpeg',
+    const file = new File([largeBuffer], "large-receipt.jpg", {
+      type: "image/jpeg",
     });
-    
-    const formData = new FormData();
-    formData.append('file', file);
 
-    const request = new Request('http://localhost/api/receipts/upload', {
-      method: 'POST',
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const request = new Request("http://localhost/api/receipts/upload", {
+      method: "POST",
       body: formData,
     });
 
@@ -117,24 +116,24 @@ describe('API Integration: POST /api/receipts/upload', () => {
 
     const response = await POST(context);
     expect(response.status).toBe(413);
-    
+
     const data = await response.json();
-    expect(data.error.code).toBe('PAYLOAD_TOO_LARGE');
-    expect(data.error.message).toContain('10MB');
+    expect(data.error.code).toBe("PAYLOAD_TOO_LARGE");
+    expect(data.error.message).toContain("10MB");
     expect(data.error.details.max_size_mb).toBe(10);
   });
 
-  it('should reject invalid file type (PDF)', async () => {
-    const fileBuffer = Buffer.from('fake-pdf-content');
-    const file = new File([fileBuffer], 'document.pdf', {
-      type: 'application/pdf',
+  it("should reject invalid file type (PDF)", async () => {
+    const fileBuffer = Buffer.from("fake-pdf-content");
+    const file = new File([fileBuffer], "document.pdf", {
+      type: "application/pdf",
     });
-    
-    const formData = new FormData();
-    formData.append('file', file);
 
-    const request = new Request('http://localhost/api/receipts/upload', {
-      method: 'POST',
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const request = new Request("http://localhost/api/receipts/upload", {
+      method: "POST",
       body: formData,
     });
 
@@ -148,21 +147,21 @@ describe('API Integration: POST /api/receipts/upload', () => {
 
     const response = await POST(context);
     expect(response.status).toBe(400);
-    
+
     const data = await response.json();
-    expect(data.error.code).toBe('VALIDATION_ERROR');
-    expect(data.error.message).toContain('JPEG, PNG, or HEIC');
+    expect(data.error.code).toBe("VALIDATION_ERROR");
+    expect(data.error.message).toContain("JPEG, PNG, or HEIC");
   });
 
-  it('should reject empty file', async () => {
+  it("should reject empty file", async () => {
     // Create empty file
-    const file = new File([], 'empty.jpg', { type: 'image/jpeg' });
-    
-    const formData = new FormData();
-    formData.append('file', file);
+    const file = new File([], "empty.jpg", { type: "image/jpeg" });
 
-    const request = new Request('http://localhost/api/receipts/upload', {
-      method: 'POST',
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const request = new Request("http://localhost/api/receipts/upload", {
+      method: "POST",
       body: formData,
     });
 
@@ -176,24 +175,23 @@ describe('API Integration: POST /api/receipts/upload', () => {
 
     const response = await POST(context);
     expect(response.status).toBe(400);
-    
+
     const data = await response.json();
-    expect(data.error.code).toBe('VALIDATION_ERROR');
-    expect(data.error.message).toContain('empty');
+    expect(data.error.code).toBe("VALIDATION_ERROR");
+    expect(data.error.message).toContain("Nie podano pliku");
   });
 
-
-  it('should handle storage errors gracefully', async () => {
+  it("should handle storage errors gracefully", async () => {
     // Mock storage error by using invalid bucket name
-    const file = new File([Buffer.from('content')], 'receipt.jpg', {
-      type: 'image/jpeg',
+    const file = new File([Buffer.from("content")], "receipt.jpg", {
+      type: "image/jpeg",
     });
-    
-    const formData = new FormData();
-    formData.append('file', file);
 
-    const request = new Request('http://localhost/api/receipts/upload', {
-      method: 'POST',
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const request = new Request("http://localhost/api/receipts/upload", {
+      method: "POST",
       body: formData,
     });
 
@@ -204,7 +202,7 @@ describe('API Integration: POST /api/receipts/upload', () => {
         from: () => ({
           upload: vi.fn().mockResolvedValue({
             data: null,
-            error: { message: 'Storage quota exceeded' },
+            error: { message: "Storage quota exceeded" },
           }),
         }),
       },
@@ -220,9 +218,9 @@ describe('API Integration: POST /api/receipts/upload', () => {
 
     const response = await POST(context);
     expect(response.status).toBe(500);
-    
+
     const data = await response.json();
-    expect(data.error.code).toBe('INTERNAL_ERROR');
-    expect(data.error.message).toContain('Failed to upload');
+    expect(data.error.code).toBe("INTERNAL_ERROR");
+    expect(data.error.message).toContain("Nie udało się przesłać");
   });
 });

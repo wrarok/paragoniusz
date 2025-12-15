@@ -1,6 +1,6 @@
 /**
  * OpenRouter Service Error Classes
- * 
+ *
  * Custom error classes for handling different types of errors that can occur
  * when interacting with the OpenRouter API.
  */
@@ -15,8 +15,8 @@ export class OpenRouterError extends Error {
     public readonly statusCode?: number
   ) {
     super(message);
-    this.name = 'OpenRouterError';
-    
+    this.name = "OpenRouterError";
+
     // Maintains proper stack trace for where error was thrown (only available on V8)
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, this.constructor);
@@ -28,9 +28,9 @@ export class OpenRouterError extends Error {
  * Network-related errors (connection failures, DNS issues, etc.)
  */
 export class NetworkError extends OpenRouterError {
-  constructor(message: string = 'Network request failed') {
-    super(message, 'NETWORK_ERROR');
-    this.name = 'NetworkError';
+  constructor(message = "Network request failed") {
+    super(message, "NETWORK_ERROR");
+    this.name = "NetworkError";
   }
 }
 
@@ -38,9 +38,9 @@ export class NetworkError extends OpenRouterError {
  * Request timeout errors (exceeds configured timeout limit)
  */
 export class TimeoutError extends OpenRouterError {
-  constructor(message: string = 'Request timeout after 20 seconds') {
-    super(message, 'TIMEOUT_ERROR');
-    this.name = 'TimeoutError';
+  constructor(message = "Request timeout after 20 seconds") {
+    super(message, "TIMEOUT_ERROR");
+    this.name = "TimeoutError";
   }
 }
 
@@ -48,9 +48,9 @@ export class TimeoutError extends OpenRouterError {
  * Authentication errors (invalid API key, expired credentials, etc.)
  */
 export class AuthenticationError extends OpenRouterError {
-  constructor(message: string = 'Invalid API key') {
-    super(message, 'AUTH_ERROR', 401);
-    this.name = 'AuthenticationError';
+  constructor(message = "Invalid API key") {
+    super(message, "AUTH_ERROR", 401);
+    this.name = "AuthenticationError";
   }
 }
 
@@ -58,9 +58,9 @@ export class AuthenticationError extends OpenRouterError {
  * Rate limit errors (too many requests)
  */
 export class RateLimitError extends OpenRouterError {
-  constructor(message: string = 'Rate limit exceeded') {
-    super(message, 'RATE_LIMIT_ERROR', 429);
-    this.name = 'RateLimitError';
+  constructor(message = "Rate limit exceeded") {
+    super(message, "RATE_LIMIT_ERROR", 429);
+    this.name = "RateLimitError";
   }
 }
 
@@ -72,8 +72,8 @@ export class ValidationError extends OpenRouterError {
     message: string,
     public readonly validationErrors?: unknown
   ) {
-    super(message, 'VALIDATION_ERROR', 400);
-    this.name = 'ValidationError';
+    super(message, "VALIDATION_ERROR", 400);
+    this.name = "ValidationError";
   }
 }
 
@@ -82,7 +82,7 @@ export class ValidationError extends OpenRouterError {
  */
 export class APIError extends OpenRouterError {
   constructor(message: string, statusCode: number) {
-    super(message, 'API_ERROR', statusCode);
-    this.name = 'APIError';
+    super(message, "API_ERROR", statusCode);
+    this.name = "APIError";
   }
 }

@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
-import type { ProfileDTO } from '../../types';
+import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import type { ProfileDTO } from "../../types";
 
 interface AIConsentSectionProps {
   profile: ProfileDTO;
@@ -24,10 +24,10 @@ export function AIConsentSection({ profile, onConsentUpdated }: AIConsentSection
     setSuccess(false);
 
     try {
-      const response = await fetch('/api/profiles/me', {
-        method: 'PATCH',
+      const response = await fetch("/api/profiles/me", {
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           ai_consent_given: !profile.ai_consent_given,
@@ -36,7 +36,7 @@ export function AIConsentSection({ profile, onConsentUpdated }: AIConsentSection
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Nie udało się zaktualizować zgody');
+        throw new Error(errorData.error?.message || "Nie udało się zaktualizować zgody");
       }
 
       setSuccess(true);
@@ -45,7 +45,7 @@ export function AIConsentSection({ profile, onConsentUpdated }: AIConsentSection
         onConsentUpdated();
       }, 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Wystąpił nieoczekiwany błąd');
+      setError(err instanceof Error ? err.message : "Wystąpił nieoczekiwany błąd");
     } finally {
       setIsUpdating(false);
     }
@@ -62,9 +62,7 @@ export function AIConsentSection({ profile, onConsentUpdated }: AIConsentSection
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <p className="text-sm font-medium">
-              Status zgody
-            </p>
+            <p className="text-sm font-medium">Status zgody</p>
             <p className="text-sm text-muted-foreground">
               {profile.ai_consent_given ? (
                 <span className="text-green-600 dark:text-green-400 flex items-center gap-1">
@@ -72,16 +70,14 @@ export function AIConsentSection({ profile, onConsentUpdated }: AIConsentSection
                   Zgoda udzielona - możesz korzystać z funkcji AI
                 </span>
               ) : (
-                <span className="text-muted-foreground">
-                  Zgoda nie udzielona - funkcje AI są wyłączone
-                </span>
+                <span className="text-muted-foreground">Zgoda nie udzielona - funkcje AI są wyłączone</span>
               )}
             </p>
           </div>
           <Button
             onClick={handleToggleConsent}
             disabled={isUpdating}
-            variant={profile.ai_consent_given ? 'destructive' : 'default'}
+            variant={profile.ai_consent_given ? "destructive" : "default"}
           >
             {isUpdating ? (
               <>
@@ -89,9 +85,9 @@ export function AIConsentSection({ profile, onConsentUpdated }: AIConsentSection
                 Aktualizacja...
               </>
             ) : profile.ai_consent_given ? (
-              'Wycofaj zgodę'
+              "Wycofaj zgodę"
             ) : (
-              'Udziel zgody'
+              "Udziel zgody"
             )}
           </Button>
         </div>
@@ -112,8 +108,8 @@ export function AIConsentSection({ profile, onConsentUpdated }: AIConsentSection
 
         <div className="pt-2 border-t">
           <p className="text-xs text-muted-foreground">
-            Funkcje AI pozwalają na automatyczne rozpoznawanie wydatków z paragonów.
-            Możesz wycofać zgodę w dowolnym momencie.
+            Funkcje AI pozwalają na automatyczne rozpoznawanie wydatków z paragonów. Możesz wycofać zgodę w dowolnym
+            momencie.
           </p>
         </div>
       </CardContent>

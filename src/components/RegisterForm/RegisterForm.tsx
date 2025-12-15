@@ -1,13 +1,13 @@
-import { useRegisterForm } from '../hooks/useRegisterForm';
-import { EmailInput } from '../LoginForm/EmailInput';
-import { PasswordInput } from '../LoginForm/PasswordInput';
-import { ConfirmPasswordInput } from './ConfirmPasswordInput';
-import { PasswordStrengthIndicator } from './PasswordStrengthIndicator';
-import { FormErrorMessage } from '../LoginForm/FormErrorMessage';
-import { SubmitButton } from './SubmitButton';
-import { LoginLink } from './LoginLink';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import type { RegisterFormProps } from '../../types/auth.types';
+import { useRegisterForm } from "../hooks/useRegisterForm";
+import { EmailInput } from "../LoginForm/EmailInput";
+import { PasswordInput } from "../LoginForm/PasswordInput";
+import { ConfirmPasswordInput } from "./ConfirmPasswordInput";
+import { PasswordStrengthIndicator } from "./PasswordStrengthIndicator";
+import { FormErrorMessage } from "../LoginForm/FormErrorMessage";
+import { SubmitButton } from "./SubmitButton";
+import { LoginLink } from "./LoginLink";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import type { RegisterFormProps } from "../../types/auth.types";
 
 /**
  * Main registration form component
@@ -25,7 +25,7 @@ export function RegisterForm(props?: RegisterFormProps) {
     handleBlur,
     handleSubmit,
     togglePasswordVisibility,
-    toggleConfirmPasswordVisibility
+    toggleConfirmPasswordVisibility,
   } = useRegisterForm(props);
 
   return (
@@ -43,8 +43,8 @@ export function RegisterForm(props?: RegisterFormProps) {
           <EmailInput
             value={formData.email}
             error={errors.email}
-            onChange={(value) => handleInputChange('email', value)}
-            onBlur={() => handleBlur('email')}
+            onChange={(value) => handleInputChange("email", value)}
+            onBlur={() => handleBlur("email")}
             disabled={isSubmitting}
           />
 
@@ -53,34 +53,28 @@ export function RegisterForm(props?: RegisterFormProps) {
             value={formData.password}
             error={errors.password}
             showPassword={showPassword}
-            onChange={(value) => handleInputChange('password', value)}
-            onBlur={() => handleBlur('password')}
+            onChange={(value) => handleInputChange("password", value)}
+            onBlur={() => handleBlur("password")}
             onToggleVisibility={togglePasswordVisibility}
             disabled={isSubmitting}
           />
 
           {/* Password strength indicator */}
-          <PasswordStrengthIndicator
-            strength={passwordStrength}
-            password={formData.password}
-          />
+          <PasswordStrengthIndicator strength={passwordStrength} password={formData.password} />
 
           {/* Confirm password field */}
           <ConfirmPasswordInput
             value={formData.confirmPassword}
             error={errors.confirmPassword}
             showPassword={showConfirmPassword}
-            onChange={(value) => handleInputChange('confirmPassword', value)}
-            onBlur={() => handleBlur('confirmPassword')}
+            onChange={(value) => handleInputChange("confirmPassword", value)}
+            onBlur={() => handleBlur("confirmPassword")}
             onToggleVisibility={toggleConfirmPasswordVisibility}
             disabled={isSubmitting}
           />
 
           {/* Submit button */}
-          <SubmitButton
-            isLoading={isSubmitting}
-            disabled={isSubmitting}
-          />
+          <SubmitButton isLoading={isSubmitting} disabled={isSubmitting} />
 
           {/* Login link */}
           <LoginLink className="mt-4" />

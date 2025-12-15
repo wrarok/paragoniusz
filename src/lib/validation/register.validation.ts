@@ -1,4 +1,4 @@
-import type { RegisterFormData, RegisterValidationErrors } from '../../types/auth.types';
+import type { RegisterFormData, RegisterValidationErrors } from "../../types/auth.types";
 
 /**
  * Email validation regex pattern (RFC 5322 compliant)
@@ -21,12 +21,12 @@ const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/;
  * @returns Error message if invalid, undefined if valid
  */
 export function validateEmail(email: string): string | undefined {
-  if (!email || email.trim() === '') {
-    return 'Email jest wymagany';
+  if (!email || email.trim() === "") {
+    return "Email jest wymagany";
   }
 
   if (!EMAIL_REGEX.test(email)) {
-    return 'Wprowadź poprawny adres email';
+    return "Wprowadź poprawny adres email";
   }
 
   return undefined;
@@ -38,8 +38,8 @@ export function validateEmail(email: string): string | undefined {
  * @returns Error message if invalid, undefined if valid
  */
 export function validatePassword(password: string): string | undefined {
-  if (!password || password.trim() === '') {
-    return 'Hasło jest wymagane';
+  if (!password || password.trim() === "") {
+    return "Hasło jest wymagane";
   }
 
   if (password.length < PASSWORD_MIN_LENGTH) {
@@ -47,7 +47,7 @@ export function validatePassword(password: string): string | undefined {
   }
 
   if (!PASSWORD_REGEX.test(password)) {
-    return 'Hasło musi zawierać wielką literę, małą literę i cyfrę';
+    return "Hasło musi zawierać wielką literę, małą literę i cyfrę";
   }
 
   return undefined;
@@ -59,16 +59,13 @@ export function validatePassword(password: string): string | undefined {
  * @param confirmPassword - Password confirmation
  * @returns Error message if invalid, undefined if valid
  */
-export function validateConfirmPassword(
-  password: string,
-  confirmPassword: string
-): string | undefined {
-  if (!confirmPassword || confirmPassword.trim() === '') {
-    return 'Potwierdź swoje hasło';
+export function validateConfirmPassword(password: string, confirmPassword: string): string | undefined {
+  if (!confirmPassword || confirmPassword.trim() === "") {
+    return "Potwierdź swoje hasło";
   }
 
   if (password !== confirmPassword) {
-    return 'Hasła nie pasują do siebie';
+    return "Hasła nie pasują do siebie";
   }
 
   return undefined;
@@ -92,10 +89,7 @@ export function validateRegisterForm(formData: RegisterFormData): RegisterValida
     errors.password = passwordError;
   }
 
-  const confirmPasswordError = validateConfirmPassword(
-    formData.password,
-    formData.confirmPassword
-  );
+  const confirmPasswordError = validateConfirmPassword(formData.password, formData.confirmPassword);
   if (confirmPasswordError) {
     errors.confirmPassword = confirmPasswordError;
   }
@@ -140,6 +134,6 @@ export function calculatePasswordStrength(password: string): number {
  * @returns Human-readable strength label
  */
 export function getPasswordStrengthLabel(strength: number): string {
-  const labels = ['Bardzo słabe', 'Słabe', 'Średnie', 'Silne', 'Bardzo silne'];
-  return labels[strength] || 'Bardzo słabe';
+  const labels = ["Bardzo słabe", "Słabe", "Średnie", "Silne", "Bardzo silne"];
+  return labels[strength] || "Bardzo słabe";
 }

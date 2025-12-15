@@ -1,54 +1,54 @@
-import type { ProfileDTO, APIErrorResponse } from '../types';
+import type { ProfileDTO } from "../types";
 
 /**
  * Password change form data structure
  */
-export type ChangePasswordFormData = {
+export interface ChangePasswordFormData {
   currentPassword: string;
   newPassword: string;
   confirmPassword: string;
-};
+}
 
 /**
  * Password validation error messages
  */
-export type PasswordValidationErrors = {
+export interface PasswordValidationErrors {
   currentPassword?: string;
   newPassword?: string;
   confirmPassword?: string;
   general?: string;
-};
+}
 
 /**
  * Password change form state
  */
-export type PasswordFormState = {
+export interface PasswordFormState {
   formData: ChangePasswordFormData;
   errors: PasswordValidationErrors;
   isSubmitting: boolean;
   successMessage: string | null;
-};
+}
 
 /**
  * Delete account modal state
  */
-export type DeleteAccountModalState = {
+export interface DeleteAccountModalState {
   isOpen: boolean;
   confirmationText: string;
   isDeleting: boolean;
   error: string | null;
-};
+}
 
 /**
  * Settings tab identifier
  */
-export type SettingsTab = 'account' | 'security';
+export type SettingsTab = "account" | "security";
 
 /**
  * Profile loading state
  */
-export type ProfileState = {
+export interface ProfileState {
   profile: ProfileDTO | null;
   isLoading: boolean;
   error: string | null;
-};
+}

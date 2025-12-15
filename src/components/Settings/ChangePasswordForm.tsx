@@ -1,16 +1,16 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useChangePassword } from '../hooks/useChangePassword';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useChangePassword } from "../hooks/useChangePassword";
 import {
   validatePasswordForm,
   calculatePasswordStrength,
   getPasswordStrengthLabel,
   getPasswordStrengthColor,
-} from '../../lib/validation/password.validation';
-import type { PasswordFormState } from '../../types/settings.types';
+} from "../../lib/validation/password.validation";
+import type { PasswordFormState } from "../../types/settings.types";
 
 /**
  * ChangePasswordForm - Form for changing user password
@@ -20,9 +20,9 @@ export function ChangePasswordForm() {
   const { changePassword } = useChangePassword();
   const [formState, setFormState] = useState<PasswordFormState>({
     formData: {
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: '',
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
     },
     errors: {},
     isSubmitting: false,
@@ -31,9 +31,7 @@ export function ChangePasswordForm() {
 
   const passwordStrength = calculatePasswordStrength(formState.formData.newPassword);
 
-  const handleInputChange = (field: keyof typeof formState.formData) => (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleInputChange = (field: keyof typeof formState.formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormState((prev) => ({
       ...prev,
       formData: {
@@ -76,20 +74,20 @@ export function ChangePasswordForm() {
     if (result.success) {
       setFormState({
         formData: {
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: '',
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
         },
         errors: {},
         isSubmitting: false,
-        successMessage: 'Password changed successfully',
+        successMessage: "Password changed successfully",
       });
     } else {
       setFormState((prev) => ({
         ...prev,
         isSubmitting: false,
         errors: {
-          general: result.error || 'Failed to change password',
+          general: result.error || "Failed to change password",
         },
       }));
     }
@@ -120,13 +118,11 @@ export function ChangePasswordForm() {
           id="currentPassword"
           type="password"
           value={formState.formData.currentPassword}
-          onChange={handleInputChange('currentPassword')}
+          onChange={handleInputChange("currentPassword")}
           disabled={formState.isSubmitting}
-          className={formState.errors.currentPassword ? 'border-red-500' : ''}
+          className={formState.errors.currentPassword ? "border-red-500" : ""}
         />
-        {formState.errors.currentPassword && (
-          <p className="text-sm text-red-500">{formState.errors.currentPassword}</p>
-        )}
+        {formState.errors.currentPassword && <p className="text-sm text-red-500">{formState.errors.currentPassword}</p>}
       </div>
 
       {/* New Password */}
@@ -136,13 +132,11 @@ export function ChangePasswordForm() {
           id="newPassword"
           type="password"
           value={formState.formData.newPassword}
-          onChange={handleInputChange('newPassword')}
+          onChange={handleInputChange("newPassword")}
           disabled={formState.isSubmitting}
-          className={formState.errors.newPassword ? 'border-red-500' : ''}
+          className={formState.errors.newPassword ? "border-red-500" : ""}
         />
-        {formState.errors.newPassword && (
-          <p className="text-sm text-red-500">{formState.errors.newPassword}</p>
-        )}
+        {formState.errors.newPassword && <p className="text-sm text-red-500">{formState.errors.newPassword}</p>}
 
         {/* Password Strength Indicator */}
         {formState.formData.newPassword && (
@@ -172,18 +166,16 @@ export function ChangePasswordForm() {
           id="confirmPassword"
           type="password"
           value={formState.formData.confirmPassword}
-          onChange={handleInputChange('confirmPassword')}
+          onChange={handleInputChange("confirmPassword")}
           disabled={formState.isSubmitting}
-          className={formState.errors.confirmPassword ? 'border-red-500' : ''}
+          className={formState.errors.confirmPassword ? "border-red-500" : ""}
         />
-        {formState.errors.confirmPassword && (
-          <p className="text-sm text-red-500">{formState.errors.confirmPassword}</p>
-        )}
+        {formState.errors.confirmPassword && <p className="text-sm text-red-500">{formState.errors.confirmPassword}</p>}
       </div>
 
       {/* Submit Button */}
       <Button type="submit" disabled={formState.isSubmitting} className="w-full">
-        {formState.isSubmitting ? 'Zmiana hasła...' : 'Zmień hasło'}
+        {formState.isSubmitting ? "Zmiana hasła..." : "Zmień hasło"}
       </Button>
     </form>
   );

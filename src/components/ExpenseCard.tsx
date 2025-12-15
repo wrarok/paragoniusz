@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { MoreVertical, Pencil, Trash2, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useState } from "react";
+import { MoreVertical, Pencil, Trash2, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,8 +16,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import type { ExpenseDTO } from '../types';
+} from "@/components/ui/alert-dialog";
+import type { ExpenseDTO } from "../types";
 
 interface ExpenseCardProps {
   expense: ExpenseDTO;
@@ -35,16 +35,16 @@ export function ExpenseCard({ expense, onDelete, onEdit }: ExpenseCardProps) {
       await onDelete(expense.id);
       setShowDeleteDialog(false);
     } catch (error) {
-      console.error('Failed to delete expense:', error);
+      console.error("Failed to delete expense:", error);
     } finally {
       setIsDeleting(false);
     }
   };
 
-  const formattedDate = new Date(expense.expense_date).toLocaleDateString('pl-PL', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
+  const formattedDate = new Date(expense.expense_date).toLocaleDateString("pl-PL", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
   });
 
   const formattedAmount = parseFloat(expense.amount).toFixed(2);
@@ -61,8 +61,8 @@ export function ExpenseCard({ expense, onDelete, onEdit }: ExpenseCardProps) {
               data-testid="expense-category"
               className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset"
               style={{
-                backgroundColor: 'hsl(var(--muted))',
-                color: 'hsl(var(--foreground))',
+                backgroundColor: "hsl(var(--muted))",
+                color: "hsl(var(--foreground))",
               }}
             >
               {expense.category.name}
@@ -71,8 +71,8 @@ export function ExpenseCard({ expense, onDelete, onEdit }: ExpenseCardProps) {
               <span
                 className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset"
                 style={{
-                  backgroundColor: 'hsl(var(--primary) / 0.1)',
-                  color: 'hsl(var(--primary))',
+                  backgroundColor: "hsl(var(--primary) / 0.1)",
+                  color: "hsl(var(--primary))",
                 }}
                 title="Utworzone przez AI"
               >
@@ -84,8 +84,8 @@ export function ExpenseCard({ expense, onDelete, onEdit }: ExpenseCardProps) {
               <span
                 className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset"
                 style={{
-                  backgroundColor: 'hsl(var(--secondary) / 0.5)',
-                  color: 'hsl(var(--secondary-foreground))',
+                  backgroundColor: "hsl(var(--secondary) / 0.5)",
+                  color: "hsl(var(--secondary-foreground))",
                 }}
                 title="Sugestia AI została edytowana"
               >
@@ -94,10 +94,7 @@ export function ExpenseCard({ expense, onDelete, onEdit }: ExpenseCardProps) {
               </span>
             )}
           </div>
-          <p
-            data-testid="expense-date"
-            className="text-sm text-muted-foreground"
-          >
+          <p data-testid="expense-date" className="text-sm text-muted-foreground">
             {formattedDate}
           </p>
         </div>
@@ -109,21 +106,13 @@ export function ExpenseCard({ expense, onDelete, onEdit }: ExpenseCardProps) {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Więcej opcji"
-                data-testid="expense-menu-trigger"
-              >
+              <Button variant="ghost" size="icon" aria-label="Więcej opcji" data-testid="expense-menu-trigger">
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {onEdit && (
-                <DropdownMenuItem
-                  onClick={() => onEdit(expense.id)}
-                  data-testid="expense-edit-button"
-                >
+                <DropdownMenuItem onClick={() => onEdit(expense.id)} data-testid="expense-edit-button">
                   <Pencil className="mr-2 h-4 w-4" />
                   Edytuj
                 </DropdownMenuItem>
@@ -156,7 +145,7 @@ export function ExpenseCard({ expense, onDelete, onEdit }: ExpenseCardProps) {
               disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isDeleting ? 'Usuwanie...' : 'Usuń'}
+              {isDeleting ? "Usuwanie..." : "Usuń"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

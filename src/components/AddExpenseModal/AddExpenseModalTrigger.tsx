@@ -1,6 +1,6 @@
-import { Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import type { AddExpenseModalTriggerProps } from '../../types/modal.types';
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import type { AddExpenseModalTriggerProps } from "../../types/modal.types";
 
 /**
  * AddExpenseModalTrigger Component
@@ -9,18 +9,12 @@ import type { AddExpenseModalTriggerProps } from '../../types/modal.types';
  */
 export function AddExpenseModalTrigger({
   className,
-  variant = 'default',
-  size = 'icon',
+  variant = "default",
+  size = "icon",
   onClick,
 }: AddExpenseModalTriggerProps & { onClick: () => void }) {
   return (
-    <Button
-      onClick={onClick}
-      variant={variant}
-      size={size}
-      className={className}
-      aria-label="Add new expense"
-    >
+    <Button onClick={onClick} variant={variant} size={size} className={className} aria-label="Add new expense">
       <Plus className="h-5 w-5" aria-hidden="true" />
     </Button>
   );

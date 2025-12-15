@@ -1,10 +1,10 @@
-import { useMemo, useState, useEffect, useCallback } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { SkeletonLoader } from './SkeletonLoader';
-import { useDashboardRefresh } from './hooks/useDashboardRefresh';
-import type { CategorySummaryDTO, DashboardSummaryDTO } from '../types';
-import type { PieChartDataPoint } from '../types/dashboard.types';
+import { useMemo, useState, useEffect, useCallback } from "react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SkeletonLoader } from "./SkeletonLoader";
+import { useDashboardRefresh } from "./hooks/useDashboardRefresh";
+import type { CategorySummaryDTO, DashboardSummaryDTO } from "../types";
+import type { PieChartDataPoint } from "../types/dashboard.types";
 
 interface ExpensePieChartProps {
   categories: CategorySummaryDTO[];
@@ -13,15 +13,18 @@ interface ExpensePieChartProps {
 
 // Predefined color palette for categories
 const COLORS = [
-  '#f59e0b', // Amber
-  '#3b82f6', // Blue
-  '#10b981', // Green
-  '#8b5cf6', // Purple
-  '#ef4444', // Red
-  '#6b7280', // Gray for "Other" category
+  "#f59e0b", // Amber
+  "#3b82f6", // Blue
+  "#10b981", // Green
+  "#8b5cf6", // Purple
+  "#ef4444", // Red
+  "#6b7280", // Gray for "Other" category
 ];
 
-export function ExpensePieChart({ categories: initialCategories, isLoading: initialLoading = false }: ExpensePieChartProps) {
+export function ExpensePieChart({
+  categories: initialCategories,
+  isLoading: initialLoading = false,
+}: ExpensePieChartProps) {
   const [categories, setCategories] = useState<CategorySummaryDTO[]>(initialCategories);
   const [isLoading, setIsLoading] = useState(initialLoading);
   const [error, setError] = useState<string | null>(null);
@@ -32,11 +35,11 @@ export function ExpensePieChart({ categories: initialCategories, isLoading: init
     setError(null);
 
     try {
-      const response = await fetch('/api/dashboard/summary');
+      const response = await fetch("/api/dashboard/summary");
 
       if (!response.ok) {
         if (response.status === 401) {
-          window.location.href = '/login';
+          window.location.href = "/login";
           return;
         }
         throw new Error(`Failed to fetch dashboard summary: ${response.statusText}`);
@@ -45,9 +48,9 @@ export function ExpensePieChart({ categories: initialCategories, isLoading: init
       const data: DashboardSummaryDTO = await response.json();
       setCategories(data.categories);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load chart data';
+      const errorMessage = err instanceof Error ? err.message : "Failed to load chart data";
       setError(errorMessage);
-      console.error('Error fetching categories:', err);
+      console.error("Error fetching categories:", err);
     } finally {
       setIsLoading(false);
     }
@@ -101,15 +104,19 @@ export function ExpensePieChart({ categories: initialCategories, isLoading: init
           <CardTitle>Rozkład wydatków</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center h-64 text-muted-foreground">
-            Brak danych o wydatkach
-          </div>
+          <div className="flex items-center justify-center h-64 text-muted-foreground">Brak danych o wydatkach</div>
         </CardContent>
       </Card>
     );
   }
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({
+    active,
+    payload,
+  }: {
+    active?: boolean;
+    payload?: { payload: PieChartDataPoint }[];
+  }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload as PieChartDataPoint;
       return (
@@ -124,10 +131,10 @@ export function ExpensePieChart({ categories: initialCategories, isLoading: init
     return null;
   };
 
-  const CustomLegend = ({ payload }: any) => {
+  const CustomLegend = ({ payload }: { payload?: { value: string; color: string }[] }) => {
     return (
       <ul className="flex flex-wrap justify-center gap-4 mt-4">
-        {payload.map((entry: any, index: number) => (
+        {payload?.map((entry, index: number) => (
           <li key={`legend-${index}`} className="flex items-center gap-2">
             <span
               className="inline-block w-3 h-3 rounded-full"
@@ -154,7 +161,10 @@ export function ExpensePieChart({ categories: initialCategories, isLoading: init
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={(entry: any) => `${entry.percentage.toFixed(0)}%`}
+              label={(entry: unknown) => {
+                const data = entry as PieChartDataPoint;
+                return `${data.percentage.toFixed(0)}%`;
+              }}
               outerRadius={100}
               fill="#8884d8"
               dataKey="value"

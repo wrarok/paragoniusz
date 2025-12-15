@@ -6,10 +6,16 @@
 --   - uses the DEFAULT_USER_ID from src/db/supabase.client.ts
 --   - ai_consent_given is set to true for testing ai features
 
--- insert default user profile for development
+-- Note: Test user will be created via Supabase Auth API during test setup
+-- This migration only creates the profile if the user exists
+
+-- insert default user profile for development (only if user exists in auth.users)
 -- this allows testing endpoints without setting up full authentication
 insert into public.profiles (id, ai_consent_given)
-values ('1266a5e6-1684-4609-a2b3-8c29737efb8b', true)
+select '1266a5e6-1684-4609-a2b3-8c29737efb8b', true
+where exists (
+  select 1 from auth.users where id = '1266a5e6-1684-4609-a2b3-8c29737efb8b'
+)
 on conflict (id) do update
   set ai_consent_given = excluded.ai_consent_given;
 

@@ -1,12 +1,12 @@
 /**
  * HTTP Client Service with timeout support
- * 
+ *
  * Provides abstraction over fetch API with:
  * - Timeout management using AbortController
  * - JSON parsing
  * - Error handling
  * - Type-safe request/response handling
- * 
+ *
  * This abstraction makes it easy to:
  * - Mock HTTP calls in tests
  * - Reuse timeout logic across services
@@ -15,10 +15,10 @@
 export class HTTPClientService {
   /**
    * POST request with timeout
-   * 
+   *
    * Executes a POST request with automatic timeout using AbortController.
    * Throws on non-2xx responses or timeout.
-   * 
+   *
    * @template T - Expected response type
    * @param url - Target URL
    * @param body - Request body (will be JSON stringified)
@@ -26,7 +26,7 @@ export class HTTPClientService {
    * @param headers - Optional additional headers
    * @returns Promise resolving to parsed JSON response
    * @throws {Error} On timeout (AbortError) or non-2xx response
-   * 
+   *
    * @example
    * ```typescript
    * const client = new HTTPClientService();
@@ -38,20 +38,15 @@ export class HTTPClientService {
    * );
    * ```
    */
-  async postWithTimeout<T>(
-    url: string,
-    body: unknown,
-    timeout: number,
-    headers?: Record<string, string>
-  ): Promise<T> {
+  async postWithTimeout<T>(url: string, body: unknown, timeout: number, headers?: Record<string, string>): Promise<T> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     try {
       const response = await fetch(url, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           ...headers,
         },
         body: JSON.stringify(body),
@@ -65,8 +60,8 @@ export class HTTPClientService {
       return await response.json();
     } catch (error) {
       // Convert AbortError to meaningful timeout error
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new Error('REQUEST_TIMEOUT');
+      if (error instanceof Error && error.name === "AbortError") {
+        throw new Error("REQUEST_TIMEOUT");
       }
       throw error;
     } finally {
@@ -76,17 +71,17 @@ export class HTTPClientService {
 
   /**
    * POST request without timeout
-   * 
+   *
    * Executes a standard POST request without timeout constraints.
    * Useful for long-running operations.
-   * 
+   *
    * @template T - Expected response type
    * @param url - Target URL
    * @param body - Request body (will be JSON stringified)
    * @param headers - Optional additional headers
    * @returns Promise resolving to parsed JSON response
    * @throws {Error} On non-2xx response
-   * 
+   *
    * @example
    * ```typescript
    * const client = new HTTPClientService();
@@ -97,15 +92,11 @@ export class HTTPClientService {
    * );
    * ```
    */
-  async post<T>(
-    url: string,
-    body: unknown,
-    headers?: Record<string, string>
-  ): Promise<T> {
+  async post<T>(url: string, body: unknown, headers?: Record<string, string>): Promise<T> {
     const response = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...headers,
       },
       body: JSON.stringify(body),

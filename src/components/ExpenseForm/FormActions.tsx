@@ -1,48 +1,34 @@
-import { Button } from '@/components/ui/button';
-import type { FormActionsProps } from './types';
+import { Button } from "@/components/ui/button";
+import type { FormActionsProps } from "./types";
 
 /**
  * FormActions Component
- * 
+ *
  * Action buttons for form submission and cancellation.
  * Handles loading states and provides clear visual feedback during form submission.
- * 
+ *
  * Features:
  * - Cancel button (secondary style) - navigates back
  * - Submit button (primary style) - submits form
  * - Loading spinner during submission
  * - Dynamic button text based on mode (Add/Save)
  * - Disabled state during submission
- * 
+ *
  * @param mode - Form mode (affects button text)
  * @param isSubmitting - Whether form is currently submitting
  * @param onCancel - Callback for cancel action
  */
-export function FormActions({
-  mode,
-  isSubmitting,
-  onCancel,
-}: FormActionsProps) {
-  const submitText = mode === 'add' ? 'Dodaj wydatek' : 'Zapisz zmiany';
-  const submittingText = mode === 'add' ? 'Dodawanie...' : 'Zapisywanie...';
+export function FormActions({ mode, isSubmitting, onCancel }: FormActionsProps) {
+  const submitText = mode === "add" ? "Dodaj wydatek" : "Zapisz zmiany";
+  const submittingText = mode === "add" ? "Dodawanie..." : "Zapisywanie...";
 
   return (
     <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-      <Button
-        type="button"
-        variant="outline"
-        onClick={onCancel}
-        disabled={isSubmitting}
-        className="w-full sm:w-auto"
-      >
+      <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting} className="w-full sm:w-auto">
         Anuluj
       </Button>
 
-      <Button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full sm:w-auto"
-      >
+      <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
         {isSubmitting ? (
           <span className="flex items-center gap-2">
             <svg
@@ -52,14 +38,7 @@ export function FormActions({
               viewBox="0 0 24 24"
               aria-hidden="true"
             >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path
                 className="opacity-75"
                 fill="currentColor"

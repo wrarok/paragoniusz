@@ -1,11 +1,11 @@
-import type { SupabaseClient } from '../../db/supabase.client';
+import type { SupabaseClient } from "../../db/supabase.client";
 
 /**
  * Builder for constructing Supabase queries for expenses
- * 
+ *
  * Eliminates duplication between main queries and count queries.
  * Provides fluent API for building complex queries with filters, sorting, and pagination.
- * 
+ *
  * @example
  * ```typescript
  * const builder = new ExpenseQueryBuilder()
@@ -13,13 +13,13 @@ import type { SupabaseClient } from '../../db/supabase.client';
  *   .withCategory('uuid-here')
  *   .withSort('expense_date.desc')
  *   .withPagination(0, 50);
- * 
+ *
  * const expenses = await repository.findMany(builder);
  * const total = await repository.count(builder);
  * ```
  */
 export class ExpenseQueryBuilder {
-  private filters: Record<string, any> = {};
+  private filters: Record<string, unknown> = {};
   private sortConfig?: { column: string; ascending: boolean };
   private paginationConfig?: { offset: number; limit: number };
 
@@ -57,10 +57,10 @@ export class ExpenseQueryBuilder {
    * @returns this builder for chaining
    */
   withSort(sort: string): this {
-    const [column, direction] = sort.split('.');
+    const [column, direction] = sort.split(".");
     this.sortConfig = {
       column,
-      ascending: direction === 'asc',
+      ascending: direction === "asc",
     };
     return this;
   }
@@ -82,9 +82,7 @@ export class ExpenseQueryBuilder {
    * @returns Postgrest query ready for execution
    */
   build(supabase: SupabaseClient) {
-    let query = supabase
-      .from('expenses')
-      .select(`*, category:categories(id, name)`);
+    let query = supabase.from("expenses").select(`*, category:categories(id, name)`);
 
     // Apply filters
     query = this.applyFilters(query);
@@ -115,9 +113,7 @@ export class ExpenseQueryBuilder {
    * @returns Postgrest count query ready for execution
    */
   buildCountQuery(supabase: SupabaseClient) {
-    let query = supabase
-      .from('expenses')
-      .select('*', { count: 'exact', head: true });
+    let query = supabase.from("expenses").select("*", { count: "exact", head: true });
 
     // Apply same filters as main query (no pagination or sorting)
     query = this.applyFilters(query);
@@ -135,24 +131,25 @@ export class ExpenseQueryBuilder {
    * @returns Modified query with filters applied
    * @private
    */
-  private applyFilters(query: any): any {
+  private applyFilters(query: unknown): unknown {
+    const typedQuery = query as Record<string, (...args: unknown[]) => unknown>;
     if (this.filters.from_date) {
-      query = query.gte('expense_date', this.filters.from_date);
+      query = typedQuery.gte("expense_date", this.filters.from_date);
     }
     if (this.filters.to_date) {
-      query = query.lte('expense_date', this.filters.to_date);
+      query = typedQuery.lte("expense_date", this.filters.to_date);
     }
     if (this.filters.category_id) {
-      query = query.eq('category_id', this.filters.category_id);
+      query = typedQuery.eq("category_id", this.filters.category_id);
     }
     return query;
   }
 
   /**
    * Reset builder to initial state
-   * 
+   *
    * Useful for reusing the same builder instance for multiple queries.
-   * 
+   *
    * @returns this builder for chaining
    */
   reset(): this {

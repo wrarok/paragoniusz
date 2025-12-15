@@ -1,18 +1,18 @@
 /**
  * Expense Verification Item Component
- * 
+ *
  * Renders a single expense item in the verification form.
  * Uses custom controlled components for form fields.
  */
 
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Trash2Icon } from 'lucide-react';
-import { ControlledCategorySelect, ControlledAmountInput } from '@/components/form-controls';
-import type { Control, FieldErrors } from 'react-hook-form';
-import type { ExpenseVerificationFormValues } from '@/lib/validation/expense-verification.validation';
-import type { CategoryDTO } from '@/types';
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Trash2Icon } from "lucide-react";
+import { ControlledCategorySelect, ControlledAmountInput } from "@/components/form-controls";
+import type { Control, FieldErrors } from "react-hook-form";
+import type { ExpenseVerificationFormValues } from "@/lib/validation/expense-verification.validation";
+import type { CategoryDTO } from "@/types";
 
 interface ExpenseVerificationItemProps {
   /** Field index in the array */
@@ -20,7 +20,7 @@ interface ExpenseVerificationItemProps {
   /** React Hook Form control */
   control: Control<ExpenseVerificationFormValues>;
   /** Field errors for this item */
-  errors?: FieldErrors<ExpenseVerificationFormValues['expenses'][number]>;
+  errors?: FieldErrors<ExpenseVerificationFormValues["expenses"][number]>;
   /** Available categories */
   categories: CategoryDTO[];
   /** Items from receipt (read-only) */
@@ -37,7 +37,7 @@ interface ExpenseVerificationItemProps {
 
 /**
  * Single expense item in verification form
- * 
+ *
  * @example
  * ```tsx
  * <ExpenseVerificationItem
@@ -54,7 +54,6 @@ interface ExpenseVerificationItemProps {
 export function ExpenseVerificationItem({
   index,
   control,
-  errors,
   categories,
   items,
   isEdited,
@@ -74,21 +73,13 @@ export function ExpenseVerificationItem({
         />
 
         {/* Amount Input */}
-        <ControlledAmountInput
-          control={control}
-          name={`expenses.${index}.amount` as const}
-          onEdit={onMarkEdited}
-        />
+        <ControlledAmountInput control={control} name={`expenses.${index}.amount` as const} onEdit={onMarkEdited} />
 
         {/* Items from receipt (read-only) */}
         {items && items.length > 0 && (
           <div className="space-y-2">
-            <Label className="text-sm text-muted-foreground">
-              Pozycje z paragonu
-            </Label>
-            <div className="text-sm text-muted-foreground bg-muted/50 rounded-md p-3">
-              {items.join(', ')}
-            </div>
+            <Label className="text-sm text-muted-foreground">Pozycje z paragonu</Label>
+            <div className="text-sm text-muted-foreground bg-muted/50 rounded-md p-3">{items.join(", ")}</div>
           </div>
         )}
 
@@ -100,7 +91,7 @@ export function ExpenseVerificationItem({
             size="sm"
             onClick={onRemove}
             disabled={!canRemove}
-            title={!canRemove ? 'Nie można usunąć ostatniego wydatku' : 'Usuń wydatek'}
+            title={!canRemove ? "Nie można usunąć ostatniego wydatku" : "Usuń wydatek"}
           >
             <Trash2Icon className="h-4 w-4 mr-2" />
             Usuń

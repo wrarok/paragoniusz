@@ -1,13 +1,13 @@
 /**
  * Controlled Amount Input Component
- * 
+ *
  * Reusable controlled number input component for React Hook Form.
  * Handles amount input with validation and error display.
  */
 
-import { Controller, type Control, type FieldPath, type FieldValues } from 'react-hook-form';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+import { Controller, type Control, type FieldPath, type FieldValues } from "react-hook-form";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 interface ControlledAmountInputProps<T extends FieldValues> {
   control: Control<T>;
@@ -19,7 +19,7 @@ interface ControlledAmountInputProps<T extends FieldValues> {
 
 /**
  * Controlled amount input for React Hook Form
- * 
+ *
  * @example
  * ```tsx
  * <ControlledAmountInput
@@ -33,7 +33,7 @@ export function ControlledAmountInput<T extends FieldValues>({
   control,
   name,
   onEdit,
-  label = 'Kwota (PLN)',
+  label = "Kwota (PLN)",
   disabled = false,
 }: ControlledAmountInputProps<T>) {
   return (
@@ -59,11 +59,7 @@ export function ControlledAmountInput<T extends FieldValues>({
             className="w-full"
             disabled={disabled}
           />
-          {fieldState.error && (
-            <p className="text-destructive text-sm mt-1">
-              {fieldState.error.message}
-            </p>
-          )}
+          {fieldState.error && <p className="text-destructive text-sm mt-1">{fieldState.error.message}</p>}
         </div>
       )}
     />

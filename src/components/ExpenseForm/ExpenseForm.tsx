@@ -1,32 +1,27 @@
-import type { ExpenseFormProps } from './types';
-import { useExpenseForm } from '../hooks/useExpenseForm';
-import { AmountInput } from './AmountInput';
-import { CategorySelect } from './CategorySelect';
-import { DatePicker } from './DatePicker';
-import { FormActions } from './FormActions';
+import type { ExpenseFormProps } from "./types";
+import { useExpenseForm } from "../hooks/useExpenseForm";
+import { AmountInput } from "./AmountInput";
+import { CategorySelect } from "./CategorySelect";
+import { DatePicker } from "./DatePicker";
+import { FormActions } from "./FormActions";
 
 /**
  * ExpenseForm Component - React Hook Form Version
- * 
+ *
  * Main form component using React Hook Form for state management.
  * Supports both add and edit modes with validation and API integration.
- * 
+ *
  * **Refactored to use React Hook Form**
  * - Simplified state management
  * - Automatic validation with Zod
  * - Service layer for API calls
- * 
+ *
  * @param mode - Form mode (add or edit)
  * @param expenseId - Expense ID (required for edit mode)
  * @param initialData - Pre-filled data for edit mode
  * @param categories - Available categories from API
  */
-export function ExpenseForm({
-  mode,
-  expenseId,
-  initialData,
-  categories,
-}: ExpenseFormProps) {
+export function ExpenseForm({ mode, expenseId, initialData, categories }: ExpenseFormProps) {
   const { form, onSubmit, onCancel } = useExpenseForm({
     mode,
     expenseId,
@@ -65,9 +60,7 @@ export function ExpenseForm({
               </svg>
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
-                {errors.root.message}
-              </h3>
+              <h3 className="text-sm font-medium text-red-800 dark:text-red-200">{errors.root.message}</h3>
             </div>
           </div>
         </div>
@@ -77,17 +70,17 @@ export function ExpenseForm({
       <div className="space-y-4">
         {/* Amount field */}
         <AmountInput
-          value={formData.amount || ''}
-          onChange={(value) => form.setValue('amount', value)}
-          onBlur={() => form.trigger('amount')}
+          value={formData.amount || ""}
+          onChange={(value) => form.setValue("amount", value)}
+          onBlur={() => form.trigger("amount")}
           error={errors.amount?.message}
           disabled={isSubmitting}
         />
 
         {/* Category field */}
         <CategorySelect
-          value={formData.category_id || ''}
-          onChange={(value) => form.setValue('category_id', value)}
+          value={formData.category_id || ""}
+          onChange={(value) => form.setValue("category_id", value)}
           categories={categories}
           error={errors.category_id?.message}
           disabled={isSubmitting}
@@ -95,19 +88,15 @@ export function ExpenseForm({
 
         {/* Date field */}
         <DatePicker
-          value={formData.expense_date || ''}
-          onChange={(value) => form.setValue('expense_date', value)}
+          value={formData.expense_date || ""}
+          onChange={(value) => form.setValue("expense_date", value)}
           error={errors.expense_date?.message}
           disabled={isSubmitting}
         />
       </div>
 
       {/* Form actions */}
-      <FormActions
-        mode={mode}
-        isSubmitting={isSubmitting}
-        onCancel={onCancel}
-      />
+      <FormActions mode={mode} isSubmitting={isSubmitting} onCancel={onCancel} />
 
       {/* Loading overlay */}
       {isSubmitting && (
@@ -125,14 +114,7 @@ export function ExpenseForm({
                 viewBox="0 0 24 24"
                 aria-hidden="true"
               >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path
                   className="opacity-75"
                   fill="currentColor"
@@ -140,7 +122,7 @@ export function ExpenseForm({
                 />
               </svg>
               <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                {mode === 'add' ? 'Tworzenie wydatku...' : 'Zapisywanie zmian...'}
+                {mode === "add" ? "Tworzenie wydatku..." : "Zapisywanie zmian..."}
               </span>
             </div>
           </div>

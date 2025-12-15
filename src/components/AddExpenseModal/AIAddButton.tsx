@@ -1,6 +1,6 @@
-import { Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import type { AIAddButtonProps } from '../../types/modal.types';
+import { Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import type { AIAddButtonProps } from "../../types/modal.types";
 
 /**
  * AIAddButton Component
@@ -21,9 +21,7 @@ export function AIAddButton({ onClick, disabled = false }: AIAddButtonProps) {
         </div>
         <div className="flex-1 text-left">
           <div className="font-semibold">Zeskanuj paragon (AI)</div>
-          <div className="text-xs text-muted-foreground">
-            Pozwól AI wydobyć wydatki z paragonu
-          </div>
+          <div className="text-xs text-muted-foreground">Pozwól AI wydobyć wydatki z paragonu</div>
         </div>
       </div>
     </Button>

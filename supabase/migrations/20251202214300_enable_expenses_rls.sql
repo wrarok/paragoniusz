@@ -11,4 +11,8 @@
 -- ensures each user can only see, create, update, and delete their own expenses
 alter table public.expenses enable row level security;
 
+-- note: policies already exist from create_expenses_table migration
+-- disable_all_policies migration only disables rls, it doesn't drop policies
+-- so we don't need to recreate them, just enable rls
+
 comment on table public.expenses is 'expenses table with rls enabled - users can only access their own data';

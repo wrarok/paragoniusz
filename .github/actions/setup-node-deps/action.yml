@@ -1,8 +1,8 @@
-name: 'Setup Node.js and Dependencies'
-description: 'Setup Node.js from .nvmrc and install dependencies with caching'
+name: "Setup Node.js and Dependencies"
+description: "Setup Node.js from .nvmrc and install dependencies with caching"
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Read Node.js version
       id: nvmrc
@@ -13,7 +13,7 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ steps.nvmrc.outputs.NODE_VERSION }}
-        cache: 'npm'
+        cache: "npm"
 
     - name: Install dependencies
       shell: bash
