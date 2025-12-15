@@ -9,6 +9,7 @@ export interface PieChartDataPoint {
   percentage: number;
   color: string;
   categoryId: string | null;
+  [key: string]: string | number | null;
 }
 
 /**

@@ -12,10 +12,13 @@ describe("useRegisterForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Mock window.location.href
+    // Mock window.location with assign method
     Object.defineProperty(window, "location", {
       writable: true,
-      value: { href: "" },
+      value: {
+        href: "",
+        assign: vi.fn()
+      },
     });
 
     // Mock document.querySelector for focus management
@@ -356,7 +359,7 @@ describe("useRegisterForm", () => {
       });
 
       await waitFor(() => {
-        expect(window.location.href).toBe("/");
+        expect(window.location.assign).toHaveBeenCalledWith("/");
       });
     });
 
@@ -376,7 +379,7 @@ describe("useRegisterForm", () => {
       });
 
       await waitFor(() => {
-        expect(window.location.href).toBe("/welcome");
+        expect(window.location.assign).toHaveBeenCalledWith("/welcome");
       });
     });
 
@@ -493,7 +496,7 @@ describe("useRegisterForm", () => {
 
       expect(result.current.errors.general).toBe("First error");
 
-      // Second submission - general error should be cleared
+      // Second submission - general error should be cleared and redirect should happen
       vi.mocked(authService.registerUser).mockResolvedValue({ success: true });
 
       await act(async () => {
@@ -502,6 +505,7 @@ describe("useRegisterForm", () => {
 
       await waitFor(() => {
         expect(result.current.errors.general).toBeUndefined();
+        expect(window.location.assign).toHaveBeenCalledWith("/");
       });
     });
   });

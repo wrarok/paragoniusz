@@ -116,7 +116,7 @@ export function useScanExpenseFlow() {
 
       // Przekieruj do dashboardu po pomyślnym zapisie
       setTimeout(() => {
-        window.location.href = "/";
+        window.location.assign("/");
       }, 1500);
     } catch (err) {
       const apiError = err as APIErrorResponse;
@@ -144,7 +144,7 @@ export function useScanExpenseFlow() {
    * Anuluj flow i wróć do dashboardu
    */
   const cancelFlow = useCallback(() => {
-    window.location.href = "/";
+    window.location.assign("/");
   }, []);
 
   /**
@@ -162,7 +162,6 @@ export function useScanExpenseFlow() {
     };
 
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Uruchom tylko raz przy montowaniu komponentu
 
   // Agreguj błędy z różnych źródeł

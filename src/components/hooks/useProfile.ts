@@ -22,7 +22,7 @@ export function useProfile() {
       if (!response.ok) {
         if (response.status === 401) {
           // Redirect to login on unauthorized
-          window.location.href = "/login";
+          window.location.assign("/login");
           return;
         }
 

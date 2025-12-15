@@ -159,7 +159,7 @@ export function useRegisterForm(props?: RegisterFormProps) {
         }
 
         // Redirect to target page
-        window.location.href = redirectTo;
+        window.location.assign(redirectTo);
       } catch (error) {
         console.error("Registration error:", error);
         setErrors({

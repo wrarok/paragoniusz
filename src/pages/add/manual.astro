@@ -1,8 +1,8 @@
 ---
-import Layout from '@/layouts/Layout.astro';
-import { ExpenseForm } from '@/components/ExpenseForm';
-import { createSupabaseServerInstance } from '@/db/supabase.server';
-import type { CategoryListDTO } from '@/types';
+/* eslint-disable prettier/prettier */
+import Layout from "../../layouts/Layout.astro";
+import { ExpenseForm } from "../../components/ExpenseForm/ExpenseForm";
+import { createSupabaseServerInstance } from "../../db/supabase.server";
 
 /**
  * Add Manual Expense Page
@@ -17,31 +17,33 @@ import type { CategoryListDTO } from '@/types';
 // Check authentication using SSR client
 const supabase = createSupabaseServerInstance({
   headers: Astro.request.headers,
-  cookies: Astro.cookies
+  cookies: Astro.cookies,
 });
 
-const { data: { session } } = await supabase.auth.getSession();
+const {
+  data: { session },
+} = await supabase.auth.getSession();
 
 if (!session) {
-  return Astro.redirect('/login');
+  return Astro.redirect("/login");
 }
 
 // Fetch categories from API
-let categories: CategoryListDTO['data'] = [];
-let error: string | null = null;
+let categories = [];
+let error = null;
 
 try {
   const response = await fetch(`${Astro.url.origin}/api/categories`);
-  
+
   if (!response.ok) {
-    throw new Error('Failed to fetch categories');
+    throw new Error("Failed to fetch categories");
   }
-  
-  const data: CategoryListDTO = await response.json();
+
+  const data = await response.json();
   categories = data.data;
 } catch (err) {
-  console.error('Error fetching categories:', err);
-  error = 'Nie udało się załadować kategorii. Odśwież stronę.';
+  console.error("Error fetching categories:", err);
+  error = "Nie udało się załadować kategorii. Odśwież stronę.";
 }
 ---
 
@@ -84,11 +86,11 @@ try {
         <div>
           <!-- Error State -->
           <div
-          class="rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4"
-          role="alert"
-        >
-          <div class="flex">
-            <div class="flex-shrink-0">
+            class="rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4"
+            role="alert"
+          >
+            <div class="flex">
+              <div class="flex-shrink-0">
               <svg
                 class="h-5 w-5 text-red-400 dark:text-red-500"
                 xmlns="http://www.w3.org/2000/svg"
@@ -115,19 +117,15 @@ try {
                   Odśwież stronę
                 </button>
               </div>
+              </div>
             </div>
           </div>
-        </div>
         </div>
       ) : (
         <div>
           <!-- Form Card -->
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-            <ExpenseForm
-              mode="add"
-              categories={categories}
-              client:load
-            />
+            <ExpenseForm mode="add" categories={categories} client:load />
           </div>
         </div>
       )}

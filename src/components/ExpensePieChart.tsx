@@ -110,13 +110,7 @@ export function ExpensePieChart({
     );
   }
 
-  const CustomTooltip = ({
-    active,
-    payload,
-  }: {
-    active?: boolean;
-    payload?: { payload: PieChartDataPoint }[];
-  }) => {
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { payload: PieChartDataPoint }[] }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload as PieChartDataPoint;
       return (

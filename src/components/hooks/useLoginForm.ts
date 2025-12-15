@@ -125,7 +125,7 @@ export function useLoginForm(props?: LoginFormProps) {
         }
 
         // Redirect to target page
-        window.location.href = redirectTo;
+        window.location.assign(redirectTo);
       } catch (error) {
         console.error("Login error:", error);
         setErrors({

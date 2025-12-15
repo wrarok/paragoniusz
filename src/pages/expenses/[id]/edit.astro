@@ -1,9 +1,9 @@
 ---
-import Layout from '@/layouts/Layout.astro';
-import { ExpenseForm } from '@/components/ExpenseForm';
-import { createSupabaseServerInstance } from '@/db/supabase.server';
-import { convertAmountToString } from '@/lib/validation/expense-form.validation';
-import type { CategoryListDTO, ExpenseDTO } from '@/types';
+/* eslint-disable prettier/prettier */
+import Layout from "../../../layouts/Layout.astro";
+import { ExpenseForm } from "../../../components/ExpenseForm/ExpenseForm";
+import { createSupabaseServerInstance } from "../../../db/supabase.server";
+import { convertAmountToString } from "../../../lib/validation/expense-form.validation";
 
 /**
  * Edit Expense Page
@@ -19,41 +19,43 @@ const { id } = Astro.params;
 
 // Validate expense ID
 if (!id) {
-  return Astro.redirect('/');
+  return Astro.redirect("/");
 }
 
 // Check authentication using SSR client
 const supabase = createSupabaseServerInstance({
   headers: Astro.request.headers,
-  cookies: Astro.cookies
+  cookies: Astro.cookies,
 });
 
-const { data: { session } } = await supabase.auth.getSession();
+const {
+  data: { session },
+} = await supabase.auth.getSession();
 
 if (!session) {
-  return Astro.redirect('/login');
+  return Astro.redirect("/login");
 }
 
 // Fetch categories and expense data directly using Supabase client
-let categories: CategoryListDTO['data'] = [];
-let expense: ExpenseDTO | null = null;
-let error: string | null = null;
+let categories = [];
+let expense = null;
+let error = null;
 
 try {
   // Fetch categories
   const { data: categoriesData, error: categoriesError } = await supabase
-    .from('categories')
-    .select('id, name')
-    .order('name');
+    .from("categories")
+    .select("id, name")
+    .order("name");
 
   if (categoriesError) {
-    throw new Error('Failed to fetch categories');
+    throw new Error("Failed to fetch categories");
   }
   categories = categoriesData || [];
 
   // Fetch expense (RLS will ensure user can only access their own expenses)
   const { data: expenseData, error: expenseError } = await supabase
-    .from('expenses')
+    .from("expenses")
     .select(`
       id,
       user_id,
@@ -67,13 +69,13 @@ try {
       updated_at,
       category:categories(id, name)
     `)
-    .eq('id', id)
+    .eq("id", id)
     .single();
 
   if (expenseError) {
-    if (expenseError.code === 'PGRST116') {
+    if (expenseError.code === "PGRST116") {
       // No rows returned - expense not found or user doesn't have access
-      return Astro.redirect('/?error=expense-not-found');
+      return Astro.redirect("/?error=expense-not-found");
     }
     throw expenseError;
   }
@@ -84,13 +86,13 @@ try {
     amount: convertAmountToString(expenseData.amount as number),
   };
 } catch (err) {
-  console.error('Error fetching data:', err);
-  error = 'Failed to load expense data. Please try again.';
+  console.error("Error fetching data:", err);
+  error = "Failed to load expense data. Please try again.";
 }
 
 // If no expense data and no error, something went wrong
 if (!expense && !error) {
-  error = 'Expense not found';
+  error = "Expense not found";
 }
 ---
 
@@ -178,13 +180,7 @@ if (!expense && !error) {
         <div>
           <!-- Form Card -->
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-            <ExpenseForm
-              mode="edit"
-              expenseId={id}
-              initialData={expense}
-              categories={categories}
-              client:load
-            />
+            <ExpenseForm mode="edit" expenseId={id} initialData={expense} categories={categories} client:load />
           </div>
         </div>
       ) : null}

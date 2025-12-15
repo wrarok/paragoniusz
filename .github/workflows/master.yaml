@@ -10,33 +10,33 @@ on:
   workflow_dispatch:
 
 jobs:
-  # lint:
-  #   name: 🔍 Lint Code
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 10
+  lint:
+    name: 🔍 Lint Code
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
 
-  #   steps:
-  #     - name: 📥 Checkout code
-  #       uses: actions/checkout@v4
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
 
-  #     - name: 🔧 Setup Node.js
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version-file: '.nvmrc'
-  #         cache: 'npm'
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
 
-  #     - name: 📦 Install dependencies
-  #       run: npm ci
+      - name: 📦 Install dependencies
+        run: npm ci
 
-  #     - name: 🔍 Run ESLint
-  #       run: npm run lint
-  #       continue-on-error: true
+      - name: 🔍 Run ESLint
+        run: npm run lint
+        continue-on-error: true
 
   unit-tests:
     name: 🧪 Unit Tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # needs: lint
+    needs: lint
 
     steps:
       - name: 📥 Checkout code
@@ -60,7 +60,7 @@ jobs:
     name: 🔗 Integration Tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    # needs: lint
+    needs: lint
 
     services:
       postgres:
@@ -150,7 +150,7 @@ jobs:
     name: 🏗️ Build Production
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: [unit-tests, integration-tests, e2e-tests]
+    needs: [lint, unit-tests, integration-tests, e2e-tests]
 
     steps:
       - name: 📥 Checkout code

@@ -12,10 +12,13 @@ describe("useLoginForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Mock window.location.href
+    // Mock window.location with assign method
     Object.defineProperty(window, "location", {
       writable: true,
-      value: { href: "" },
+      value: {
+        href: "",
+        assign: vi.fn()
+      },
     });
 
     // Mock document.querySelector for focus management
@@ -244,7 +247,7 @@ describe("useLoginForm", () => {
       });
 
       await waitFor(() => {
-        expect(window.location.href).toBe("/");
+        expect(window.location.assign).toHaveBeenCalledWith("/");
       });
     });
 
@@ -263,7 +266,7 @@ describe("useLoginForm", () => {
       });
 
       await waitFor(() => {
-        expect(window.location.href).toBe("/dashboard");
+        expect(window.location.assign).toHaveBeenCalledWith("/dashboard");
       });
     });
 
@@ -382,9 +385,10 @@ describe("useLoginForm", () => {
         await result.current.handleSubmit({ preventDefault: vi.fn() } as any);
       });
 
-      // Error should be cleared (and then success happens)
+      // Error should be cleared and redirect should happen
       await waitFor(() => {
         expect(result.current.errors.general).toBeUndefined();
+        expect(window.location.assign).toHaveBeenCalledWith("/");
       });
     });
   });

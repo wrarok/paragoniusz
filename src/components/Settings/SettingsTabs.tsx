@@ -24,7 +24,7 @@ export function SettingsTabs({ profile, onProfileUpdated }: SettingsTabsProps) {
 
       <TabsContent value="account" className="space-y-6">
         <AccountInfoSection profile={profile} />
-        <AIConsentSection profile={profile} onConsentUpdated={onProfileUpdated || (() => {})} />
+        <AIConsentSection profile={profile} onConsentUpdated={onProfileUpdated || (() => undefined)} />
       </TabsContent>
 
       <TabsContent value="security" className="space-y-6">

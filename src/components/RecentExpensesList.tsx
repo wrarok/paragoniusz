@@ -30,11 +30,11 @@ export function RecentExpensesList({ initialData, limit = 10 }: RecentExpensesLi
   );
 
   const handleEdit = useCallback((expenseId: string) => {
-    window.location.href = `/expenses/${expenseId}/edit`;
+    window.location.assign(`/expenses/${expenseId}/edit`);
   }, []);
 
   const handleAddExpense = useCallback(() => {
-    window.location.href = "/expenses/new";
+    window.location.assign("/expenses/new");
   }, []);
 
   if (isLoading) {

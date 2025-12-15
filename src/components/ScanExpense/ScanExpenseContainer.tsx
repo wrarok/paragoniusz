@@ -59,7 +59,7 @@ export function ScanExpenseContainer() {
           error,
           onRetry: resetFlow,
           onAddManually: () => {
-            window.location.href = "/expenses/new";
+            window.location.assign("/expenses/new");
           },
           onCancel: cancelFlow,
         }
