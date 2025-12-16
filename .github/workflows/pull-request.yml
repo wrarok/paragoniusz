@@ -89,7 +89,15 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: 🚀 Start dev server
-        run: npm run dev:e2e &
+        run: |
+          echo "Starting dev server with environment variables..."
+          echo "NODE_ENV: $NODE_ENV"
+          echo "SUPABASE_URL: ${SUPABASE_URL:0:30}..."
+          echo "PUBLIC_SUPABASE_URL: ${PUBLIC_SUPABASE_URL:0:30}..."
+          npm run dev:e2e > server.log 2>&1 &
+          SERVER_PID=$!
+          echo "Server started with PID: $SERVER_PID"
+          echo $SERVER_PID > server.pid
         env:
           NODE_ENV: test
           SUPABASE_URL: ${{ vars.SUPABASE_URL }}
@@ -101,10 +109,19 @@ jobs:
 
       - name: 🔍 Debug server status
         run: |
-          echo "Checking if server is running..."
-          sleep 5
+          echo "Waiting for server to start..."
+          sleep 10
+          echo "=== Server logs ==="
+          cat server.log || echo "No server logs found"
+          echo "=== Process status ==="
+          if [ -f server.pid ]; then
+            SERVER_PID=$(cat server.pid)
+            ps -p $SERVER_PID || echo "Server process not running"
+          fi
+          echo "=== Network status ==="
           netstat -tlnp | grep :3000 || echo "Port 3000 not found"
-          ps aux | grep astro || echo "Astro process not found"
+          echo "=== Testing server response ==="
+          curl -I http://localhost:3000 || echo "Server not responding"
 
       - name: ⏳ Wait for server
         run: npx wait-on http://localhost:3000 --timeout 120000 --interval 2000 --verbose
