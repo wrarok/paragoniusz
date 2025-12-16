@@ -6,9 +6,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
   try {
     // Check if required environment variables are available
     if (!import.meta.env.SUPABASE_URL || !import.meta.env.SUPABASE_ANON_KEY) {
-      console.error('Missing Supabase environment variables:', {
+      console.error("Missing Supabase environment variables:", {
         SUPABASE_URL: !!import.meta.env.SUPABASE_URL,
-        SUPABASE_ANON_KEY: !!import.meta.env.SUPABASE_ANON_KEY
+        SUPABASE_ANON_KEY: !!import.meta.env.SUPABASE_ANON_KEY,
       });
       return next();
     }
@@ -31,7 +31,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
     return next();
   } catch (error) {
-    console.error('Middleware error:', error);
+    console.error("Middleware error:", error);
     return next();
   }
 });

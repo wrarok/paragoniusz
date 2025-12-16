@@ -12,7 +12,7 @@ export default defineConfig({
   integrations: [react(), sitemap()],
   server: {
     port: 3000,
-    host: process.env.NODE_ENV === 'test' ? '0.0.0.0' : 'localhost'
+    host: process.env.NODE_ENV === "test" ? "0.0.0.0" : "localhost",
   },
   vite: {
     plugins: [tailwindcss()],
