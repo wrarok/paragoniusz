@@ -22,7 +22,7 @@ import type {
 /**
  * Integration tests for OpenRouterService
  *
- * Tests the integration of:
+ * Tests the interaction of:
  * - HTTPClientService (mocked)
  * - ExponentialBackoffStrategy (mocked)
  * - OpenRouterRequestBuilder (mocked)
@@ -32,7 +32,7 @@ import type {
  * - Request building and execution flow
  * - Error classification and handling
  * - Response parsing
- * - Retry logic integration
+ * - Retry logic coordination
  * - Dependency injection
  */
 describe("OpenRouterService", () => {

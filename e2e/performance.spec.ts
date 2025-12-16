@@ -379,8 +379,8 @@ test.describe("E2E: Performance Tests", () => {
 
   test("Concurrent user actions should not cause conflicts", async ({ page }) => {
     // Skip this test - concurrent UI actions are inherently flaky in E2E tests
-    // This type of race condition testing is better handled in unit/integration tests
-    test.skip(true, "Concurrent UI actions are flaky in E2E - better tested in unit/integration tests");
+    // This type of race condition testing is better handled in unit tests
+    test.skip(true, "Concurrent UI actions are flaky in E2E - better tested in unit tests");
 
     await loginUser(page);
     await deleteAllExpenses(page);

@@ -237,8 +237,9 @@ describe("Expense Form Validation", () => {
     });
 
     it("should return error message for invalid expense_date", () => {
+      // Use a date that's definitely in the future (next year)
       const futureDate = new Date();
-      futureDate.setDate(futureDate.getDate() + 1);
+      futureDate.setFullYear(futureDate.getFullYear() + 1);
       const error = validateField("expense_date", futureDate.toISOString().split("T")[0]);
       expect(error).toBe(EXPENSE_FORM_ERRORS.DATE.FUTURE);
     });
