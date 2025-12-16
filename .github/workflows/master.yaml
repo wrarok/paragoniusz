@@ -84,6 +84,28 @@ jobs:
           echo "NODE_ENV: $NODE_ENV"
           echo "SUPABASE_URL: ${SUPABASE_URL:0:30}..."
           echo "PUBLIC_SUPABASE_URL: ${PUBLIC_SUPABASE_URL:0:30}..."
+          
+          # Create .env.test file for Astro to load
+          echo "Creating .env.test file..."
+          cat > .env.test << EOF
+          NODE_ENV=test
+          SUPABASE_URL=${{ vars.SUPABASE_URL }}
+          SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+          PUBLIC_SUPABASE_URL=${{ vars.PUBLIC_SUPABASE_URL }}
+          PUBLIC_SUPABASE_ANON_KEY=${{ vars.PUBLIC_SUPABASE_ANON_KEY }}
+          OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL=${{ vars.OPENROUTER_MODEL }}
+          EOF
+          
+          # Also export environment variables to make them available to the background process
+          export NODE_ENV=test
+          export SUPABASE_URL="${{ vars.SUPABASE_URL }}"
+          export SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
+          export PUBLIC_SUPABASE_URL="${{ vars.PUBLIC_SUPABASE_URL }}"
+          export PUBLIC_SUPABASE_ANON_KEY="${{ vars.PUBLIC_SUPABASE_ANON_KEY }}"
+          export OPENROUTER_API_KEY="${{ secrets.OPENROUTER_API_KEY }}"
+          export OPENROUTER_MODEL="${{ vars.OPENROUTER_MODEL }}"
+          
           npm run dev:e2e > server.log 2>&1 &
           SERVER_PID=$!
           echo "Server started with PID: $SERVER_PID"
@@ -101,6 +123,10 @@ jobs:
         run: |
           echo "Waiting for server to start..."
           sleep 10
+          echo "=== Environment variables check ==="
+          echo "SUPABASE_URL is set: $([ -n "$SUPABASE_URL" ] && echo 'YES' || echo 'NO')"
+          echo "SUPABASE_ANON_KEY is set: $([ -n "$SUPABASE_ANON_KEY" ] && echo 'YES' || echo 'NO')"
+          echo "NODE_ENV: $NODE_ENV"
           echo "=== Server logs ==="
           cat server.log || echo "No server logs found"
           echo "=== Process status ==="
@@ -112,6 +138,14 @@ jobs:
           netstat -tlnp | grep :3000 || echo "Port 3000 not found"
           echo "=== Testing server response ==="
           curl -I http://localhost:3000 || echo "Server not responding"
+        env:
+          NODE_ENV: test
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
+          PUBLIC_SUPABASE_ANON_KEY: ${{ vars.PUBLIC_SUPABASE_ANON_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}
 
       - name: ⏳ Wait for server
         run: npx wait-on http://localhost:3000 --timeout 120000 --interval 2000 --verbose

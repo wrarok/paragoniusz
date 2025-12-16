@@ -162,7 +162,7 @@ export function useScanExpenseFlow() {
     };
 
     init();
-  }, []); // Uruchom tylko raz przy montowaniu komponentu
+  }, [aiConsent, fetchCategories]); // Dodaj brakujące zależności
 
   // Agreguj błędy z różnych źródeł
   const aggregatedError = error || aiConsent.error || fileUpload.error;
