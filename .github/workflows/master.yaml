@@ -90,7 +90,7 @@ jobs:
           OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}
 
       - name: ⏳ Wait for server
-        run: npx wait-on http://localhost:3000 --timeout 60000
+        run: npx wait-on http://localhost:3000 --timeout 120000 --interval 2000 --verbose
 
       - name: 🎭 Run critical E2E tests
         run: npm run test:e2e:critical

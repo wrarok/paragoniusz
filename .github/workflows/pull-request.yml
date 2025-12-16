@@ -99,8 +99,15 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}
 
+      - name: 🔍 Debug server status
+        run: |
+          echo "Checking if server is running..."
+          sleep 5
+          netstat -tlnp | grep :3000 || echo "Port 3000 not found"
+          ps aux | grep astro || echo "Astro process not found"
+
       - name: ⏳ Wait for server
-        run: npx wait-on http://localhost:3000 --timeout 60000
+        run: npx wait-on http://localhost:3000 --timeout 120000 --interval 2000 --verbose
 
       - name: 🎭 Run E2E tests with coverage
         run: npx playwright test --reporter=html
