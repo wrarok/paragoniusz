@@ -465,19 +465,62 @@ export async function getTotalSpent(page: Page): Promise<number> {
   await page.goto("/");
   await page.waitForLoadState("networkidle");
 
-  // DashboardSummary displays amount in <p class="text-4xl font-bold">
-  const totalText = await page.locator("p.text-4xl").first().textContent();
+  // Wait a bit for React components to render
+  await page.waitForTimeout(2000);
+
+  // Try multiple selectors to find the total amount
+  // Based on DashboardSummary component structure
+  const selectors = [
+    'p.text-4xl.font-bold.tracking-tight', // Most specific selector
+    'p.text-4xl', // Original selector
+    'p:has-text("PLN")', // Any paragraph with PLN
+    'text=/\\d+\\.\\d+.*PLN/', // Text matching number.number PLN pattern
+    '[data-testid="total-amount"]', // If we add test id later
+  ];
+
+  let totalText: string | null = null;
+  let usedSelector = '';
+
+  for (const selector of selectors) {
+    try {
+      console.log(`Trying selector: ${selector}`);
+      const element = page.locator(selector).first();
+      const isVisible = await element.isVisible().catch(() => false);
+      
+      if (isVisible) {
+        totalText = await element.textContent();
+        usedSelector = selector;
+        console.log(`Found total with selector "${selector}": "${totalText}"`);
+        break;
+      } else {
+        console.log(`Selector "${selector}" not visible`);
+      }
+    } catch (error) {
+      console.log(`Selector "${selector}" failed:`, error);
+    }
+  }
 
   if (!totalText) {
+    console.log("❌ No total amount text found with any selector, dashboard might be empty");
+    
+    // Debug: log all text content on page
+    const allText = await page.textContent('body').catch(() => 'Could not get body text');
+    console.log("Page body text:", allText);
+    
     return 0;
   }
+
+  console.log(`✅ Found total text: "${totalText}" using selector: "${usedSelector}"`);
 
   // Extract number from text (e.g., "225.00 PLN" -> 225.00)
   const match = totalText.match(/[\d,.]+/);
   if (match) {
-    return parseFloat(match[0].replace(",", "."));
+    const amount = parseFloat(match[0].replace(",", "."));
+    console.log(`✅ Parsed amount: ${amount}`);
+    return amount;
   }
 
+  console.log("❌ Could not parse amount from text");
   return 0;
 }
 

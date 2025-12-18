@@ -208,6 +208,37 @@ export function getDateString(daysOffset = 0): string {
 }
 
 /**
+ * Get date within current month in YYYY-MM-DD format
+ * Ensures the date stays within the current month for dashboard tests
+ *
+ * @param dayOffset - Number of days to offset from today (negative for past)
+ * @returns Date string in YYYY-MM-DD format within current month
+ *
+ * @example
+ * ```typescript
+ * const today = getCurrentMonthDate(0);
+ * const earlierThisMonth = getCurrentMonthDate(-5);
+ * ```
+ */
+export function getCurrentMonthDate(dayOffset = 0): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  
+  // Calculate target day, ensuring it stays within current month
+  let targetDay = now.getDate() + dayOffset;
+  
+  // Ensure day is within valid range for current month
+  const firstDay = 1;
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  
+  // Clamp to valid range
+  targetDay = Math.max(firstDay, Math.min(targetDay, lastDay));
+  
+  return `${year}-${String(month + 1).padStart(2, '0')}-${String(targetDay).padStart(2, '0')}`;
+}
+
+/**
  * Wait for specific time (wrapper for page.waitForTimeout with clearer name)
  *
  * @param milliseconds - Time to wait in milliseconds

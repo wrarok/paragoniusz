@@ -59,7 +59,7 @@ jobs:
   e2e-tests:
     name: 🎭 E2E Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 35
     needs: [unit-tests]
     environment: integration
 

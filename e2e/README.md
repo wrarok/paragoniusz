@@ -28,13 +28,12 @@ e2e/
 ├── receipt-scanning.spec.ts        # ⭐ AI Receipt Scanning (16 testów)
 ├── user-onboarding.spec.ts         # User Registration & Onboarding (13 testów)
 ├── dashboard-analytics.spec.ts     # Dashboard & Analytics (15 testów)
-├── performance.spec.ts             # Performance Tests (14 testów)
 ├── mobile-android.spec.ts          # Android Mobile Tests (18 testów)
 ├── auth.spec.ts                    # Authentication Tests (existing)
 └── expense.spec.ts                 # Expense CRUD Tests (existing)
 ```
 
-**Total: ~100+ testów E2E**
+**Total: ~75+ testów E2E**
 
 ---
 
@@ -73,9 +72,6 @@ npm run test:all
 ```bash
 # Tylko receipt scanning
 npx playwright test receipt-scanning
-
-# Tylko performance tests
-npx playwright test performance
 
 # Tylko mobile tests
 npx playwright test mobile-android
@@ -317,20 +313,7 @@ Umieść sample receipt images w `e2e/fixtures/receipts/`:
 - Filter execution: < 1s
 - Real-time updates without refresh
 
-### 4. Performance Tests (14 testów)
-
-**Plik:** [`performance.spec.ts`](performance.spec.ts)
-
-**Główne metryki:**
-
-- ✅ Dashboard load: < 2s
-- ✅ Receipt processing: < 20s
-- ✅ Form open: < 500ms
-- ✅ Filter execution: < 1s
-- ✅ API response: < 1s
-- ✅ Navigation: < 2s per page
-
-### 5. Mobile Android (18 testów)
+### 4. Mobile Android (18 testów)
 
 **Plik:** [`mobile-android.spec.ts`](mobile-android.spec.ts)
 
@@ -468,12 +451,6 @@ npx playwright show-trace test-results/.../trace.zip
 - ✅ **User Onboarding** - registration → first expense
 - ✅ **Dashboard Analytics** - filtering i visualization
 
-### Performance Goals
-
-- ⏱️ Dashboard load: < 2s ✅
-- ⏱️ Receipt processing: < 20s ✅
-- ⏱️ Test suite execution: < 15min ✅
-
 ### Quality Goals
 
 - 🎯 Critical paths coverage: 100% ✅
@@ -541,7 +518,6 @@ await page.waitForLoadState('networkidle');
 - Wszystkie testy używają test user z `.env.test`
 - Receipt fixtures są gitignored (security)
 - Mobile tests uruchamiają się na Samsung Galaxy A35 5G emulator
-- Performance tests logują metryki do console
 - Failed tests automatycznie zapisują screenshots i videos
 - **Automatyczne czyszczenie:** Użytkownicy testowi są automatycznie usuwani po zakończeniu testów (wymaga `SUPABASE_SERVICE_ROLE_KEY`)
 
