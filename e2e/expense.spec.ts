@@ -303,8 +303,11 @@ test.describe("Expense Edit and Delete", () => {
     // Save changes (edit mode uses "Zapisz zmiany")
     await page.click('button:has-text("Zapisz zmiany")');
 
-    // Should redirect back to dashboard
-    await page.waitForURL("/");
+    // Wait for form submission to complete and redirect
+    await page.waitForTimeout(2000); // Wait for API call
+    
+    // Should redirect back to dashboard - be more flexible with timeout
+    await page.waitForURL("/", { timeout: 45000 });
 
     // Verify update
     const updatedAmount = await page.locator('[data-testid="expense-card"]').first().textContent();

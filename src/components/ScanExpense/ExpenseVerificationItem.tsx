@@ -62,7 +62,7 @@ export function ExpenseVerificationItem({
   canRemove,
 }: ExpenseVerificationItemProps) {
   return (
-    <Card className="relative">
+    <Card className="relative" data-testid={`expense-item-${index}`}>
       <CardContent className="pt-6 space-y-4">
         {/* Category Select */}
         <ControlledCategorySelect

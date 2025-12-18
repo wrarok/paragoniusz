@@ -68,17 +68,41 @@ export function ScanExpenseContainer() {
 
   // Render the current step component
   const renderStep = () => {
+    console.log("🎬 Rendering step:", step);
+    console.log("📊 ProcessedData available:", !!processedData);
+    console.log("� Available step props:", Object.keys(stepProps));
+    console.log("🔍 Props for current step:", stepProps[step as keyof typeof stepProps]);
+
+    if (step === "verification") {
+      console.log("🔍 VERIFICATION STEP DEBUG:");
+      console.log("  - processedData:", !!processedData);
+      console.log("  - categories length:", categories.length);
+      console.log("  - verification props:", stepProps.verification);
+
+      if (processedData) {
+        console.log("  - processedData structure:", {
+          hasExpenses: processedData.expenses?.length > 0,
+          expenseCount: processedData.expenses?.length,
+          receiptDate: processedData.receipt_date,
+          currency: processedData.currency,
+        });
+      }
+    }
+
     const StepComponent = stepRegistry[step] as React.ComponentType<Record<string, unknown>>;
+    console.log("🧩 Step component found:", !!StepComponent);
 
     // Get props for steps that require them
     const props = stepProps[step as keyof typeof stepProps];
 
     // Steps that don't have props in the map (saving, complete) or have null props
     if (!props) {
+      console.log("🚫 No props for step, rendering without props");
       return <StepComponent />;
     }
 
     // Steps with props (consent, upload, processing, verification, error)
+    console.log("✅ Rendering step with props");
     return <StepComponent {...props} />;
   };
 
