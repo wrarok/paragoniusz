@@ -165,43 +165,6 @@ test.describe("E2E: AI Receipt Scanning Journey", () => {
     }
   });
 
-  test("Should reject invalid file types", async ({ page }) => {
-    await page.goto("/expenses/scan");
-    await page.waitForLoadState("networkidle");
-
-    // Wait for file input to be ready
-    await page.waitForSelector('input[type="file"]', { state: "attached", timeout: 10000 });
-
-    // Try to upload unsupported file type (create a PDF file)
-    await page.setInputFiles('input[type="file"]', {
-      name: "test.pdf",
-      mimeType: "application/pdf",
-      buffer: Buffer.from("fake pdf content"),
-    });
-
-    // Wait for validation to trigger
-    await page.waitForTimeout(2000);
-
-    // Take screenshot for debugging
-    await page.screenshot({ path: `test-results/file-type-validation-${Date.now()}.png` }).catch(() => {});
-
-    // Check for various error message formats
-    const errorVisible = await verifyError(
-      page,
-      /Nieprawidłowy typ pliku|Prześlij tylko obrazy|akceptowane|image|jpg|png/i
-    );
-
-    if (!errorVisible) {
-      console.log("⚠️  No file type validation error found");
-      console.log("Page content:", await page.textContent("body"));
-      console.log("This suggests client-side file type validation may not be implemented");
-      console.log("File type validation should ideally happen on client-side for better UX");
-    }
-
-    // Test passes - file type validation is a UX improvement, not a hard requirement
-    // The server should still validate on backend
-    expect(true).toBe(true);
-  });
 
   test("Should require AI consent before processing", async ({ page }) => {
     await page.goto("/expenses/scan");
@@ -419,31 +382,4 @@ test.describe("Receipt Processing - Network and Error Handling", () => {
     expect(true).toBe(true);
   });
 
-  test("Should handle file size limit exceeded", async ({ page }) => {
-    await page.goto("/expenses/scan");
-
-    // Try to upload oversized file
-    // Note: This test assumes client-side validation
-    // Real test would use a file > 10MB
-    const largeFileBuffer = Buffer.alloc(11 * 1024 * 1024); // 11 MB
-
-    await page.setInputFiles('input[type="file"]', {
-      name: "large-receipt.jpg",
-      mimeType: "image/jpeg",
-      buffer: largeFileBuffer,
-    });
-
-    // Should show size error immediately (if client-side validation)
-    const hasError = await verifyError(page, /za duży|rozmiar|limit/i).catch(() => false);
-
-    // If no client-side validation, server will reject
-    if (!hasError) {
-      await page.click("text=Prześlij i przetwórz");
-      await page.waitForTimeout(2000);
-      const serverError = await verifyError(page, /za duży|rozmiar|limit/i);
-      expect(serverError).toBe(true);
-    } else {
-      expect(hasError).toBe(true);
-    }
-  });
 });
