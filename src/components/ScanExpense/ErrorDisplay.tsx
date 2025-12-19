@@ -127,9 +127,9 @@ export function ErrorDisplay({ error, onRetry, onAddManually, onCancel }: ErrorD
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="w-full max-w-2xl mx-auto" data-testid="error-display">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2" data-testid="error-title">
           {config.icon}
           {config.title}
         </CardTitle>
@@ -178,18 +178,18 @@ export function ErrorDisplay({ error, onRetry, onAddManually, onCancel }: ErrorD
         )}
       </CardContent>
       <CardFooter className="flex flex-col sm:flex-row gap-3">
-        <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto">
+        <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto" data-testid="error-cancel-button">
           <X className="h-4 w-4 mr-2" />
           Anuluj
         </Button>
         {config.showManual && (
-          <Button variant="outline" onClick={handleManual} className="w-full sm:flex-1">
+          <Button variant="outline" onClick={handleManual} className="w-full sm:flex-1" data-testid="error-manual-button">
             <PlusCircle className="h-4 w-4 mr-2" />
             Dodaj ręcznie
           </Button>
         )}
         {config.showRetry && (
-          <Button onClick={handleRetry} className="w-full sm:flex-1">
+          <Button onClick={handleRetry} className="w-full sm:flex-1" data-testid="error-retry-button">
             <RefreshCw className="h-4 w-4 mr-2" />
             Spróbuj ponownie
           </Button>
