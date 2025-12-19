@@ -183,7 +183,12 @@ export function ErrorDisplay({ error, onRetry, onAddManually, onCancel }: ErrorD
           Anuluj
         </Button>
         {config.showManual && (
-          <Button variant="outline" onClick={handleManual} className="w-full sm:flex-1" data-testid="error-manual-button">
+          <Button
+            variant="outline"
+            onClick={handleManual}
+            className="w-full sm:flex-1"
+            data-testid="error-manual-button"
+          >
             <PlusCircle className="h-4 w-4 mr-2" />
             Dodaj ręcznie
           </Button>
