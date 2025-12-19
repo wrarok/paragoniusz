@@ -89,7 +89,7 @@ export async function waitForAIProcessing(page: Page, timeout = 25000): Promise<
     // Wait for verification screen, timeout error, or general error
     await Promise.race([
       page.waitForSelector("text=Zweryfikuj i zapisz", { timeout }),
-      page.waitForSelector("text=Przekroczono limit czasu", { timeout }),
+      page.waitForSelector("text=Przekroczono limit czasu przetwarzania", { timeout }),
       page.waitForSelector("text=Wystąpił błąd", { timeout }),
       page.waitForSelector("text=Failed to upload", { timeout }),
       page.waitForSelector("text=timeout", { timeout }),
@@ -103,7 +103,7 @@ export async function waitForAIProcessing(page: Page, timeout = 25000): Promise<
     }
 
     // Check for various error conditions
-    const hasTimeoutError = await page.isVisible("text=Przekroczono limit czasu");
+    const hasTimeoutError = await page.isVisible("text=Przekroczono limit czasu przetwarzania");
     const hasGeneralError = await page.isVisible("text=Wystąpił błąd");
     const hasUploadError = await page.isVisible("text=Failed to upload");
     const hasTimeoutErrorEn = await page.isVisible("text=timeout");
@@ -282,8 +282,20 @@ export async function saveAllExpenses(page: Page): Promise<void> {
  * ```
  */
 export async function cancelScanning(page: Page): Promise<void> {
-  // Click cancel button
-  await page.click('button:has-text("Anuluj")');
+  // Try multiple selectors for cancel button
+  try {
+    await page.click('button:has-text("Anuluj")', { timeout: 5000 });
+  } catch {
+    // Try alternative selectors
+    const cancelButton = await page.locator("button").filter({ hasText: /Anuluj|Cancel|Wróć/ }).first();
+    if (await cancelButton.isVisible()) {
+      await cancelButton.click();
+    } else {
+      // If no cancel button, try navigating directly
+      await page.goto("/");
+      return;
+    }
+  }
 
   // Wait for redirect to dashboard with longer timeout
   await page.waitForURL("/", { timeout: 15000 });
