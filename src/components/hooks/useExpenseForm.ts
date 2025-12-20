@@ -139,9 +139,15 @@ export function useExpenseForm({
     (formData: ExpenseFormValues): boolean => {
       if (mode !== "edit" || !initialData) return true;
 
+      // Normalize amounts for comparison (convert to numbers and back to strings)
+      const normalizeAmount = (amount: string): string => {
+        const num = parseFloat(amount);
+        return isNaN(num) ? amount : num.toString();
+      };
+
       return (
         formData.category_id !== initialData.category_id ||
-        formData.amount !== initialData.amount ||
+        normalizeAmount(formData.amount) !== normalizeAmount(initialData.amount) ||
         formData.expense_date !== initialData.expense_date ||
         formData.currency !== initialData.currency
       );

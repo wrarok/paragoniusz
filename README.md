@@ -74,10 +74,9 @@ The current MVP intentionally excludes:
 - **[DigitalOcean](https://www.digitalocean.com/)** - Production hosting
 
 ### Testing
-- **[Vitest](https://vitest.dev/)** - Unit and integration testing framework
+- **[Vitest](https://vitest.dev/)** - Unit testing framework
 - **[React Testing Library](https://testing-library.com/react)** - Component testing
 - **[Playwright](https://playwright.dev/)** - End-to-end testing across browsers
-- **[Testcontainers](https://testcontainers.com/)** - Database integration testing
 - **[Deno Test](https://deno.land/manual/testing)** - Edge Functions testing
 - **[MSW](https://mswjs.io/)** - API mocking for tests
 
@@ -181,15 +180,12 @@ The current MVP intentionally excludes:
 | `npm run test:watch`             | Run unit tests in watch mode             |
 | `npm run test:ui`                | Open Vitest UI for unit tests            |
 | `npm run test:coverage`          | Generate unit test coverage report       |
-| `npm run test:integration`       | Run integration tests with database      |
-| `npm run test:integration:watch` | Run integration tests in watch mode      |
-| `npm run test:integration:ui`    | Open Vitest UI for integration tests     |
 | `npm run test:e2e`               | Run end-to-end tests with Playwright     |
 | `npm run test:e2e:ui`            | Run E2E tests in interactive UI mode     |
 | `npm run test:e2e:headed`        | Run E2E tests in headed browser mode     |
 | `npm run test:e2e:mobile`        | Run E2E tests on mobile emulator         |
 | `npm run test:e2e:critical`      | Run critical E2E scenarios only          |
-| `npm run test:all`               | Run all tests (unit + integration + e2e) |
+| `npm run test:all`               | Run all tests (unit + e2e)               |
 
 ### Pre-commit Hooks
 
@@ -200,26 +196,19 @@ The project uses **Husky** and **lint-staged** to ensure code quality:
 
 ## 🧪 Testing Strategy
 
-The project follows a comprehensive testing pyramid approach:
+The project follows a two-tier testing approach:
 
-### Unit Tests (70% coverage target)
+### Unit Tests (80% coverage target)
 
 - **Framework**: Vitest with Happy-DOM
-- **Scope**: Business logic, services, utilities, components
+- **Scope**: Business logic, services, utilities, components, API endpoints
 - **Location**: `test/unit/**/*.test.ts`
 - **Run**: `npm run test:unit`
 
-### Integration Tests (20% coverage target)
-
-- **Framework**: Vitest with Testcontainers
-- **Scope**: Database RLS policies, API endpoints, Supabase integration
-- **Location**: `test/integration/**/*.test.ts`
-- **Run**: `npm run test:integration`
-
-### E2E Tests (10% coverage target)
+### E2E Tests (20% coverage target)
 
 - **Framework**: Playwright
-- **Scope**: Complete user flows, cross-browser testing
+- **Scope**: Complete user flows, cross-browser testing, database integration
 - **Location**: `e2e/**/*.spec.ts`
 - **Run**: `npm run test:e2e`
 
@@ -240,9 +229,8 @@ The project uses GitHub Actions for continuous integration and deployment:
 ### Pipeline Jobs
 
 1. **Lint & Type Check** (~2 min) - Code quality verification
-2. **Unit Tests** (~3 min) - Fast business logic tests
-3. **Integration Tests** (~5 min) - Database and API integration
-4. **Production Build** (~4 min) - Build verification
+2. **Unit Tests** (~3 min) - Fast business logic and API tests
+3. **Production Build** (~4 min) - Build verification
 
 ### Triggers
 
@@ -252,7 +240,7 @@ The project uses GitHub Actions for continuous integration and deployment:
 
 ### Status & Artifacts
 
-- Pipeline duration: ~9-10 minutes
+- Pipeline duration: ~6-7 minutes
 - Coverage reports retained for 7 days
 - Build artifacts available for deployment
 

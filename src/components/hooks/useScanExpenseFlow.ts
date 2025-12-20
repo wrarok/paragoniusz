@@ -4,11 +4,7 @@ import { useAIConsent } from "./useAIConsent";
 import { useFileUpload } from "./useFileUpload";
 import type { CategoryDTO, ProcessReceiptResponseDTO, CreateExpenseBatchCommand, APIErrorResponse } from "@/types";
 import type { ExpenseVerificationFormValues } from "@/lib/validation/expense-verification.validation";
-
-/**
- * Typy kroków flow skanowania paragonu
- */
-export type ScanFlowStep = "consent" | "upload" | "processing" | "verification" | "saving" | "complete" | "error";
+import type { ProcessingStep as ScanFlowStep } from "@/types/scan-flow.types";
 
 /**
  * Hook do zarządzania flow skanowania wydatków z paragonów
@@ -51,21 +47,41 @@ export function useScanExpenseFlow() {
    * @param filePath - Ścieżka do uploadowanego pliku
    */
   const processReceipt = useCallback(async (filePath: string) => {
+    console.log("🔄 Starting AI processing for file:", filePath);
     setIsProcessing(true);
     setStep("processing");
     setError(null);
 
     try {
+      console.log("📡 Calling processReceiptAPI...");
       const result = await processReceiptAPI(filePath);
+      console.log("✅ AI processing successful, result:", result);
+      console.log("📊 Result data structure:", {
+        hasExpenses: result?.expenses?.length > 0,
+        expenseCount: result?.expenses?.length,
+        receiptDate: result?.receipt_date,
+        currency: result?.currency,
+      });
+
       setProcessedData(result);
+      console.log("💾 ProcessedData state updated");
+
       setStep("verification");
+      console.log("🎯 Step set to verification, current step should be 'verification'");
+
+      // Dodatkowe sprawdzenie stanu po ustawieniu
+      setTimeout(() => {
+        console.log("🔍 State check after 100ms - step should be 'verification'");
+      }, 100);
     } catch (err) {
       const apiError = err as APIErrorResponse;
+      console.error("❌ Error processing receipt:", apiError);
       setError(apiError);
       setStep("error");
-      console.error("Error processing receipt:", apiError);
+      console.log("🚨 Step set to error due to processing failure");
     } finally {
       setIsProcessing(false);
+      console.log("🏁 Processing finished, isProcessing set to false");
     }
   }, []);
 
@@ -76,12 +92,16 @@ export function useScanExpenseFlow() {
    */
   const uploadAndProcess = useCallback(
     async (file: File) => {
+      console.log("🔄 Starting upload and process for file:", file.name);
       const uploadResult = await fileUpload.validateAndUpload(file);
 
       if (uploadResult) {
+        console.log("✅ Upload successful, starting AI processing:", uploadResult.file_path);
         await processReceipt(uploadResult.file_path);
       } else {
+        console.error("❌ Upload failed, fileUpload.error:", fileUpload.error);
         // Błąd walidacji lub uploadu - ustaw step na error
+        setError(fileUpload.error);
         setStep("error");
       }
     },
@@ -162,7 +182,7 @@ export function useScanExpenseFlow() {
     };
 
     init();
-  }, []); // Uruchom tylko raz przy montowaniu komponentu
+  }, [aiConsent.checkConsent, fetchCategories]); // Używaj konkretnych funkcji, nie całych obiektów
 
   // Agreguj błędy z różnych źródeł
   const aggregatedError = error || aiConsent.error || fileUpload.error;

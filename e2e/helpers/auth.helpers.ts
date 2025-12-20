@@ -163,10 +163,42 @@ export async function registerUser(page: Page, email?: string, password?: string
   // Wait for form to be ready
   await page.waitForSelector('input[name="email"]', { state: "visible", timeout: 10000 });
 
-  // Fill registration form
-  await page.fill('input[name="email"]', testEmail);
-  await page.fill('input[name="password"]', testPassword);
-  await page.fill('input[name="confirmPassword"]', testPassword);
+  // Fill registration form with better mobile support and clearing
+  const emailInput = page.locator('input[name="email"]');
+  const passwordInput = page.locator('input[name="password"]');
+  const confirmPasswordInput = page.locator('input[name="confirmPassword"]');
+
+  // Clear and fill email
+  await emailInput.click();
+  await emailInput.clear();
+  await emailInput.fill(testEmail);
+  await page.waitForTimeout(500);
+
+  // Clear and fill password
+  await passwordInput.click();
+  await passwordInput.clear();
+  await passwordInput.fill(testPassword);
+  await page.waitForTimeout(500);
+
+  // Clear and fill confirm password
+  await confirmPasswordInput.click();
+  await confirmPasswordInput.clear();
+  await confirmPasswordInput.fill(testPassword);
+  await page.waitForTimeout(500);
+
+  // Verify fields are actually filled before submitting
+  const emailValue = await page.locator('input[name="email"]').inputValue();
+  const passwordValue = await page.locator('input[name="password"]').inputValue();
+  const confirmPasswordValue = await page.locator('input[name="confirmPassword"]').inputValue();
+
+  if (!emailValue || !passwordValue || !confirmPasswordValue) {
+    throw new Error(
+      `❌ FORM FIELDS NOT FILLED PROPERLY:\n` +
+      `Email: "${emailValue}" (expected: "${testEmail}")\n` +
+      `Password: ${passwordValue ? "***" : "EMPTY"}\n` +
+      `Confirm: ${confirmPasswordValue ? "***" : "EMPTY"}`
+    );
+  }
 
   // Submit form
   await page.click('button[type="submit"]');
