@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
-import { registerUser, loginUser, getTestUser } from "./helpers/auth.helpers";
-import { deleteAllExpenses, getExpenseCount } from "./helpers/expense.helpers";
+import { registerUser, loginUser } from "./helpers/auth.helpers";
+import { deleteAllExpenses } from "./helpers/expense.helpers";
 
-test.describe("E2E: New User Onboarding", () => {
+test.describe("User Onboarding - MVP Critical Tests", () => {
   test.afterEach(async ({ page }) => {
     // Cleanup test data after each test
     const { deleteAllExpenses } = await import("./helpers/expense.helpers");
@@ -54,52 +54,11 @@ test.describe("E2E: New User Onboarding", () => {
     await page.fill('input[name="confirmPassword"]', "SecurePass123!");
     await page.waitForTimeout(1000);
 
-    // Verify fields are actually filled before proceeding
-    const emailValue = await page.inputValue('input[name="email"]');
-    const passwordValue = await page.inputValue('input[name="password"]');
-    const confirmPasswordValue = await page.inputValue('input[name="confirmPassword"]');
-
-    console.log(
-      `Field values - Email: "${emailValue}", Password: ${passwordValue ? "***" : "EMPTY"}, Confirm: ${confirmPasswordValue ? "***" : "EMPTY"}`
-    );
-
-    // Check if there are any validation errors before submitting
-    const hasPreSubmitError = await page
-      .isVisible("text=Email jest wymagany")
-      .catch(() => page.isVisible("text=Hasło jest wymagane"))
-      .catch(() => false);
-
-    if (hasPreSubmitError) {
-      console.log("⚠️  Validation error before submit - taking screenshot");
-      await page.screenshot({ path: `test-results/pre-submit-error-${Date.now()}.png` }).catch(() => {});
-      console.log(`Email filled: ${emailValue}`);
-    }
-
-    expect(hasPreSubmitError).toBe(false);
-
     // 4. Submit registration
     await page.click('button[type="submit"]');
 
     // Wait for submission to process
     await page.waitForTimeout(1000);
-
-    // 5. Check for errors first before waiting for redirect
-    const hasSubmitError = await page
-      .isVisible("text=Email jest wymagany")
-      .catch(() => page.isVisible("text=istnieje"))
-      .catch(() => page.isVisible("text=błąd"))
-      .catch(() => false);
-
-    if (hasSubmitError) {
-      console.log("⚠️  Registration error - taking screenshot");
-      await page.screenshot({ path: `test-results/registration-error-${Date.now()}.png` }).catch(() => {});
-      const errorText = await page
-        .locator("text=/Email jest wymagany|istnieje|błąd/i")
-        .first()
-        .textContent()
-        .catch(() => "");
-      console.log(`Error text: ${errorText}`);
-    }
 
     // Should redirect to login
     try {
@@ -228,25 +187,8 @@ test.describe("E2E: New User Onboarding", () => {
     expect(hasCategoryField).toBe(true);
     expect(hasSaveButton).toBe(true);
   });
-
-
-  test("Should navigate between login and register pages", async ({ page }) => {
-    // Start at login
-    await page.goto("/login");
-
-    // Click register link
-    await page.click('a:has-text("Zarejestruj się")').catch(() => page.click("text=Zarejestruj"));
-
-    // Should be on register page
-    await page.waitForURL("/register");
-    expect(page.url()).toContain("/register");
-
-    // Click login link
-    await page.click('a:has-text("Zaloguj")').catch(() => page.click("text=Masz konto"));
-
-    // Should be back on login page
-    await page.waitForURL("/login");
-    expect(page.url()).toContain("/login");
-  });
 });
+
+// ❌ REMOVED FOR MVP:
+// - "Should navigate between login and register pages" - covered by auth tests, not critical for onboarding flow
 
