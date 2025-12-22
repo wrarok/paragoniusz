@@ -36,7 +36,6 @@ jobs:
     name: 🧪 Unit Tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: lint
 
     steps:
       - name: 📥 Checkout code
@@ -68,7 +67,7 @@ jobs:
     name: 🎭 E2E Tests
     runs-on: ubuntu-latest
     timeout-minutes: 35
-    needs: [unit-tests]
+    needs: [lint, unit-tests]
     environment: integration
 
     steps:
