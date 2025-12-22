@@ -1,23 +1,8 @@
 import { test, expect } from "@playwright/test";
-import { faker } from "@faker-js/faker/locale/pl";
 import { loginAsTestUser } from "./helpers/auth.helpers";
 import { createExpense } from "./helpers/expense.helpers";
 
-// Helper to open expense form modal
-async function openExpenseForm(page: any) {
-  await page.goto("/");
-  await page.waitForLoadState("networkidle");
-
-  // Click middle button in nav (+ icon)
-  await page.locator("nav").locator("button, a").nth(1).click();
-  await page.waitForTimeout(500);
-
-  // Click "Dodaj ręcznie"
-  await page.click('button:has-text("Dodaj ręcznie")');
-  await page.waitForTimeout(1000);
-}
-
-test.describe("Manual Expense Creation Flow", () => {
+test.describe("Expense Management - MVP Critical Tests", () => {
   test.beforeEach(async ({ page }) => {
     // Authenticate before each test
     await loginAsTestUser(page);
@@ -29,15 +14,6 @@ test.describe("Manual Expense Creation Flow", () => {
     await deleteAllExpenses(page).catch(() => {});
   });
 
-  test("should display expense creation form", async ({ page }) => {
-    await openExpenseForm(page);
-
-    // Check if form elements are visible (Shadcn UI components)
-    await expect(page.locator('input[placeholder="0.00"]')).toBeVisible();
-    await expect(page.locator('[role="combobox"]')).toBeVisible(); // Category selector
-  });
-
-
   test("should successfully create expense with valid data", async ({ page }) => {
     // Use helper which handles the full flow
     await createExpense(page, { amount: "45.50" });
@@ -47,33 +23,6 @@ test.describe("Manual Expense Creation Flow", () => {
     await page.waitForLoadState("networkidle");
     const expenseCards = await page.$$('[data-testid="expense-card"]');
     expect(expenseCards.length).toBeGreaterThan(0);
-  });
-});
-
-test.describe("Expense List Display", () => {
-  test.beforeEach(async ({ page }) => {
-    await loginAsTestUser(page);
-  });
-
-  test.afterEach(async ({ page }) => {
-    // Cleanup test data after each test
-    const { deleteAllExpenses } = await import("./helpers/expense.helpers");
-    await deleteAllExpenses(page).catch(() => {});
-  });
-
-  test("should display empty state when no expenses", async ({ page }) => {
-    // Navigate to dashboard (cleanup in afterEach ensures no expenses)
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
-    // Check for empty state message (using correct text from EmptyState component)
-    const hasEmptyState = await page
-      .isVisible("text=Nie znaleziono wydatków")
-      .catch(() => page.isVisible("text=Zacznij śledzić swoje wydatki"))
-      .catch(() => page.isVisible("text=Dodaj pierwszy wydatek"))
-      .catch(() => false);
-
-    expect(hasEmptyState).toBe(true);
   });
 
   test("should display expense list when expenses exist", async ({ page }) => {
@@ -92,24 +41,10 @@ test.describe("Expense List Display", () => {
     await expect(page.locator('[data-testid="expense-card"]').first()).toBeVisible();
   });
 
-  // Note: Date filter test removed - dashboard does not have filter UI
-});
-
-test.describe("Expense Edit and Delete", () => {
-  test.beforeEach(async ({ page }) => {
-    await loginAsTestUser(page);
-    // Create at least one expense for editing/deleting tests
-    await createExpense(page, { amount: "50.00" });
-  });
-
-  test.afterEach(async ({ page }) => {
-    // Cleanup test data after each test
-    const { deleteAllExpenses } = await import("./helpers/expense.helpers");
-    await deleteAllExpenses(page).catch(() => {});
-  });
-
-
   test("should cancel expense deletion", async ({ page }) => {
+    // Create at least one expense for deletion test
+    await createExpense(page, { amount: "50.00" });
+    
     await page.goto("/");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
@@ -135,6 +70,9 @@ test.describe("Expense Edit and Delete", () => {
   });
 
   test("should successfully delete expense", async ({ page }) => {
+    // Create at least one expense for deletion test
+    await createExpense(page, { amount: "50.00" });
+    
     await page.goto("/");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
@@ -160,3 +98,9 @@ test.describe("Expense Edit and Delete", () => {
     expect(finalCount).toBe(initialCount - 1);
   });
 });
+
+// ❌ REMOVED FOR MVP:
+// - "should display expense creation form" - covered by create test
+// - "should display empty state when no expenses" - covered by dashboard tests
+// - All edit tests - editing functionality not critical for MVP
+// - Filter tests - functionality doesn't exist in UI

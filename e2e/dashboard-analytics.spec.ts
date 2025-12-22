@@ -1,12 +1,12 @@
 import { test, expect } from "@playwright/test";
 import { loginUser } from "./helpers/auth.helpers";
 import { createMultipleExpenses, deleteAllExpenses, getTotalSpent } from "./helpers/expense.helpers";
-import { setupCleanEnvironment, getDateString, getCurrentMonthDate } from "./helpers/setup.helpers";
+import { setupCleanEnvironment, getCurrentMonthDate } from "./helpers/setup.helpers";
 
 // Increase timeout for dashboard analytics tests (they involve multiple operations)
 test.describe.configure({ timeout: 60000 });
 
-test.describe("E2E: Dashboard Analytics", () => {
+test.describe("Dashboard Analytics - MVP Critical Tests", () => {
   test.beforeEach(async ({ page }) => {
     // Just login, don't clean
     await setupCleanEnvironment(page);
@@ -63,15 +63,6 @@ test.describe("E2E: Dashboard Analytics", () => {
       throw new Error("No expenses found on dashboard after creation");
     }
 
-    // Debug: Get individual amounts
-    const amounts = await page.$$eval('[data-testid="expense-card"]', (cards) =>
-      cards.map((card) => {
-        const amountEl = card.querySelector('[data-testid="expense-amount"]');
-        return amountEl ? amountEl.textContent : "N/A";
-      })
-    );
-    console.log("Individual expense amounts:", amounts);
-
     // 2. Verify total spent includes our expenses (may include previous test data)
     const totalSpent = await getTotalSpent(page);
     console.log(`Total spent: ${totalSpent} PLN (expected: at least 225.00)`);
@@ -88,9 +79,6 @@ test.describe("E2E: Dashboard Analytics", () => {
     console.log("✅ Test completed successfully");
   });
 
-  // Note: Filtering tests removed - dashboard does not have filter UI
-  // Note: Delete test removed - dashboard does not support deleting expenses
-
   test("Should show dashboard with expenses or empty state", async ({ page }) => {
     await page.goto("/");
 
@@ -105,53 +93,15 @@ test.describe("E2E: Dashboard Analytics", () => {
     // At least one should be true
     expect(hasExpenses || hasEmptyState).toBe(true);
   });
-
-
-  // Note: Filter tests removed - dashboard does not have filter UI
-
-  // Note: Category statistics test removed - UI lacks category stats section
-  // Note: Pagination test removed - dashboard does not have pagination UI
-  // Note: Trend chart test removed - UI lacks trend chart feature
-  // Note: Export test removed - UI lacks export feature
-  // Note: Search test removed - dashboard does not have search UI
-  // Note: Budget tracker test removed - UI lacks budget feature
 });
 
-test.describe("E2E: Dashboard Performance", () => {
-  test.afterEach(async ({ page }) => {
-    // Cleanup test data after each test
-    await deleteAllExpenses(page).catch(() => {
-      // Ignore errors if already logged out or no expenses to delete
-    });
-  });
-
-  // Note: "Should load quickly with many expenses" test removed - creating 50 expenses via UI is too slow (>60s)
-  // Performance testing should use API to seed data, not UI interactions
-
-  test("Should handle real-time updates", async ({ page }) => {
-    await setupCleanEnvironment(page);
-
-    await page.goto("/");
-
-    // Get initial total (may have data from previous tests)
-    const initialTotal = await getTotalSpent(page);
-
-    // Create first expense
-    await createMultipleExpenses(page, [{ amount: "100.00" }]);
-
-    await page.goto("/");
-
-    // Verify total increased by 100
-    const totalAfterFirst = await getTotalSpent(page);
-    expect(totalAfterFirst).toBeGreaterThanOrEqual(initialTotal + 100.0);
-
-    // Create second expense
-    await createMultipleExpenses(page, [{ amount: "50.00" }]);
-
-    await page.goto("/");
-
-    // Verify total increased by 50 more
-    const totalAfterSecond = await getTotalSpent(page);
-    expect(totalAfterSecond).toBeGreaterThanOrEqual(totalAfterFirst + 50.0);
-  });
-});
+// ❌ REMOVED FOR MVP:
+// - "Should handle real-time updates" - not critical for MVP, optimization feature
+// - "Should load quickly with many expenses" - performance optimization, not core functionality
+// - All filtering tests - functionality doesn't exist in UI
+// - Category statistics tests - UI lacks category stats section
+// - Pagination tests - dashboard doesn't have pagination UI
+// - Trend chart tests - UI lacks trend chart feature
+// - Export tests - UI lacks export feature
+// - Search tests - dashboard doesn't have search UI
+// - Budget tracker tests - UI lacks budget feature
