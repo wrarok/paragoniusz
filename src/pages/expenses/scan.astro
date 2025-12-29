@@ -2,6 +2,12 @@
 import Layout from "../../layouts/Layout.astro";
 import { ScanExpenseContainer } from "../../components/ScanExpense/ScanExpenseContainer";
 import { createSupabaseServerInstance } from "../../db/supabase.server";
+import { isFeatureEnabled } from "../../features/feature-flags";
+
+// Check if AI receipt processing feature is enabled
+if (!isFeatureEnabled('AI_RECEIPT_PROCESSING')) {
+  return Astro.redirect("/expenses/new");
+}
 
 // Check authentication using SSR client
 const supabase = createSupabaseServerInstance({

@@ -104,6 +104,8 @@ jobs:
           PUBLIC_SUPABASE_ANON_KEY=${{ vars.PUBLIC_SUPABASE_ANON_KEY }}
           OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}
           OPENROUTER_MODEL=${{ vars.OPENROUTER_MODEL }}
+          PUBLIC_ENV_NAME=${{ vars.PUBLIC_ENV_NAME }}
+          ENV_NAME=${{ vars.ENV_NAME }}
           EOF
           
           # Save environment variables to a file for next steps

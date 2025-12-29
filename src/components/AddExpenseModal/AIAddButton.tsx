@@ -5,7 +5,7 @@ import type { AIAddButtonProps } from "../../types/modal.types";
 /**
  * AIAddButton Component
  * Button that navigates to the AI receipt scanning flow
- * Only displayed when user has granted AI consent
+ * Feature flag checking is handled by parent component (ActionButtons)
  */
 export function AIAddButton({ onClick, disabled = false }: AIAddButtonProps) {
   return (
