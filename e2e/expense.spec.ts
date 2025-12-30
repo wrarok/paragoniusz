@@ -4,8 +4,12 @@ import { createExpense } from "./helpers/expense.helpers";
 
 test.describe("Expense Management - MVP Critical Tests", () => {
   test.beforeEach(async ({ page }) => {
-    // Authenticate before each test
+    // Authenticate and ensure clean state before each test
     await loginAsTestUser(page);
+    
+    // CRITICAL: Clean up any existing expenses to ensure test isolation
+    const { deleteAllExpenses } = await import("./helpers/expense.helpers");
+    await deleteAllExpenses(page).catch(() => {});
   });
 
   test.afterEach(async ({ page }) => {
@@ -75,9 +79,19 @@ test.describe("Expense Management - MVP Critical Tests", () => {
     
     await page.goto("/");
     await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(1500);
 
-    const initialCount = await page.$$('[data-testid="expense-card"]').then((cards) => cards.length);
+    // VERIFY: Ensure exactly 1 expense card exists after creation
+    const initialCards = await page.$$('[data-testid="expense-card"]');
+    const initialCount = initialCards.length;
+    
+    if (initialCount !== 1) {
+      console.error(`⚠️ Expected 1 expense card after creation, found ${initialCount}`);
+      await page.screenshot({ path: `test-results/delete-test-unexpected-count-${Date.now()}.png` }).catch(() => {});
+    }
+    
+    // Ensure we have at least one expense to delete
+    expect(initialCount).toBeGreaterThan(0);
 
     // Click dropdown menu button using data-testid
     const firstCard = page.locator('[data-testid="expense-card"]').first();
@@ -91,9 +105,12 @@ test.describe("Expense Management - MVP Critical Tests", () => {
     // Confirm deletion (second "Usuń" button in dialog)
     await page.locator('button:has-text("Usuń")').last().click();
 
-    // Wait and verify deletion
-    await page.waitForTimeout(1000);
+    // Wait for deletion to complete and page to update
+    await page.waitForTimeout(2000);
     await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(500);
+    
     const finalCount = await page.$$('[data-testid="expense-card"]').then((cards) => cards.length);
     expect(finalCount).toBe(initialCount - 1);
   });

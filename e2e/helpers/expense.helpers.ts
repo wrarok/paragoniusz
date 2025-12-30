@@ -145,7 +145,7 @@ export async function createExpense(page: Page, data: ExpenseData, skipNavigatio
 export async function createMultipleExpenses(page: Page, expenses: ExpenseData[]): Promise<void> {
   // Navigate once at the beginning to avoid navigation conflicts
   await page.goto("/", { waitUntil: "domcontentloaded", timeout: 15000 });
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(1000);
 
   const errors: string[] = [];
 
@@ -158,12 +158,12 @@ export async function createMultipleExpenses(page: Page, expenses: ExpenseData[]
       const skipNav = i === 0;
       await createExpense(page, expenses[i], skipNav);
 
-      // Longer delay between creations to allow page to fully update
-      // and ensure modal is closed before next creation
-      await page.waitForTimeout(1000);
+      // INCREASED: Longer delay between creations to ensure database commits
+      // and UI fully updates before next creation
+      await page.waitForTimeout(2000);
 
       // Ensure we're back on dashboard and page is stable
-      await page.waitForLoadState("domcontentloaded").catch(() => {});
+      await page.waitForLoadState("networkidle").catch(() => {});
       await page.waitForTimeout(500);
     } catch (error) {
       const errorMsg = `Failed to create expense ${i + 1} (${expenses[i].amount}): ${error}`;
@@ -173,7 +173,7 @@ export async function createMultipleExpenses(page: Page, expenses: ExpenseData[]
       // Try to recover by navigating back to dashboard
       try {
         await page.goto("/", { waitUntil: "domcontentloaded", timeout: 10000 });
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(1500);
       } catch (navError) {
         console.error("Failed to recover from error:", navError);
       }
@@ -187,6 +187,10 @@ export async function createMultipleExpenses(page: Page, expenses: ExpenseData[]
   if (errors.length > 0) {
     throw new Error(`Failed to create ${errors.length}/${expenses.length} expenses:\n${errors.join("\n")}`);
   }
+  
+  // ADDED: Final wait to ensure all database operations are complete
+  console.log(`✅ All ${expenses.length} expenses created, waiting for DB sync...`);
+  await page.waitForTimeout(2000);
 }
 
 /**
@@ -465,8 +469,8 @@ export async function getTotalSpent(page: Page): Promise<number> {
   await page.goto("/");
   await page.waitForLoadState("networkidle");
 
-  // Wait a bit for React components to render
-  await page.waitForTimeout(2000);
+  // INCREASED: Wait longer for React components to render and data to load
+  await page.waitForTimeout(3000);
 
   // Try multiple selectors to find the total amount
   // Based on DashboardSummary component structure
@@ -481,23 +485,34 @@ export async function getTotalSpent(page: Page): Promise<number> {
   let totalText: string | null = null;
   let usedSelector = '';
 
-  for (const selector of selectors) {
-    try {
-      console.log(`Trying selector: ${selector}`);
-      const element = page.locator(selector).first();
-      const isVisible = await element.isVisible().catch(() => false);
-      
-      if (isVisible) {
-        totalText = await element.textContent();
-        usedSelector = selector;
-        console.log(`Found total with selector "${selector}": "${totalText}"`);
-        break;
-      } else {
-        console.log(`Selector "${selector}" not visible`);
-      }
-    } catch (error) {
-      console.log(`Selector "${selector}" failed:`, error);
+  // RETRY LOGIC: Try multiple times to find the total
+  const maxRetries = 3;
+  for (let retry = 0; retry < maxRetries; retry++) {
+    if (retry > 0) {
+      console.log(`Retry ${retry}/${maxRetries} to find total amount...`);
+      await page.waitForTimeout(2000);
     }
+
+    for (const selector of selectors) {
+      try {
+        console.log(`Trying selector: ${selector}`);
+        const element = page.locator(selector).first();
+        const isVisible = await element.isVisible().catch(() => false);
+        
+        if (isVisible) {
+          totalText = await element.textContent();
+          usedSelector = selector;
+          console.log(`Found total with selector "${selector}": "${totalText}"`);
+          break;
+        } else {
+          console.log(`Selector "${selector}" not visible`);
+        }
+      } catch (error) {
+        console.log(`Selector "${selector}" failed:`, error);
+      }
+    }
+
+    if (totalText) break; // Found it, exit retry loop
   }
 
   if (!totalText) {
