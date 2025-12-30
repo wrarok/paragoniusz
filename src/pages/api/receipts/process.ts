@@ -35,7 +35,7 @@ export const prerender = false;
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     // Check if AI receipt processing feature is enabled
-    if (!isFeatureEnabled('AI_RECEIPT_PROCESSING')) {
+    if (!isFeatureEnabled("AI_RECEIPT_PROCESSING")) {
       return new Response(
         JSON.stringify({
           error: {

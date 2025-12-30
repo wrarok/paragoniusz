@@ -1,6 +1,6 @@
 /**
  * AIFeatureDisabled Component
- * 
+ *
  * Fallback UI component displayed when AI features are disabled
  * Provides clear messaging and alternative actions for users
  */
@@ -20,7 +20,7 @@ interface AIFeatureDisabledProps {
   /** Alternative action button click handler */
   onAlternativeAction?: () => void;
   /** Whether to show as a card or inline alert */
-  variant?: 'card' | 'alert';
+  variant?: "card" | "alert";
   /** Custom message to display */
   customMessage?: string;
 }
@@ -33,25 +33,19 @@ export function AIFeatureDisabled({
   description = "This AI-powered feature is currently disabled.",
   alternativeActionText = "Add Manually",
   onAlternativeAction,
-  variant = 'card',
-  customMessage
+  variant = "card",
+  customMessage,
 }: AIFeatureDisabledProps) {
-  
   const message = customMessage || "AI receipt processing is currently disabled. You can still add expenses manually.";
 
-  if (variant === 'alert') {
+  if (variant === "alert") {
     return (
       <Alert className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
         <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
         <AlertDescription className="text-amber-800 dark:text-amber-200">
           {message}
           {onAlternativeAction && (
-            <Button
-              onClick={onAlternativeAction}
-              variant="outline"
-              size="sm"
-              className="ml-2 h-6 text-xs"
-            >
+            <Button onClick={onAlternativeAction} variant="outline" size="sm" className="ml-2 h-6 text-xs">
               <Plus className="h-3 w-3 mr-1" />
               {alternativeActionText}
             </Button>
@@ -68,14 +62,10 @@ export function AIFeatureDisabled({
           <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
           <CardTitle className="text-amber-900 dark:text-amber-100">{title}</CardTitle>
         </div>
-        <CardDescription className="text-amber-700 dark:text-amber-300">
-          {description}
-        </CardDescription>
+        <CardDescription className="text-amber-700 dark:text-amber-300">{description}</CardDescription>
       </CardHeader>
       <CardContent className="pt-0">
-        <p className="text-sm text-amber-800 dark:text-amber-200 mb-4">
-          {message}
-        </p>
+        <p className="text-sm text-amber-800 dark:text-amber-200 mb-4">{message}</p>
         {onAlternativeAction && (
           <Button
             onClick={onAlternativeAction}
@@ -124,9 +114,5 @@ export function AIConsentDisabled() {
  * Inline message for disabled AI buttons
  */
 export function AIButtonDisabled({ className }: { className?: string }) {
-  return (
-    <div className={`text-xs text-muted-foreground italic ${className}`}>
-      AI features disabled
-    </div>
-  );
+  return <div className={`text-xs text-muted-foreground italic ${className}`}>AI features disabled</div>;
 }
