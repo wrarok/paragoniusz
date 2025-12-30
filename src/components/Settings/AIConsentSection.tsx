@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import type { ProfileDTO } from "../../types";
+import { useAIFeatures } from "../hooks/useFeatureFlag";
 
 interface AIConsentSectionProps {
   profile: ProfileDTO;
@@ -12,8 +13,10 @@ interface AIConsentSectionProps {
 
 /**
  * AIConsentSection - Allows users to manage their AI consent preference
+ * Only displayed when AI features are enabled
  */
 export function AIConsentSection({ profile, onConsentUpdated }: AIConsentSectionProps) {
+  const isAIEnabled = useAIFeatures();
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -50,6 +53,11 @@ export function AIConsentSection({ profile, onConsentUpdated }: AIConsentSection
       setIsUpdating(false);
     }
   };
+
+  // Don't render if AI features are disabled
+  if (!isAIEnabled) {
+    return null;
+  }
 
   return (
     <Card>

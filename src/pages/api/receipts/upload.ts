@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import { uploadReceiptSchema, MAX_FILE_SIZE } from "../../../lib/validation/receipt.validation";
 import { ReceiptService } from "../../../lib/services/receipt.service.refactored";
 import type { APIErrorResponse, UploadReceiptResponseDTO } from "../../../types";
+import { isFeatureEnabled } from "../../../features/feature-flags";
 
 export const prerender = false;
 
@@ -30,6 +31,20 @@ export const prerender = false;
  */
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
+    // Check if AI receipt processing feature is enabled
+    if (!isFeatureEnabled("AI_RECEIPT_PROCESSING")) {
+      const errorResponse: APIErrorResponse = {
+        error: {
+          code: "FEATURE_DISABLED",
+          message: "AI receipt processing is currently disabled",
+        },
+      };
+      return new Response(JSON.stringify(errorResponse), {
+        status: 503,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     // Check if user is authenticated
     if (!locals.user) {
       const errorResponse: APIErrorResponse = {

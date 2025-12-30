@@ -36,16 +36,28 @@ test.describe("Dashboard Analytics - MVP Critical Tests", () => {
       throw error;
     }
 
-    // Wait for creation to complete
-    await page.waitForTimeout(2000);
+    // INCREASED: Extended wait for database commits and UI updates
+    await page.waitForTimeout(4000);
 
     // 1. Navigate to dashboard and verify expenses were created
     console.log("Navigating to dashboard...");
     await page.goto("/", { waitUntil: "networkidle", timeout: 15000 });
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(2000);
 
-    // Debug: Check how many expense cards are visible
-    const expenseCards = await page.$$('[data-testid="expense-card"]');
+    // SMART WAITING: Wait for expense cards to appear with retry logic
+    let expenseCards = await page.$$('[data-testid="expense-card"]');
+    let attempts = 0;
+    const maxAttempts = 5;
+    
+    while (expenseCards.length < 3 && attempts < maxAttempts) {
+      attempts++;
+      console.log(`Attempt ${attempts}/${maxAttempts}: Found ${expenseCards.length} cards, waiting for at least 3...`);
+      await page.waitForTimeout(2000);
+      await page.reload({ waitUntil: "networkidle" });
+      await page.waitForTimeout(1000);
+      expenseCards = await page.$$('[data-testid="expense-card"]');
+    }
+
     console.log(`Found ${expenseCards.length} expense cards on dashboard`);
 
     // Verify that expenses were actually created

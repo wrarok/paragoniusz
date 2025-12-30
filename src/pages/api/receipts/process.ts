@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import { processReceiptSchema } from "../../../lib/validation/receipt.validation";
 import { ReceiptService } from "../../../lib/services/receipt.service.refactored";
 import type { APIErrorResponse } from "../../../types";
+import { isFeatureEnabled } from "../../../features/feature-flags";
 
 export const prerender = false;
 
@@ -33,6 +34,19 @@ export const prerender = false;
  */
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
+    // Check if AI receipt processing feature is enabled
+    if (!isFeatureEnabled("AI_RECEIPT_PROCESSING")) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            code: "FEATURE_DISABLED",
+            message: "AI receipt processing is currently disabled",
+          },
+        } as APIErrorResponse),
+        { status: 503, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
     // Check if user is authenticated
     if (!locals.user) {
       return new Response(
