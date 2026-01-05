@@ -50,28 +50,30 @@ You can test the bucket configuration using the Supabase client:
 
 ```typescript
 // Test upload (should succeed for authenticated user)
-const { data, error } = await supabase.storage
-  .from('receipts')
-  .upload('receipts/user-id/test.jpg', file);
+const { data, error } = await supabase.storage.from("receipts").upload("receipts/user-id/test.jpg", file);
 
 // Test access to another user's file (should fail)
 const { data: otherData, error: otherError } = await supabase.storage
-  .from('receipts')
-  .download('receipts/other-user-id/test.jpg');
+  .from("receipts")
+  .download("receipts/other-user-id/test.jpg");
 ```
 
 ## Troubleshooting
 
 ### Issue: "new row violates row-level security policy"
+
 **Solution**: Ensure RLS is disabled for the `receipts` bucket during MVP development
 
 ### Issue: "File size exceeds limit"
+
 **Solution**: Check that the file is under 10MB and the bucket file size limit is set correctly
 
 ### Issue: "Invalid MIME type"
+
 **Solution**: Verify the file MIME type is one of: `image/jpeg`, `image/png`, `image/heic`
 
 ### Issue: "Permission denied"
+
 **Solution**: Ensure RLS is disabled for the `receipts` bucket during MVP development
 
 ## Security Notes
@@ -90,6 +92,7 @@ const { data: otherData, error: otherError } = await supabase.storage
 When implementing authentication, the following RLS policies should be added:
 
 ### Policy 1: Users can upload to their own directory
+
 ```sql
 CREATE POLICY "Users can upload receipts"
 ON storage.objects FOR INSERT
@@ -101,6 +104,7 @@ WITH CHECK (
 ```
 
 ### Policy 2: Users can read their own files
+
 ```sql
 CREATE POLICY "Users can read own receipts"
 ON storage.objects FOR SELECT
@@ -112,6 +116,7 @@ USING (
 ```
 
 ### Policy 3: Users can delete their own files
+
 ```sql
 CREATE POLICY "Users can delete own receipts"
 ON storage.objects FOR DELETE
@@ -125,6 +130,7 @@ USING (
 ## Next Steps
 
 After completing this setup:
+
 1. Test the upload endpoint with a valid image file
 2. Verify files are stored in the correct path: `receipts/{user_id}/{file_id}.ext`
 3. Implement cleanup logic to delete old temporary files

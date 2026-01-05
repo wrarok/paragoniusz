@@ -5,23 +5,28 @@ The error "new row violates row-level security policy" means RLS is still enable
 ## Method 1: Via Supabase Dashboard (Recommended)
 
 ### Step 1: Navigate to Storage Policies
+
 1. Go to your Supabase Dashboard
 2. Click on **Storage** in the left sidebar
 3. Click on the **`receipts`** bucket
 4. Click on the **"Policies"** tab
 
 ### Step 2: Disable RLS
+
 You have two options:
 
 #### Option A: Disable RLS Entirely (Simplest for MVP)
+
 1. Look for a toggle or button that says **"Enable RLS"** or **"RLS enabled"**
 2. Click to **disable** it
 3. Confirm the action
 
 #### Option B: Create Permissive Policies (If RLS can't be disabled)
+
 If the dashboard doesn't allow disabling RLS, create these permissive policies:
 
 **Policy 1: Allow all inserts**
+
 ```sql
 CREATE POLICY "Allow all inserts for MVP"
 ON storage.objects
@@ -31,6 +36,7 @@ WITH CHECK (bucket_id = 'receipts');
 ```
 
 **Policy 2: Allow all selects**
+
 ```sql
 CREATE POLICY "Allow all selects for MVP"
 ON storage.objects
@@ -40,6 +46,7 @@ USING (bucket_id = 'receipts');
 ```
 
 **Policy 3: Allow all deletes**
+
 ```sql
 CREATE POLICY "Allow all deletes for MVP"
 ON storage.objects
@@ -49,6 +56,7 @@ USING (bucket_id = 'receipts');
 ```
 
 **Policy 4: Allow all updates**
+
 ```sql
 CREATE POLICY "Allow all updates for MVP"
 ON storage.objects
@@ -60,6 +68,7 @@ USING (bucket_id = 'receipts');
 ## Method 2: Via SQL Editor
 
 ### Step 1: Open SQL Editor
+
 1. Go to your Supabase Dashboard
 2. Click on **SQL Editor** in the left sidebar
 3. Click **"New query"**
@@ -85,6 +94,7 @@ WITH CHECK (bucket_id = 'receipts');
 ```
 
 ### Step 3: Execute the Query
+
 1. Click **"Run"** or press `Ctrl+Enter`
 2. Verify the query executed successfully
 
@@ -128,7 +138,7 @@ try {
         -Method POST `
         -ContentType "multipart/form-data; boundary=$boundary" `
         -Body $bodyLines
-    
+
     Write-Host "✅ SUCCESS! RLS is properly configured" -ForegroundColor Green
     $response | ConvertTo-Json
 } catch {
@@ -142,6 +152,7 @@ try {
 ## Expected Result
 
 After properly disabling RLS, you should see:
+
 ```
 ✅ SUCCESS! RLS is properly configured
 {
@@ -156,22 +167,24 @@ After properly disabling RLS, you should see:
 ### Still Getting RLS Error?
 
 1. **Check if policies exist:**
+
    ```sql
-   SELECT * FROM pg_policies 
-   WHERE tablename = 'objects' 
+   SELECT * FROM pg_policies
+   WHERE tablename = 'objects'
    AND schemaname = 'storage';
    ```
 
 2. **Verify bucket configuration:**
+
    ```sql
    SELECT * FROM storage.buckets WHERE name = 'receipts';
    ```
 
 3. **Check RLS status:**
    ```sql
-   SELECT relname, relrowsecurity 
-   FROM pg_class 
-   WHERE relname = 'objects' 
+   SELECT relname, relrowsecurity
+   FROM pg_class
+   WHERE relname = 'objects'
    AND relnamespace = 'storage'::regnamespace;
    ```
 
