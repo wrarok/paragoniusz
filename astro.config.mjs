@@ -5,7 +5,7 @@ import { loadEnv } from "vite";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
-import node from "@astrojs/node";
+import cloudflare from "@astrojs/cloudflare";
 
 // Load environment variables based on mode
 // In test mode, this will load .env.test file
@@ -34,7 +34,9 @@ export default defineConfig({
       "import.meta.env.OPENROUTER_MODEL": JSON.stringify(env.OPENROUTER_MODEL || process.env.OPENROUTER_MODEL),
     },
   },
-  adapter: node({
-    mode: "standalone",
+  adapter: cloudflare({
+    platformProxy: {
+      enabled: true,
+    },
   }),
 });

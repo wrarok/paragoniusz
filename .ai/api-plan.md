@@ -3,6 +3,7 @@
 ## 1. Resources
 
 ### Core Resources
+
 - **Profiles** - User profile data (maps to `profiles` table)
 - **Categories** - Predefined expense categories (maps to `categories` table)
 - **Expenses** - User expense records (maps to `expenses` table)
@@ -13,6 +14,7 @@
 ### 2.1 Profile Endpoints
 
 #### Get Current User Profile ✅ IMPLEMENTED
+
 - **HTTP Method**: GET
 - **URL Path**: `/api/profiles/me`
 - **Description**: Retrieves the authenticated user's profile
@@ -22,6 +24,7 @@
   - ✅ Service: [`ProfileService.getProfile()`](src/lib/services/profile.service.ts:26)
   - ⚠️ Authentication: Not yet implemented
 - **Response Payload** (Success):
+
 ```json
 {
   "id": "uuid",
@@ -30,12 +33,14 @@
   "updated_at": "2024-01-01T00:00:00Z"
 }
 ```
+
 - **Success Code**: 200 OK
 - **Error Codes**:
   - 401 Unauthorized - Invalid or expired token
   - 404 Not Found - Profile not found
 
 #### Update User Profile ✅ IMPLEMENTED
+
 - **HTTP Method**: PATCH
 - **URL Path**: `/api/profiles/me`
 - **Description**: Updates the authenticated user's profile (primarily for AI consent)
@@ -45,12 +50,15 @@
   - ✅ Service: [`ProfileService.updateProfile()`](src/lib/services/profile.service.ts:56)
   - ⚠️ Authentication: Not yet implemented
 - **Request Payload**:
+
 ```json
 {
   "ai_consent_given": true
 }
 ```
+
 - **Response Payload** (Success):
+
 ```json
 {
   "id": "uuid",
@@ -59,12 +67,14 @@
   "updated_at": "2024-01-01T12:00:00Z"
 }
 ```
+
 - **Success Code**: 200 OK
 - **Error Codes**:
   - 401 Unauthorized - Invalid or expired token
   - 400 Bad Request - Invalid payload
 
 #### Delete User Account ✅ IMPLEMENTED
+
 - **HTTP Method**: DELETE
 - **URL Path**: `/api/profiles/me`
 - **Description**: Permanently deletes user account and all associated data
@@ -81,6 +91,7 @@
 ### 2.2 Category Endpoints
 
 #### List All Categories ✅ IMPLEMENTED
+
 - **HTTP Method**: GET
 - **URL Path**: `/api/categories`
 - **Description**: Retrieves all predefined expense categories. This endpoint should be called when the user opens the expense form to populate the category dropdown/selector.
@@ -90,6 +101,7 @@
   - ✅ Service: [`getAllCategories()`](src/lib/services/category.service.ts:10)
   - ⚠️ Authentication: Not yet implemented
 - **Response Payload** (Success):
+
 ```json
 {
   "data": [
@@ -105,6 +117,7 @@
   "count": 2
 }
 ```
+
 - **Success Code**: 200 OK
 - **Error Codes**:
   - 401 Unauthorized - Invalid or expired token
@@ -113,6 +126,7 @@
 ### 2.3 Expense Endpoints
 
 #### List User Expenses ✅ IMPLEMENTED
+
 - **HTTP Method**: GET
 - **URL Path**: `/api/expenses`
 - **Description**: Retrieves paginated list of user's expenses with filtering and sorting
@@ -130,6 +144,7 @@
   - `category_id` (optional, uuid) - Filter by category
   - `sort` (optional, default: expense_date.desc) - Sort order (expense_date.asc, expense_date.desc, amount.asc, amount.desc)
 - **Response Payload** (Success):
+
 ```json
 {
   "data": [
@@ -154,12 +169,14 @@
   "total": 150
 }
 ```
+
 - **Success Code**: 200 OK
 - **Error Codes**:
   - 401 Unauthorized - Invalid or expired token
   - 400 Bad Request - Invalid query parameters
 
 #### Get Single Expense ✅ IMPLEMENTED
+
 - **HTTP Method**: GET
 - **URL Path**: `/api/expenses/{id}`
 - **Description**: Retrieves a specific expense by ID
@@ -170,6 +187,7 @@
   - ✅ Validation schema: [`ExpenseIdSchema`](src/lib/validation/expense.validation.ts:69)
   - ⚠️ Authentication: Not yet implemented (will be added later)
 - **Response Payload** (Success):
+
 ```json
 {
   "id": "uuid",
@@ -188,12 +206,14 @@
   "updated_at": "2024-01-15T10:30:00Z"
 }
 ```
+
 - **Success Code**: 200 OK
 - **Error Codes**:
   - 401 Unauthorized - Invalid or expired token
   - 404 Not Found - Expense not found or doesn't belong to user
 
 #### Create Expense (Manual) ✅ IMPLEMENTED
+
 - **HTTP Method**: POST
 - **URL Path**: `/api/expenses`
 - **Description**: Creates a new expense manually
@@ -204,6 +224,7 @@
   - ✅ Validation schema: [`CreateExpenseSchema`](src/lib/validation/expense.validation.ts:76)
   - ⚠️ Authentication: Not yet implemented (will be added later)
 - **Request Payload**:
+
 ```json
 {
   "category_id": "uuid",
@@ -212,6 +233,7 @@
   "currency": "PLN"
 }
 ```
+
 - **Validation Rules**:
   - `category_id` (required):
     - Must be a valid UUID format
@@ -234,6 +256,7 @@
     - Error: 400 with message "Only PLN currency is supported in MVP"
 - **Note**: The `category_id` must be a valid UUID obtained from the `/api/categories` endpoint. The frontend should first fetch the list of categories and present them to the user (e.g., as a dropdown), then submit the selected category's UUID when creating the expense.
 - **Response Payload** (Success):
+
 ```json
 {
   "id": "uuid",
@@ -252,6 +275,7 @@
   "updated_at": "2024-01-15T10:30:00Z"
 }
 ```
+
 - **Success Code**: 201 Created
 - **Error Codes**:
   - 401 Unauthorized - Invalid or expired token
@@ -259,6 +283,7 @@
   - 422 Unprocessable Entity - Category doesn't exist
 
 #### Create Multiple Expenses (From AI) ✅ IMPLEMENTED
+
 - **HTTP Method**: POST
 - **URL Path**: `/api/expenses/batch`
 - **Description**: Creates multiple expenses at once (used after AI receipt processing)
@@ -269,6 +294,7 @@
   - ✅ Helper: [`validateCategories()`](src/lib/services/expense.service.ts:10)
   - ⚠️ Authentication: Not yet implemented
 - **Request Payload**:
+
 ```json
 {
   "expenses": [
@@ -291,6 +317,7 @@
   ]
 }
 ```
+
 - **Validation Rules**:
   - `expenses` (required):
     - Must be a non-empty array
@@ -312,6 +339,7 @@
   - Error response includes details about which expense(s) failed and why
 - **Note**: The `category_id` values come from the AI processing response, which includes both the UUID and human-readable category name. Users can modify the suggested categories before submitting.
 - **Response Payload** (Success):
+
 ```json
 {
   "data": [
@@ -351,6 +379,7 @@
   "count": 2
 }
 ```
+
 - **Success Code**: 201 Created
 - **Error Codes**:
   - 401 Unauthorized - Invalid or expired token
@@ -358,6 +387,7 @@
   - 422 Unprocessable Entity - One or more categories don't exist
 
 #### Update Expense ✅ IMPLEMENTED
+
 - **HTTP Method**: PATCH
 - **URL Path**: `/api/expenses/{id}`
 - **Description**: Updates an existing expense with partial data
@@ -368,6 +398,7 @@
   - ✅ Validation schema: [`UpdateExpenseSchema`](src/lib/validation/expense.validation.ts:117)
   - ⚠️ Authentication: Not yet implemented (will be added later)
 - **Request Payload**:
+
 ```json
 {
   "category_id": "uuid",
@@ -375,6 +406,7 @@
   "expense_date": "2024-01-16"
 }
 ```
+
 - **Validation Rules**:
   - `id` (URL parameter, required):
     - Must be a valid UUID format
@@ -394,6 +426,7 @@
   - `created_by_ai` and `was_ai_suggestion_edited` cannot be modified via this endpoint (immutable after creation)
 - **Note**: All fields are optional. Only provided fields will be updated. The `category_id` must be a valid UUID from the categories list.
 - **Response Payload** (Success):
+
 ```json
 {
   "id": "uuid",
@@ -412,6 +445,7 @@
   "updated_at": "2024-01-16T14:20:00Z"
 }
 ```
+
 - **Success Code**: 200 OK
 - **Error Codes**:
   - 401 Unauthorized - Invalid or expired token
@@ -420,6 +454,7 @@
   - 422 Unprocessable Entity - Category doesn't exist
 
 #### Delete Expense ✅ IMPLEMENTED
+
 - **HTTP Method**: DELETE
 - **URL Path**: `/api/expenses/{id}`
 - **Description**: Deletes an expense
@@ -439,6 +474,7 @@
 ### 2.4 Dashboard Endpoints
 
 #### Get Dashboard Summary ✅ IMPLEMENTED
+
 - **HTTP Method**: GET
 - **URL Path**: `/api/dashboard/summary`
 - **Description**: Retrieves aggregated expense data for a specified month
@@ -451,6 +487,7 @@
 - **Query Parameters**:
   - `month` (optional, format: YYYY-MM, default: current month) - Month to get summary for
 - **Response Payload** (Success):
+
 ```json
 {
   "period": {
@@ -513,6 +550,7 @@
   }
 }
 ```
+
 - **Validation Rules**:
   - `month` (optional):
     - Must be in YYYY-MM format
@@ -529,6 +567,7 @@
 ### 2.5 Receipt Processing Endpoints
 
 #### Upload Receipt Image ✅ IMPLEMENTED & TESTED
+
 - **HTTP Method**: POST
 - **URL Path**: `/api/receipts/upload`
 - **Description**: Uploads receipt image to temporary storage
@@ -545,6 +584,7 @@
   - 📝 Note: RLS policies will be implemented together with authentication
 - **Request Payload**: Form data with `file` field containing image (JPEG, PNG, or HEIC, max 10MB)
 - **Response Payload** (Success):
+
 ```json
 {
   "file_id": "uuid",
@@ -552,6 +592,7 @@
   "uploaded_at": "2024-01-15T10:30:00Z"
 }
 ```
+
 - **Success Code**: 201 Created
 - **Error Codes**:
   - 401 Unauthorized - Invalid or expired token (will be implemented with auth)
@@ -563,6 +604,7 @@
   - RLS troubleshooting: [`.ai/disable-storage-rls.md`](.ai/disable-storage-rls.md:1)
 
 #### Process Receipt with AI ✅ IMPLEMENTED & TESTED
+
 - **HTTP Method**: POST
 - **URL Path**: `/api/receipts/process`
 - **Description**: Processes uploaded receipt image using mock AI service (production will use Supabase Edge Function with OpenRouter.ai)
@@ -577,12 +619,15 @@
   - ✅ Auto Cleanup: Receipt files automatically deleted after processing (per PRD 3.4)
   - 📝 Note: Currently uses mock AI processing; real Edge Function integration pending
 - **Request Payload**:
+
 ```json
 {
   "file_path": "receipts/user_id/uuid.jpg"
 }
 ```
+
 - **Response Payload** (Success):
+
 ```json
 {
   "expenses": [
@@ -590,21 +635,13 @@
       "category_id": "uuid",
       "category_name": "Groceries",
       "amount": "35.50",
-      "items": [
-        "Milk 2L - 5.50",
-        "Bread - 4.00",
-        "Eggs 10pcs - 12.00",
-        "Cheese 200g - 14.00"
-      ]
+      "items": ["Milk 2L - 5.50", "Bread - 4.00", "Eggs 10pcs - 12.00", "Cheese 200g - 14.00"]
     },
     {
       "category_id": "uuid",
       "category_name": "Household",
       "amount": "15.20",
-      "items": [
-        "Dish soap - 8.50",
-        "Paper towels - 6.70"
-      ]
+      "items": ["Dish soap - 8.50", "Paper towels - 6.70"]
     }
   ],
   "total_amount": "50.70",
@@ -613,6 +650,7 @@
   "processing_time_ms": 1500
 }
 ```
+
 - **Success Code**: 200 OK
 - **Error Codes**:
   - 401 Unauthorized - Invalid or expired token (will be implemented with auth)
@@ -628,6 +666,7 @@
 ## 3. Authentication and Authorization
 
 ### 3.1 Authentication Mechanism
+
 The API uses **JWT (JSON Web Token)** based authentication provided by Supabase Auth:
 
 - Users authenticate via Supabase Auth endpoints (`/auth/v1/*`)
@@ -637,25 +676,30 @@ The API uses **JWT (JSON Web Token)** based authentication provided by Supabase 
 - Refresh tokens can be used to obtain new access tokens without re-authentication
 
 ### 3.2 Authorization Implementation
+
 Authorization is enforced at two levels:
 
 #### Database Level (Row Level Security)
+
 - RLS policies on `profiles` and `expenses` tables ensure users can only access their own data
 - Policies check `auth.uid()` against `user_id` or `id` columns
 - This provides defense-in-depth even if application logic fails
 
 #### Application Level
+
 - API endpoints validate JWT tokens using Supabase client
 - User ID is extracted from the validated token
 - All database queries are automatically filtered by RLS policies
 - Edge Functions validate tokens before processing requests
 
 ### 3.3 Session Management
+
 - "Remember me" functionality is handled by storing refresh tokens securely
 - Sessions expire after 7 days of inactivity
 - Users can explicitly logout, which invalidates their session
 
 ### 3.4 AI Consent Management
+
 - Before using receipt processing features, users must grant AI consent
 - Consent status is stored in `profiles.ai_consent_given`
 - API returns 403 Forbidden if user attempts to process receipts without consent
@@ -664,48 +708,47 @@ Authorization is enforced at two levels:
 ## 4. Validation and Business Logic
 
 ### 4.1 Profile Validation
+
 - **ai_consent_given**: Must be boolean (true/false)
 - Profile updates automatically set `updated_at` timestamp
 
 ### 4.2 Category Validation
+
 - **name**: Required, must be unique, non-empty text
 - Categories are read-only for users in MVP (managed by administrators)
 
 ### 4.3 Expense Validation
 
 #### Field Validations
-- **amount**: 
+
+- **amount**:
   - Required
   - Must be numeric with max 2 decimal places
   - Must be positive (> 0)
   - Max value: 99,999,999.99 (based on numeric(10,2))
-  
-- **expense_date**: 
+- **expense_date**:
   - Required
   - Must be valid date in YYYY-MM-DD format
   - Cannot be in the future
   - Should not be more than 1 year in the past (warning, not error)
-  
-- **category_id**: 
+- **category_id**:
   - Required
   - Must be valid UUID
   - Must reference existing category
-  
-- **currency**: 
+- **currency**:
   - Optional (defaults to 'PLN')
   - Must be valid 3-letter currency code
   - MVP only supports 'PLN'
-  
-- **created_by_ai**: 
+- **created_by_ai**:
   - Optional (defaults to false)
   - Must be boolean
-  
-- **was_ai_suggestion_edited**: 
+- **was_ai_suggestion_edited**:
   - Optional (defaults to false)
   - Must be boolean
   - Only relevant when created_by_ai is true
 
 #### Business Rules
+
 - Users can only create/update/delete their own expenses (enforced by RLS)
 - Expense date defaults to current date if not provided
 - Timestamps (created_at, updated_at) are automatically managed
@@ -714,11 +757,13 @@ Authorization is enforced at two levels:
 ### 4.4 Receipt Processing Business Logic
 
 #### Upload Validation
+
 - File must be image format (JPEG, PNG, HEIC)
 - Maximum file size: 10MB
 - File is stored temporarily in Supabase Storage
 
 #### AI Processing Logic
+
 1. **Consent Check**: Verify user has granted AI consent
 2. **File Retrieval**: Fetch image from Supabase Storage
 3. **AI Analysis**: Send to OpenRouter.ai with 20-second timeout
@@ -726,7 +771,7 @@ Authorization is enforced at two levels:
    - Individual line items with amounts
    - Total amount validation
    - Receipt date
-5. **Category Assignment**: 
+5. **Category Assignment**:
    - AI suggests categories based on item descriptions
    - Unknown items default to "Other" category
 6. **Aggregation**: Group items by category and sum amounts
@@ -734,6 +779,7 @@ Authorization is enforced at two levels:
 8. **Response**: Return structured expense data for user verification
 
 #### Error Handling
+
 - **Timeout**: If AI doesn't respond within 20 seconds, return 408 error
 - **Unreadable Receipt**: If AI cannot extract data, return 422 error with suggestion to try manual entry
 - **Service Error**: If OpenRouter.ai is unavailable, return 500 error
@@ -741,6 +787,7 @@ Authorization is enforced at two levels:
 ### 4.5 Dashboard Business Logic
 
 #### Monthly Summary Calculation
+
 - Filter expenses by current calendar month (or specified month)
 - Calculate total amount across all expenses
 - Group expenses by category and calculate:
@@ -752,6 +799,7 @@ Authorization is enforced at two levels:
 - Aggregate remaining categories as "Other"
 
 #### AI Metrics Calculation
+
 - **AI Adoption Rate**: (expenses with created_by_ai=true / total expenses) × 100
 - **AI Accuracy Rate**: ((AI expenses - edited AI expenses) / AI expenses) × 100
   - Where edited = was_ai_suggestion_edited=true
@@ -760,6 +808,7 @@ Authorization is enforced at two levels:
 ### 4.6 Pagination and Performance
 
 #### List Endpoints
+
 - Default page size: 50 records
 - Maximum page size: 100 records
 - Use offset-based pagination
@@ -767,11 +816,13 @@ Authorization is enforced at two levels:
 - Leverage database index on (user_id, expense_date DESC) for optimal performance
 
 #### Filtering
+
 - Date range filtering uses expense_date column
 - Category filtering uses category_id
 - All filters are combined with AND logic
 
 #### Sorting
+
 - Default sort: expense_date DESC (newest first)
 - Supported sort fields: expense_date, amount
 - Supported sort directions: asc, desc
@@ -793,6 +844,7 @@ All error responses follow a consistent format:
 ```
 
 Common error codes:
+
 - `UNAUTHORIZED` - Invalid or missing authentication token
 - `FORBIDDEN` - User lacks permission for this action
 - `NOT_FOUND` - Requested resource doesn't exist
@@ -804,6 +856,7 @@ Common error codes:
 ### 4.8 Rate Limiting
 
 To prevent abuse and ensure fair usage:
+
 - **Authentication endpoints**: 5 requests per minute per IP
 - **Receipt processing**: 10 requests per hour per user
 - **Other endpoints**: 100 requests per minute per user

@@ -68,10 +68,18 @@ The current MVP intentionally excludes:
 ### AI Integration
 - **[OpenRouter.ai](https://openrouter.ai/)** - LLM gateway providing access to multiple AI models (OpenAI, Anthropic, Google) for optimal receipt processing
 
-### Infrastructure
-- **[GitHub Actions](https://github.com/features/actions)** - CI/CD pipeline
-- **[Docker](https://www.docker.com/)** - Application containerization
-- **[DigitalOcean](https://www.digitalocean.com/)** - Production hosting
+### Infrastructure & Deployment
+- **[GitHub Actions](https://github.com/features/actions)** - CI/CD pipeline automation
+- **[Docker](https://www.docker.com/)** - Application containerization for production
+
+**Recommended Hosting Platforms:**
+- **[Cloudflare Pages](https://pages.cloudflare.com/)** ⭐ Primary recommendation - Unlimited bandwidth on free tier, edge computing, native Astro SSR support
+- **[Railway](https://railway.app/)** - Container-based alternative with automatic PR environments
+- **[Vercel](https://vercel.com/)** - Premium zero-config option (requires paid plan for commercial use)
+- **[Fly.io](https://fly.io/)** - Full Linux containers with global deployment
+- **[Netlify](https://netlify.com/)** - JAMstack platform with commercial-friendly free tier
+
+See [Hosting Analysis](#-hosting--deployment-strategy) for detailed comparison and recommendations.
 
 ### Testing
 - **[Vitest](https://vitest.dev/)** - Unit testing framework
@@ -305,6 +313,216 @@ See [CI/CD Documentation](.ai/ci-cd-setup.md) for detailed information.
 - ⏳ AI receipt processing integration
 - ⏳ Testing and optimization
 - ⏳ Production deployment
+
+## 🌐 Hosting & Deployment Strategy
+
+This section provides a comprehensive analysis of hosting platforms suitable for Paragoniusz, considering its evolution from a free side project to a potential commercial startup.
+
+### Framework Requirements
+
+**Astro 5 with Server-Side Rendering (SSR)** is the application's core framework, requiring:
+- Node.js runtime environment capable of executing server-side code for each HTTP request
+- Dynamic page rendering with middleware support (JWT authentication via Supabase)
+- Session and cookie management capabilities
+- Real-time database communication
+- Either long-running Node.js processes or containerization support
+
+### Recommended Hosting Platforms
+
+#### 🥇 Cloudflare Pages (Score: 9/10) - **Primary Recommendation**
+
+**Why This is Our Top Choice:**
+Cloudflare Pages offers the most generous free tier without commercial restrictions, featuring unlimited bandwidth and requests, the fastest global edge network (300+ locations), and excellent Astro SSR support with automatic preview environments.
+
+**Deployment Complexity:** ⭐⭐⭐⭐⭐
+- Excellent Astro SSR integration via official adapter
+- Automatic deployments from GitHub
+- Built-in analytics at no extra cost
+- Global edge network ensures fastest TTFB (Time To First Byte)
+
+**Stack Compatibility:** ⭐⭐⭐⭐
+- Full Astro SSR support in Cloudflare Workers runtime
+- **Consideration:** Workers use V8 isolate (not full Node.js), but most npm packages work fine
+- Supabase SDK confirmed compatible with Workers runtime
+- Future-proof: Cloudflare D1 (SQLite) and KV storage available as alternatives
+
+**Multi-Environment Support:** ⭐⭐⭐⭐⭐
+- Automatic preview deployments for all PRs
+- Separate production and preview environments with isolated variables
+- Unlimited preview deployments
+- Branch-specific deployments
+
+**Pricing & Limitations:**
+- **Free Tier:** Unlimited requests, unlimited bandwidth, 500 builds/month
+- **Pro ($20/month):** 5,000 builds/month, advanced analytics
+- ✅ **No commercial usage restrictions on free tier**
+- Serverless execution: 50ms CPU time per request (sufficient for most SSR scenarios)
+- **Note:** CPU time ≠ wall time; complex operations may hit limits on free tier
+- Automatic scaling with zero additional costs
+
+**Verdict:** Ideal for starting as a free project with seamless transition to commercial use. Unlimited free tier eliminates budget concerns during MVP phase while maintaining production-grade infrastructure.
+
+---
+
+#### 🥈 Railway (Score: 8/10) - **Best Container Alternative**
+
+**Why Consider Railway:**
+Railway combines serverless simplicity with Docker flexibility, offering automatic PR environments, intuitive interface, zero runtime restrictions, and predictable usage-based pricing.
+
+**Deployment Complexity:** ⭐⭐⭐⭐⭐
+- Automatic Dockerfile detection
+- Nixpacks buildpack (deploy without Dockerfile)
+- GitHub integration with auto-deployments
+- Most intuitive platform among container services
+
+**Stack Compatibility:** ⭐⭐⭐⭐⭐
+- Full Node.js environment without restrictions
+- Native Docker Compose support (can add Redis, Postgres locally)
+- Can host self-managed Supabase in same project (advanced scenario)
+- Zero runtime surprises
+
+**Multi-Environment Support:** ⭐⭐⭐⭐⭐
+- **Automatic PR environments** (ephemeral, auto-cleanup after merge)
+- Dedicated production and staging environments
+- Best environment support among container platforms
+
+**Pricing & Limitations:**
+- **Hobby (Free):** $5 credit/month (~100 compute hours, 512MB RAM, 1 vCPU)
+- **Developer ($5/month):** Additional $5 credit/month, 5GB RAM, priority support
+- Free tier suitable for hobby projects (~15-20 days uptime)
+- ⚠️ Free tier insufficient for 24/7 production traffic
+- Usage-based: $0.000231/GB RAM/minute (~$10/GB RAM/month)
+- ✅ No commercial usage restrictions
+
+**Verdict:** Best choice for teams wanting full control without complexity. Free tier works for development; production requires ~$10-20/month for small app.
+
+---
+
+#### 🥉 Vercel (Score: 8/10) - **Premium Zero-Config Option**
+
+**Why Consider Vercel:**
+Vercel provides the simplest Astro deployment with automatic configuration, excellent developer tools, and reliable infrastructure, but requires paid plan for commercial use.
+
+**Deployment Complexity:** ⭐⭐⭐⭐⭐
+- Automatic Astro SSR detection and configuration
+- Zero-config deployment from GitHub
+- Automatic HTTPS and preview domains for PRs
+- **Trade-off:** Vendor lock-in with Vercel Edge Runtime
+
+**Stack Compatibility:** ⭐⭐⭐⭐
+- Full Astro 5 SSR and middleware support
+- Supabase compatible via environment variables
+- **Limitation:** Edge Runtime lacks full Node.js API (may affect some libraries)
+- Supabase Edge Functions run independently (Deno), no conflicts
+
+**Multi-Environment Support:** ⭐⭐⭐⭐⭐
+- Automatic preview environments for every PR
+- Dedicated production, preview, and development environments
+- Easy environment variable management per environment
+
+**Pricing & Limitations:**
+- **Hobby (Free):** 100GB bandwidth/month, 6,000 build minutes/month
+- **Pro ($20/month):** 1TB bandwidth, unlimited builds
+- ⚠️ **Free tier prohibits commercial use** - Pro plan required for startup
+- Serverless execution time: 10s (Hobby), 60s (Pro)
+- Automatic scaling included in plan price
+
+**Verdict:** Premium option for teams with budget for $20/month from start. Excellent DX (developer experience) but commercial restriction makes free tier unsuitable for MVP-to-startup transition.
+
+---
+
+#### Fly.io (Score: 7.5/10) - **Maximum Flexibility**
+
+**Deployment Complexity:** ⭐⭐⭐
+- Requires Dockerfile and `fly.toml` configuration
+- Powerful CLI with steep learning curve
+- More configuration work than serverless platforms
+- Full control over Node.js environment
+
+**Stack Compatibility:** ⭐⭐⭐⭐⭐
+- Full Node.js in Linux containers (100% compatibility)
+- No runtime restrictions
+- Can run Supabase locally in same region (ultra-low latency)
+- True container environment
+
+**Multi-Environment Support:** ⭐⭐⭐
+- Manual configuration of multiple apps required
+- Possible via Fly.io organizations
+- ⚠️ No native PR preview environments
+- **Workaround:** GitHub Actions + Fly CLI for temporary apps
+
+**Pricing & Limitations:**
+- **Hobby (Free):** $5 credit/month (~1 shared-cpu VM 24/7 + 3GB storage)
+- **Pay-as-you-go:** ~$6/month for small VM
+- ⚠️ Free tier insufficient for 24/7 production
+- Predictable costs (VM hours, not requests)
+- Excellent pricing for larger apps ($0.01/GB RAM/month)
+- ✅ No commercial restrictions
+
+**Verdict:** Best for DevOps-experienced teams needing specific configurations. Higher complexity, no free 24/7 production, but maximum control.
+
+---
+
+#### Netlify (Score: 7/10) - **JAMstack Veteran**
+
+**Deployment Complexity:** ⭐⭐⭐⭐
+- Good Astro SSR support via adapter
+- Automatic builds from GitHub
+- **Requires** `@astrojs/netlify` adapter configuration
+- Build plugin may conflict with Astro pipeline
+
+**Stack Compatibility:** ⭐⭐⭐⭐
+- Adapter supports SSR, routing may need extra config
+- Netlify Functions (AWS Lambda) vs Edge Functions - choose runtime carefully
+- **Issue:** Lambda cold starts (~1-2s), Edge Functions have limitations
+- Supabase works without issues
+
+**Multi-Environment Support:** ⭐⭐⭐⭐⭐
+- Branch deploys for all branches
+- Deploy previews for PRs
+- Context-specific environment variables
+- Easy rollbacks
+
+**Pricing & Limitations:**
+- **Starter (Free):** 100GB bandwidth, 300 build minutes/month
+- **Pro ($19/month):** 1TB bandwidth, unlimited builds
+- ✅ **Commercial use allowed on free tier** (within limits)
+- Function execution time: 10s (Starter), 26s (Pro)
+- Additional bandwidth: $55/100GB
+
+**Verdict:** Mature platform with commercial-friendly free tier, but Lambda cold starts and execution time limits make it suboptimal for Astro SSR compared to edge-native alternatives.
+
+---
+
+### Platform Comparison Summary
+
+| Platform | Score | Free Commercial Use | Bandwidth (Free) | Best For | Monthly Cost (Startup) |
+|----------|-------|---------------------|------------------|----------|------------------------|
+| **Cloudflare Pages** | 9/10 | ✅ Yes | Unlimited | MVP to startup transition | $0 (free tier sufficient) |
+| **Railway** | 8/10 | ✅ Yes | Usage-based | Full control + simplicity | $10-20 |
+| **Vercel** | 8/10 | ❌ No | 100GB | Premium DX with budget | $20 (required) |
+| **Fly.io** | 7.5/10 | ✅ Yes | Usage-based | DevOps experts | $6-12 |
+| **Netlify** | 7/10 | ✅ Yes (limited) | 100GB | Existing Netlify users | $0-19 |
+
+### Final Recommendation
+
+**For Paragoniusz specifically:**
+
+1. **Start with Cloudflare Pages** for zero-cost MVP with commercial potential
+   - Unlimited bandwidth eliminates cost surprises
+   - Global edge network ensures best performance
+   - No migration needed when transitioning to startup
+
+2. **Railway as backup** if Cloudflare Workers runtime causes compatibility issues
+   - Full Node.js compatibility
+   - Simple migration path from development to production
+   - Expect $10-20/month for production traffic
+
+3. **Avoid Netlify** for Astro SSR (better alternatives exist)
+
+4. **Consider Vercel only if** budget allows $20/month from day one
+
+**Migration Strategy:** Start with Cloudflare Pages. If runtime limitations appear (rare), containerize with Docker and move to Railway. This approach minimizes initial costs while maintaining flexibility.
 
 ## 📄 License
 
