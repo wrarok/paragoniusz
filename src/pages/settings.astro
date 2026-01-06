@@ -5,10 +5,14 @@ import { NavBar } from "../components/NavBar";
 import { createSupabaseServerInstance } from "../db/supabase.server";
 
 // Check authentication using SSR client
-const supabase = createSupabaseServerInstance({
-  headers: Astro.request.headers,
-  cookies: Astro.cookies,
-});
+const runtimeEnv = Astro.locals.runtime?.env;
+const supabase = createSupabaseServerInstance(
+  {
+    headers: Astro.request.headers,
+    cookies: Astro.cookies,
+  },
+  runtimeEnv
+);
 
 const {
   data: { session },

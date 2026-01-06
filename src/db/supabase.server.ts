@@ -29,19 +29,33 @@ function parseCookieHeader(cookieHeader: string): { name: string; value: string 
  * Used in middleware and Astro pages for server-side authentication
  *
  * @param context - Astro context with headers and cookies
+ * @param env - Optional environment variables (for Cloudflare runtime)
  * @returns Configured Supabase client with SSR cookie handling
  *
  * @example
  * ```typescript
- * // In Astro page
+ * // In Astro page (local development)
  * const supabase = createSupabaseServerInstance({
  *   headers: Astro.request.headers,
  *   cookies: Astro.cookies
  * });
+ *
+ * // On Cloudflare Pages (runtime)
+ * const supabase = createSupabaseServerInstance({
+ *   headers: Astro.request.headers,
+ *   cookies: Astro.cookies
+ * }, Astro.locals.runtime?.env);
  * ```
  */
-export const createSupabaseServerInstance = (context: { headers: Headers; cookies: AstroCookies }) => {
-  const supabase = createServerClient<Database>(import.meta.env.SUPABASE_URL, import.meta.env.SUPABASE_ANON_KEY, {
+export const createSupabaseServerInstance = (
+  context: { headers: Headers; cookies: AstroCookies },
+  env?: { SUPABASE_URL?: string; SUPABASE_ANON_KEY?: string }
+) => {
+  // Use runtime env (Cloudflare) if available, otherwise fallback to import.meta.env (local)
+  const supabaseUrl = env?.SUPABASE_URL || import.meta.env.SUPABASE_URL;
+  const supabaseAnonKey = env?.SUPABASE_ANON_KEY || import.meta.env.SUPABASE_ANON_KEY;
+
+  const supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
     cookieOptions,
     cookies: {
       getAll() {

@@ -15,10 +15,14 @@ import { createSupabaseServerInstance } from "../../db/supabase.server";
  */
 
 // Check authentication
-const supabase = createSupabaseServerInstance({
-  headers: Astro.request.headers,
-  cookies: Astro.cookies,
-});
+const runtimeEnv = Astro.locals.runtime?.env;
+const supabase = createSupabaseServerInstance(
+  {
+    headers: Astro.request.headers,
+    cookies: Astro.cookies,
+  },
+  runtimeEnv
+);
 
 const {
   data: { session },
