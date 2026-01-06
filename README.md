@@ -164,6 +164,73 @@ See [Hosting Analysis](#-hosting--deployment-strategy) for detailed comparison a
 
    The application will be available at `http://localhost:4321`
 
+## ☁️ Cloudflare Pages Deployment
+
+### Environment Variables Configuration
+
+After deploying to Cloudflare Pages, the application requires runtime environment variables to function properly. Unlike local development where variables are read from `.env` at build time, Cloudflare Pages needs variables configured in the dashboard for runtime access.
+
+#### Required Environment Variables
+
+Configure these variables in your Cloudflare Pages project:
+
+1. **Navigate to Cloudflare Dashboard**
+   - Go to [Cloudflare Dashboard](https://dash.cloudflare.com/)
+   - Select **Workers & Pages**
+   - Find your project **paragoniusz**
+   - Click **Settings** → **Environment Variables**
+
+2. **Add Production Environment Variables**
+
+   | Variable | Value | Description |
+   |----------|-------|-------------|
+   | `SUPABASE_URL` | `https://your-project.supabase.co` | Supabase project URL |
+   | `SUPABASE_ANON_KEY` | `eyJhbG...` | Supabase anon/public key |
+   | `OPENROUTER_API_KEY` | `sk-or-v1-...` | OpenRouter API key (optional) |
+   | `OPENROUTER_MODEL` | `anthropic/claude-3.5-sonnet` | AI model for receipt scanning (optional) |
+   | `ENV_NAME` | `prod` | Environment name for feature flags |
+
+3. **Get Supabase Credentials**
+   - Login to [Supabase Dashboard](https://supabase.com/dashboard)
+   - Select your project
+   - Go to **Settings** → **API**
+   - Copy **Project URL** → `SUPABASE_URL`
+   - Copy **anon/public** key → `SUPABASE_ANON_KEY`
+   
+   ⚠️ **Important**: Never use `service_role` key in production environment variables
+
+4. **Redeploy Application**
+   - After adding variables, trigger a redeploy:
+   - Go to **Deployments** tab
+   - Click **...** on latest deployment
+   - Select **Retry deployment**
+
+#### Architecture Notes
+
+The application automatically detects the runtime environment:
+- **Locally**: Uses `import.meta.env` from `.env` file
+- **Cloudflare Pages**: Uses `context.locals.runtime.env` from dashboard configuration
+
+This ensures backward compatibility with local development while enabling proper authentication flow on Cloudflare Pages.
+
+#### Troubleshooting
+
+**Problem: "Missing Supabase environment variables" error**
+- Verify variables are added in Cloudflare Dashboard
+- Ensure environment is set to **Production**
+- Redeploy the application
+- Check deployment logs for errors
+
+**Problem: Redirect loop or authentication not working**
+- Verify `SUPABASE_URL` and `SUPABASE_ANON_KEY` are correct
+- Check browser console (F12) for error messages
+- Ensure Supabase project is accessible from Cloudflare network
+
+**Problem: Local development stopped working**
+- Verify `.env` file exists and contains correct variables
+- Restart development server: `npm run dev`
+- Check that `.env` has both `SUPABASE_URL` and `SUPABASE_ANON_KEY`
+
 ## 📜 Available Scripts
 
 ### Development

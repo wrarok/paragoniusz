@@ -4,10 +4,14 @@ import { RegisterForm } from "../components/RegisterForm/RegisterForm";
 import { createSupabaseServerInstance } from "../db/supabase.server";
 
 // Check if user is already authenticated using SSR client
-const supabase = createSupabaseServerInstance({
-  headers: Astro.request.headers,
-  cookies: Astro.cookies,
-});
+const runtimeEnv = Astro.locals.runtime?.env;
+const supabase = createSupabaseServerInstance(
+  {
+    headers: Astro.request.headers,
+    cookies: Astro.cookies,
+  },
+  runtimeEnv
+);
 
 const {
   data: { session },

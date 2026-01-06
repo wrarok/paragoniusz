@@ -133,6 +133,9 @@ jobs:
     timeout-minutes: 10
     needs: build
     environment: production
+    permissions:
+      contents: read
+      deployments: write
 
     steps:
       - name: 📥 Checkout code
@@ -150,6 +153,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=${{ vars.CLOUDFLARE_PROJECT_NAME }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
   deployment-summary:
     name: 📊 Deployment Summary
