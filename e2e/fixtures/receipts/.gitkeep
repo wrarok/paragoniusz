@@ -1,6 +1,17 @@
 # E2E Test Receipt Fixtures
 
 This directory contains receipt image fixtures for E2E tests.
-Actual image files are gitignored (*.jpg, *.png, *.heic).
 
-See README.md in parent directory for fixture requirements and documentation.
+## Available Fixtures
+
+- `grocery-receipt.jpg` - Standard grocery receipt for testing basic scanning functionality
+- `slow-receipt.jpg` - Large receipt file for testing timeout handling
+- `multi-item-receipt.jpg` - Receipt with multiple items for testing batch processing
+- `corrupted-receipt.jpg` - Corrupted image for testing error handling
+- `image1_small.jpg` - Additional test fixture
+
+## Usage
+
+These fixtures are committed to the repository and will be available in CI/CD pipelines.
+
+See README.md in parent directory for more details about E2E testing.
