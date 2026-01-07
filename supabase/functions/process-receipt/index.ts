@@ -338,6 +338,23 @@ Deno.serve(async (req) => {
     console.log("Converting image to base64...");
     const arrayBuffer = await imageBlob.arrayBuffer();
     const imageSize = Math.round(arrayBuffer.byteLength / 1024);
+    
+    // Check file size limit (10MB)
+    const MAX_SIZE_KB = 10 * 1024;
+    if (imageSize > MAX_SIZE_KB) {
+      console.error(`Image too large: ${imageSize}KB (max: ${MAX_SIZE_KB}KB)`);
+      return new Response(
+        JSON.stringify({
+          error: "Image file is too large",
+          details: `File size: ${imageSize}KB, Maximum allowed: ${MAX_SIZE_KB}KB`
+        }),
+        {
+          status: 413,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+    
     const base64 = arrayBufferToBase64(arrayBuffer);
 
     console.log("Image size:", imageSize, "KB");
@@ -365,14 +382,22 @@ Deno.serve(async (req) => {
     });
   } catch (error) {
     console.error("Unexpected error:", error);
+    
+    // Provide more detailed error information for debugging
+    const errorDetails = {
+      error: "An unexpected error occurred",
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+    };
+    
     return new Response(
-      JSON.stringify({
-        error: "An unexpected error occurred",
-        details: error instanceof Error ? error.message : "Unknown error",
-      }),
+      JSON.stringify(errorDetails),
       {
         status: 500,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
       }
     );
   }

@@ -1,12 +1,13 @@
 import { useState, useCallback } from "react";
 import { uploadReceipt } from "@/lib/services/scan-flow.service";
 import { validateFile } from "@/lib/validation/file-upload.validation";
+import { compressImage, isCompressionSupported } from "@/lib/utils/image-compression";
 import type { UploadReceiptResponseDTO, APIErrorResponse } from "@/types";
 
 /**
  * Hook do zarządzania uploadem plików paragonów
  *
- * Obsługuje walidację i upload plików na serwer
+ * Obsługuje walidację, kompresję i upload plików na serwer
  */
 export function useFileUpload() {
   const [uploadedFile, setUploadedFile] = useState<UploadReceiptResponseDTO | null>(null);
@@ -23,10 +24,12 @@ export function useFileUpload() {
     // Walidacja pliku
     const validation = validateFile(file);
     if (!validation.isValid) {
+      // Type assertion needed because TypeScript discriminated unions don't narrow well
+      const errorMessage = (validation as { isValid: false; error: string }).error;
       const validationError: APIErrorResponse = {
         error: {
           code: "VALIDATION_ERROR",
-          message: validation.error,
+          message: errorMessage,
         },
       };
       setError(validationError);
@@ -38,7 +41,18 @@ export function useFileUpload() {
     setError(null);
 
     try {
-      const result = await uploadReceipt(file);
+      // Compress image if supported (especially important for mobile photos)
+      let fileToUpload = file;
+      if (isCompressionSupported()) {
+        try {
+          fileToUpload = await compressImage(file);
+        } catch (compressionError) {
+          console.warn("Image compression failed, using original file:", compressionError);
+          // Continue with original file if compression fails
+        }
+      }
+
+      const result = await uploadReceipt(fileToUpload);
       setUploadedFile(result);
       return result;
     } catch (err) {

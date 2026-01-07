@@ -12,10 +12,14 @@ export const prerender = false;
  * Uploads a receipt image to temporary storage in Supabase Storage.
  * This is the first step in the AI-powered receipt processing workflow.
  *
+ * NOTE: Images are automatically compressed on the client side before upload
+ * to reduce file size (especially important for high-resolution mobile photos).
+ * The compression maintains good quality while significantly reducing processing time.
+ *
  * Request:
  * - Content-Type: multipart/form-data
  * - Body: file field containing image (JPEG, PNG, or HEIC)
- * - Max file size: 10MB
+ * - Max file size: 10MB (after client-side compression)
  *
  * Response (201 Created):
  * {
@@ -26,7 +30,7 @@ export const prerender = false;
  *
  * Error Responses:
  * - 400: No file provided, invalid file type, or empty file
- * - 413: File size exceeds 10MB
+ * - 413: File size exceeds 10MB (even after compression)
  * - 500: Internal server error during upload
  */
 export const POST: APIRoute = async ({ request, locals }) => {

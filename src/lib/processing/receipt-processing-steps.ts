@@ -168,12 +168,28 @@ export class AIProcessingStep implements ProcessingStep {
 
     // Handle errors with specific error codes
     if (error) {
+      // Log detailed error information for debugging
+      console.error("[AIProcessingStep] Edge Function error:", {
+        message: error.message,
+        context: error.context,
+        status: error.context?.status,
+        statusText: error.context?.statusText,
+        body: error.context?.body,
+      });
+
       if (error.message?.includes("Rate limit")) {
         throw new Error("RATE_LIMIT_EXCEEDED");
       }
       if (error.message?.includes("timeout")) {
         throw new Error("PROCESSING_TIMEOUT");
       }
+
+      // Check if we have more detailed error information
+      const errorDetails = error.context?.body;
+      if (errorDetails) {
+        throw new Error(`Przetwarzanie AI nie powiodło się: ${JSON.stringify(errorDetails)}`);
+      }
+
       throw new Error(`Przetwarzanie AI nie powiodło się: ${error.message}`);
     }
 
