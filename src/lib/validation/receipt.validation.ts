@@ -30,7 +30,7 @@ export const processReceiptSchema = z.object({
     .string()
     .min(1, "File path is required")
     .regex(
-      /^receipts\/[a-f0-9-]{36}\/[a-f0-9-]{36}\.(jpg|jpeg|png|webp)$/i,
+      /^receipts\/[a-f0-9-]{36}\/[a-f0-9-]{36}\.(jpg|jpeg|png|heic)$/i,
       "Invalid file path format. Expected: receipts/{user_id}/{uuid}.{ext}"
     ),
 });

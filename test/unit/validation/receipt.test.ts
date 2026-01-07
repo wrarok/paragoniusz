@@ -54,8 +54,8 @@ describe("Receipt Validation", () => {
       expect(() => processReceiptSchema.parse({ file_path: validPath })).not.toThrow();
     });
 
-    it("should accept valid file path with webp extension", () => {
-      const validPath = "receipts/123e4567-e89b-12d3-a456-426614174000/987fcdeb-51a2-43e7-b890-123456789abc.webp";
+    it("should accept valid file path with heic extension", () => {
+      const validPath = "receipts/123e4567-e89b-12d3-a456-426614174000/987fcdeb-51a2-43e7-b890-123456789abc.heic";
       expect(() => processReceiptSchema.parse({ file_path: validPath })).not.toThrow();
     });
 
