@@ -16,7 +16,7 @@ export type FeatureFlagKey =
   | "ADVANCED_ANALYTICS";
 
 // Environment types
-export type Environment = "local" | "integration" | "prod";
+export type Environment = "local" | "integration" | "production";
 
 // Feature flags configuration per environment
 type FeatureFlagsConfig = Record<FeatureFlagKey, boolean>;
@@ -30,7 +30,7 @@ type EnvironmentConfig = Record<Environment, FeatureFlagsConfig>;
  * Strategy per environment:
  * - local: All flags enabled for development
  * - integration: Test flags enabled, production flags disabled
- * - prod: Only stable flags enabled
+ * - production: Only stable flags enabled
  */
 const FEATURE_FLAGS_CONFIG: EnvironmentConfig = {
   local: {
@@ -45,13 +45,51 @@ const FEATURE_FLAGS_CONFIG: EnvironmentConfig = {
     ADVANCED_PROFILE_FEATURES: false,
     ADVANCED_ANALYTICS: true,
   },
-  prod: {
+  production: {
     AI_RECEIPT_PROCESSING: false,
     BATCH_OPERATIONS: false,
     ADVANCED_PROFILE_FEATURES: false,
     ADVANCED_ANALYTICS: false,
   },
 };
+
+/**
+ * Gets AI features override from environment variable
+ * This allows runtime control of AI features via ENABLE_AI_FEATURES env var
+ *
+ * @returns true/false if override is set, null if not set
+ */
+function getAIFeaturesOverride(): boolean | null {
+  let enableAI: string | undefined;
+
+  try {
+    // For client-side (browser) - requires PUBLIC_ prefix in Astro
+    enableAI = import.meta.env?.PUBLIC_ENABLE_AI_FEATURES || import.meta.env?.ENABLE_AI_FEATURES;
+
+    // For server-side - fallback to process.env
+    if (!enableAI && typeof process !== "undefined" && process.env) {
+      enableAI = process.env.ENABLE_AI_FEATURES;
+    }
+  } catch (error) {
+    console.warn("[FeatureFlags] Could not access ENABLE_AI_FEATURES variable:", error);
+  }
+
+  if (!enableAI) {
+    return null;
+  }
+
+  // Parse boolean value
+  const normalizedValue = enableAI.toLowerCase().trim();
+  if (normalizedValue === "true" || normalizedValue === "1") {
+    return true;
+  }
+  if (normalizedValue === "false" || normalizedValue === "0") {
+    return false;
+  }
+
+  console.warn(`[FeatureFlags] Invalid ENABLE_AI_FEATURES value: ${enableAI}. Use "true" or "false".`);
+  return null;
+}
 
 /**
  * Gets current environment from ENV_NAME variable
@@ -82,7 +120,7 @@ function getCurrentEnvironment(): Environment | null {
   }
 
   // Environment validation
-  const validEnvironments: Environment[] = ["local", "integration", "prod"];
+  const validEnvironments: Environment[] = ["local", "integration", "production"];
   if (validEnvironments.includes(envName as Environment)) {
     return envName as Environment;
   }
@@ -98,11 +136,21 @@ function getCurrentEnvironment(): Environment | null {
  * @returns true if flag is enabled, false otherwise
  *
  * Logic:
- * 1. If ENV_NAME is null -> return false
- * 2. If environment unknown -> return false
- * 3. Return flag value for given environment
+ * 1. For AI_RECEIPT_PROCESSING: Check ENABLE_AI_FEATURES override first
+ * 2. If ENV_NAME is null -> return false
+ * 3. If environment unknown -> return false
+ * 4. Return flag value for given environment
  */
 export function isFeatureEnabled(flagKey: FeatureFlagKey): boolean {
+  // Check for AI features override (ENABLE_AI_FEATURES env var)
+  if (flagKey === "AI_RECEIPT_PROCESSING") {
+    const aiOverride = getAIFeaturesOverride();
+    if (aiOverride !== null) {
+      console.log(`[FeatureFlags] ${flagKey}: ${aiOverride} (ENABLE_AI_FEATURES override)`);
+      return aiOverride;
+    }
+  }
+
   const environment = getCurrentEnvironment();
 
   // If ENV_NAME is null, set flag to false

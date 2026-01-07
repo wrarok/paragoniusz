@@ -119,6 +119,8 @@ jobs:
           OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}
           PUBLIC_ENV_NAME: ${{ vars.PUBLIC_ENV_NAME }}
           ENV_NAME: ${{ vars.ENV_NAME }}
+          PUBLIC_ENABLE_AI_FEATURES: ${{ vars.PUBLIC_ENABLE_AI_FEATURES }}
+          ENABLE_AI_FEATURES: ${{ vars.ENABLE_AI_FEATURES }}
 
       - name: 📦 Upload build artifacts
         uses: actions/upload-artifact@v6

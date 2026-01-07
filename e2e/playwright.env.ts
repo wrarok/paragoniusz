@@ -26,8 +26,8 @@ export function setupE2EEnvironment() {
  * Use this when testing fallback UI and disabled feature behavior
  */
 export function setupDisabledFeaturesEnvironment() {
-  process.env.PUBLIC_ENV_NAME = 'prod';
-  process.env.ENV_NAME = 'prod';
+  process.env.PUBLIC_ENV_NAME = 'production';
+  process.env.ENV_NAME = 'production';
   
   console.log('🧪 E2E Environment configured for disabled features:');
   console.log(`   PUBLIC_ENV_NAME: ${process.env.PUBLIC_ENV_NAME}`);

@@ -10,6 +10,7 @@ interface CloudflareEnv {
   OPENROUTER_API_KEY?: string;
   OPENROUTER_MODEL?: string;
   ENV_NAME?: string;
+  ENABLE_AI_FEATURES?: string;
 }
 
 // Cloudflare runtime type
@@ -43,6 +44,8 @@ interface ImportMetaEnv {
   readonly OPENROUTER_MODEL: string;
   readonly ENV_NAME: string;
   readonly PUBLIC_ENV_NAME: string;
+  readonly ENABLE_AI_FEATURES: string;
+  readonly PUBLIC_ENABLE_AI_FEATURES: string;
 }
 
 interface ImportMeta {
