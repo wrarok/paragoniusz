@@ -303,7 +303,7 @@ Deno.serve(async (req) => {
     console.log("File path:", file_path);
 
     // Validate file path format
-    const filePathRegex = /^receipts\/[a-f0-9-]{36}\/[a-f0-9-]{36}\.(jpg|jpeg|png|webp)$/i;
+    const filePathRegex = /^receipts\/[a-f0-9-]{36}\/[a-f0-9-]{36}\.(jpg|jpeg|png|heic)$/i;
     if (!filePathRegex.test(file_path)) {
       return new Response(JSON.stringify({ error: "Invalid file path format" }), {
         status: 400,
