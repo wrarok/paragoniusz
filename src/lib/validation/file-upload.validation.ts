@@ -16,13 +16,21 @@ export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 export const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/heic"] as const;
 
 /**
+ * Sprawdza czy rozszerzenie pliku jest dozwolone
+ */
+function hasValidExtension(fileName: string): boolean {
+  const extension = fileName.toLowerCase().split(".").pop();
+  return ["jpg", "jpeg", "png", "heic"].includes(extension || "");
+}
+
+/**
  * Schema walidacji dla uploadowanych plików paragonów
  *
  * Sprawdza:
  * - Czy plik jest instancją File
  * - Czy plik nie jest pusty (size > 0)
  * - Czy rozmiar nie przekracza MAX_FILE_SIZE_BYTES
- * - Czy typ pliku jest na liście dozwolonych
+ * - Czy typ pliku (MIME lub rozszerzenie) jest dozwolony
  */
 export const fileUploadSchema = z.custom<File>(
   (file) => {
@@ -38,7 +46,12 @@ export const fileUploadSchema = z.custom<File>(
       return false;
     }
 
-    if (!ALLOWED_FILE_TYPES.includes(file.type as (typeof ALLOWED_FILE_TYPES)[number])) {
+    // Sprawdź zarówno MIME type jak i rozszerzenie
+    // Niektóre przeglądarki (szczególnie na iOS) nie ustawiają poprawnego MIME type dla HEIC
+    const hasMimeType = ALLOWED_FILE_TYPES.includes(file.type as (typeof ALLOWED_FILE_TYPES)[number]);
+    const hasExtension = hasValidExtension(file.name);
+
+    if (!hasMimeType && !hasExtension) {
       return false;
     }
 
@@ -56,6 +69,9 @@ export type FileValidationResult = { isValid: true } | { isValid: false; error: 
 
 /**
  * Funkcja pomocnicza do walidacji pliku z bardziej szczegółowymi komunikatami błędów
+ *
+ * Sprawdza zarówno MIME type jak i rozszerzenie pliku, ponieważ niektóre przeglądarki
+ * (szczególnie na iOS) mogą nie ustawić poprawnego MIME type dla plików HEIC
  */
 export function validateFile(file: File | null | undefined): FileValidationResult {
   if (!file) {
@@ -77,7 +93,12 @@ export function validateFile(file: File | null | undefined): FileValidationResul
     };
   }
 
-  if (!ALLOWED_FILE_TYPES.includes(file.type as (typeof ALLOWED_FILE_TYPES)[number])) {
+  // Sprawdź zarówno MIME type jak i rozszerzenie pliku
+  // Niektóre przeglądarki (szczególnie na iOS) nie ustawiają poprawnego MIME type dla HEIC
+  const hasMimeType = ALLOWED_FILE_TYPES.includes(file.type as (typeof ALLOWED_FILE_TYPES)[number]);
+  const hasExtension = hasValidExtension(file.name);
+
+  if (!hasMimeType && !hasExtension) {
     return {
       isValid: false,
       error: "Nieprawidłowy typ pliku. Prześlij tylko obrazy JPEG, PNG lub HEIC.",

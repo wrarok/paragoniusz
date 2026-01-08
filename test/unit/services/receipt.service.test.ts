@@ -155,9 +155,52 @@ describe("ReceiptService - Integration Tests", () => {
 
       // Assert
       expect(result.file_path).toContain(".heic");
+      expect(mockUpload).toHaveBeenCalledWith(
+        `receipts/${userId}/${mockUUID}.heic`,
+        expect.any(ArrayBuffer),
+        expect.objectContaining({
+          contentType: "image/heic",
+        })
+      );
     });
 
-    it("should default to .jpg for unknown MIME types", async () => {
+    it("should handle HEIC files with incorrect MIME type (application/octet-stream)", async () => {
+      // Arrange - This simulates Windows/iOS behavior where HEIC files get wrong MIME type
+      const mockFile = new File(["test content"], "20260107_201100.heic", {
+        type: "application/octet-stream", // Incorrect MIME type
+      });
+      const userId = "user-heic-fix";
+      const mockUUID = "heic-fix-uuid";
+
+      vi.stubGlobal("crypto", {
+        randomUUID: vi.fn().mockReturnValue(mockUUID),
+      });
+
+      const mockUpload = vi.fn().mockResolvedValue({
+        data: { path: `receipts/${userId}/${mockUUID}.heic` },
+        error: null,
+      });
+
+      (mockSupabase.storage.from as any).mockReturnValue({
+        upload: mockUpload,
+      });
+
+      // Act
+      const result = await service.uploadReceipt(mockFile, userId);
+
+      // Assert
+      expect(result.file_path).toContain(".heic");
+      // Verify that MIME type was normalized to image/heic
+      expect(mockUpload).toHaveBeenCalledWith(
+        `receipts/${userId}/${mockUUID}.heic`,
+        expect.any(ArrayBuffer),
+        expect.objectContaining({
+          contentType: "image/heic", // Should be normalized from application/octet-stream
+        })
+      );
+    });
+
+    it("should default to .jpg for unknown MIME types and extensions", async () => {
       // Arrange
       const mockFile = new File(["test content"], "receipt.unknown", {
         type: "image/unknown",

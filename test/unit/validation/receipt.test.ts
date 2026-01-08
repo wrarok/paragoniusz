@@ -24,6 +24,21 @@ describe("Receipt Validation", () => {
       expect(() => uploadReceiptSchema.parse({ file })).not.toThrow();
     });
 
+    it("should accept HEIC file with empty MIME type (iOS compatibility)", () => {
+      const file = new File(["content"], "receipt.heic", { type: "" });
+      expect(() => uploadReceiptSchema.parse({ file })).not.toThrow();
+    });
+
+    it("should accept HEIC file with wrong MIME type but correct extension", () => {
+      const file = new File(["content"], "receipt.heic", { type: "application/octet-stream" });
+      expect(() => uploadReceiptSchema.parse({ file })).not.toThrow();
+    });
+
+    it("should accept JPG file with empty MIME type", () => {
+      const file = new File(["content"], "receipt.jpg", { type: "" });
+      expect(() => uploadReceiptSchema.parse({ file })).not.toThrow();
+    });
+
     it("should reject empty file", () => {
       const file = new File([], "empty.jpg", { type: "image/jpeg" });
       expect(() => uploadReceiptSchema.parse({ file })).toThrow("Nie podano pliku");
@@ -31,10 +46,10 @@ describe("Receipt Validation", () => {
 
     it("should reject unsupported file types", () => {
       const pdfFile = new File(["content"], "receipt.pdf", { type: "application/pdf" });
-      expect(() => uploadReceiptSchema.parse({ file: pdfFile })).toThrow("File must be JPEG, PNG, or HEIC format");
+      expect(() => uploadReceiptSchema.parse({ file: pdfFile })).toThrow("Nieprawidłowy typ pliku. Prześlij tylko obrazy JPEG, PNG lub HEIC.");
 
       const txtFile = new File(["content"], "receipt.txt", { type: "text/plain" });
-      expect(() => uploadReceiptSchema.parse({ file: txtFile })).toThrow("File must be JPEG, PNG, or HEIC format");
+      expect(() => uploadReceiptSchema.parse({ file: txtFile })).toThrow("Nieprawidłowy typ pliku. Prześlij tylko obrazy JPEG, PNG lub HEIC.");
     });
   });
 

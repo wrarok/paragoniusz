@@ -100,9 +100,23 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 }
 
 /**
+ * Determines MIME type for data URL based on file extension
+ */
+function getMimeTypeFromPath(filePath: string): string {
+  const extension = filePath.toLowerCase().split('.').pop();
+  const mimeTypes: Record<string, string> = {
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'png': 'image/png',
+    'heic': 'image/heic',
+  };
+  return mimeTypes[extension || ''] || 'image/jpeg';
+}
+
+/**
  * Calls OpenRouter API to process receipt image
  */
-async function processReceiptWithOpenRouter(base64Image: string): Promise<{
+async function processReceiptWithOpenRouter(base64Image: string, mimeType: string): Promise<{
   items: { name: string; amount: number; category: string }[];
   total: number;
   date: string;
@@ -160,7 +174,7 @@ If date is not visible, use today's date.`;
         role: "user",
         content: [
           { type: "text", text: userMessage },
-          { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } },
+          { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Image}` } },
         ],
       },
     ],
@@ -359,9 +373,19 @@ Deno.serve(async (req) => {
 
     console.log("Image size:", imageSize, "KB");
     console.log("Base64 size:", Math.round(base64.length / 1024), "KB");
+    console.log("File path:", file_path);
+    console.log("Blob type from storage:", imageBlob.type);
+
+    // Determine MIME type from file path
+    const mimeType = getMimeTypeFromPath(file_path);
+    console.log("Detected MIME type from path:", mimeType);
+
+    // Log first 100 chars of base64 for debugging
+    console.log("Base64 preview:", base64.substring(0, 100));
 
     // Process receipt with OpenRouter
-    const receiptData = await processReceiptWithOpenRouter(base64);
+    console.log("Calling OpenRouter with MIME type:", mimeType);
+    const receiptData = await processReceiptWithOpenRouter(base64, mimeType);
 
     // Delete the image file (per PRD requirement)
     try {

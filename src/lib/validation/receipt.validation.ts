@@ -11,14 +11,26 @@ export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/heic"];
 
 /**
+ * Sprawdza czy rozszerzenie pliku jest dozwolone
+ */
+function hasValidFileExtension(fileName: string): boolean {
+  const extension = fileName.toLowerCase().split(".").pop();
+  return ["jpg", "jpeg", "png", "heic"].includes(extension || "");
+}
+
+/**
  * Validation schema for receipt file upload
- * Validates file type and ensures file is not empty
+ * Validates file type (MIME or extension) and ensures file is not empty
+ * Checks both MIME type and file extension for iOS/mobile compatibility
  */
 export const uploadReceiptSchema = z.object({
   file: z
     .instanceof(File)
     .refine((file) => file.size > 0, "Nie podano pliku")
-    .refine((file) => ALLOWED_FILE_TYPES.includes(file.type), "File must be JPEG, PNG, or HEIC format"),
+    .refine(
+      (file) => ALLOWED_FILE_TYPES.includes(file.type) || hasValidFileExtension(file.name),
+      "Nieprawidłowy typ pliku. Prześlij tylko obrazy JPEG, PNG lub HEIC."
+    ),
 });
 
 /**
