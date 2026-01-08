@@ -94,8 +94,13 @@ export class ReceiptService {
     // Generate unique file ID using UUID to prevent collisions
     const fileId = crypto.randomUUID();
 
-    // Determine file extension from MIME type
-    const extension = this.getFileExtension(file.type);
+    // Determine file extension from MIME type or filename
+    // Some browsers (especially on iOS) set incorrect MIME types for HEIC files
+    const extension = this.getFileExtension(file.type, file.name);
+
+    // Normalize MIME type based on extension
+    // This handles cases where browsers set incorrect MIME types (e.g., application/octet-stream for HEIC)
+    const contentType = this.normalizeMimeType(file.type, file.name);
 
     // Build storage path: receipts/{user_id}/{file_id}.ext
     // This ensures user isolation and prevents path traversal
@@ -104,9 +109,9 @@ export class ReceiptService {
     // Convert File to ArrayBuffer for upload
     const arrayBuffer = await file.arrayBuffer();
 
-    // Upload to Supabase Storage
+    // Upload to Supabase Storage with normalized content type
     const { data, error } = await this.supabase.storage.from("receipts").upload(filePath, arrayBuffer, {
-      contentType: file.type,
+      contentType: contentType,
       upsert: false, // Don't overwrite existing files
     });
 
@@ -188,17 +193,68 @@ export class ReceiptService {
    * - PNG (.png)
    * - HEIC (.heic) - iPhone photos
    *
+   * Falls back to detecting extension from filename if MIME type is unknown,
+   * which handles cases where browsers set incorrect MIME types (e.g., application/octet-stream for HEIC).
+   *
    * @param mimeType - The MIME type of the file
+   * @param fileName - The name of the file (used as fallback)
    * @returns The corresponding file extension (with dot)
    * @private
    */
-  private getFileExtension(mimeType: string): string {
+  private getFileExtension(mimeType: string, fileName: string): string {
     const mimeToExt: Record<string, string> = {
       "image/jpeg": ".jpg",
       "image/png": ".png",
       "image/heic": ".heic",
     };
 
-    return mimeToExt[mimeType] || ".jpg";
+    // Try to get extension from MIME type first
+    if (mimeToExt[mimeType]) {
+      return mimeToExt[mimeType];
+    }
+
+    // Fallback: extract extension from filename
+    const fileExtension = fileName.toLowerCase().split(".").pop();
+    if (fileExtension && ["jpg", "jpeg", "png", "heic"].includes(fileExtension)) {
+      return fileExtension === "jpeg" ? ".jpg" : `.${fileExtension}`;
+    }
+
+    // Default to .jpg if all else fails
+    return ".jpg";
+  }
+
+  /**
+   * Normalizes MIME type based on file extension
+   *
+   * Some browsers (especially on iOS and Windows) incorrectly set MIME types
+   * for HEIC files as application/octet-stream. This method corrects the MIME type
+   * by inspecting the file extension when the provided MIME type is not recognized.
+   *
+   * This is critical for Supabase Storage, which validates MIME types and rejects
+   * application/octet-stream for image files.
+   *
+   * @param mimeType - The MIME type provided by the browser
+   * @param fileName - The name of the file
+   * @returns The normalized MIME type
+   * @private
+   */
+  private normalizeMimeType(mimeType: string, fileName: string): string {
+    const allowedMimeTypes = ["image/jpeg", "image/png", "image/heic"];
+
+    // If the MIME type is already correct, return it
+    if (allowedMimeTypes.includes(mimeType)) {
+      return mimeType;
+    }
+
+    // Otherwise, determine correct MIME type from file extension
+    const fileExtension = fileName.toLowerCase().split(".").pop();
+    const extToMime: Record<string, string> = {
+      jpg: "image/jpeg",
+      jpeg: "image/jpeg",
+      png: "image/png",
+      heic: "image/heic",
+    };
+
+    return extToMime[fileExtension || ""] || "image/jpeg";
   }
 }

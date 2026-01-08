@@ -3,6 +3,7 @@
  *
  * Compresses images before upload to reduce file size and processing time.
  * Particularly important for mobile photos which are often very large.
+ * Includes HEIC to JPEG conversion for iOS photos.
  */
 
 /**
@@ -16,6 +17,34 @@ const MAX_DIMENSION = 1920;
  * Lower values = smaller file size but lower quality
  */
 const JPEG_QUALITY = 0.85;
+
+/**
+ * Converts HEIC file to JPEG blob
+ * HEIC files cannot be loaded into Image/Canvas directly in browsers
+ * Uses dynamic import to avoid SSR issues with heic2any library
+ */
+async function convertHeicToJpeg(file: File): Promise<Blob> {
+  console.log("[ImageCompression] Converting HEIC to JPEG using heic2any");
+  try {
+    // Dynamic import to avoid SSR issues (heic2any requires browser APIs)
+    const heic2any = (await import("heic2any")).default;
+
+    const convertedBlob = await heic2any({
+      blob: file,
+      toType: "image/jpeg",
+      quality: 0.9,
+    });
+
+    // heic2any can return Blob or Blob[] - handle both cases
+    if (Array.isArray(convertedBlob)) {
+      return convertedBlob[0];
+    }
+    return convertedBlob;
+  } catch (error) {
+    console.error("[ImageCompression] HEIC conversion failed:", error);
+    throw new Error("Failed to convert HEIC image. Please use JPG or PNG format.");
+  }
+}
 
 /**
  * Compresses an image file to reduce size before upload
@@ -37,14 +66,36 @@ const JPEG_QUALITY = 0.85;
  * ```
  */
 export async function compressImage(file: File): Promise<File> {
-  // Return small files unchanged (< 500KB)
-  const SMALL_FILE_THRESHOLD = 500 * 1024; // 500KB
-  if (file.size < SMALL_FILE_THRESHOLD) {
-    console.log("[ImageCompression] File is small enough, skipping compression");
-    return file;
+  // Check if file is HEIC
+  const isHeic = file.type === "image/heic" || file.name.toLowerCase().endsWith(".heic");
+
+  // Convert HEIC to JPEG first (browsers can't load HEIC into canvas)
+  let fileToProcess = file;
+  if (isHeic) {
+    console.log(`[ImageCompression] Converting HEIC to JPEG: ${(file.size / 1024).toFixed(0)}KB`);
+    try {
+      const jpegBlob = await convertHeicToJpeg(file);
+      fileToProcess = new File([jpegBlob], file.name.replace(/\.heic$/i, ".jpg"), {
+        type: "image/jpeg",
+        lastModified: Date.now(),
+      });
+      console.log(
+        `[ImageCompression] HEIC converted: ${(file.size / 1024).toFixed(0)}KB → ${(fileToProcess.size / 1024).toFixed(0)}KB`
+      );
+    } catch (error) {
+      console.error("[ImageCompression] HEIC conversion failed:", error);
+      throw error;
+    }
   }
 
-  console.log(`[ImageCompression] Starting compression: ${(file.size / 1024).toFixed(0)}KB`);
+  // Return small non-HEIC files unchanged (< 500KB)
+  const SMALL_FILE_THRESHOLD = 500 * 1024; // 500KB
+  if (fileToProcess.size < SMALL_FILE_THRESHOLD && !isHeic) {
+    console.log("[ImageCompression] File is small enough, skipping compression");
+    return fileToProcess;
+  }
+
+  console.log(`[ImageCompression] Starting compression: ${(fileToProcess.size / 1024).toFixed(0)}KB`);
 
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -92,14 +143,14 @@ export async function compressImage(file: File): Promise<File> {
             }
 
             // Create new File from blob
-            const compressedFile = new File([blob], file.name.replace(/\.\w+$/, ".jpg"), {
+            const compressedFile = new File([blob], fileToProcess.name.replace(/\.\w+$/, ".jpg"), {
               type: "image/jpeg",
               lastModified: Date.now(),
             });
 
-            const compressionRatio = ((1 - compressedFile.size / file.size) * 100).toFixed(1);
+            const compressionRatio = ((1 - compressedFile.size / fileToProcess.size) * 100).toFixed(1);
             console.log(
-              `[ImageCompression] Compressed: ${(file.size / 1024).toFixed(0)}KB → ${(compressedFile.size / 1024).toFixed(0)}KB (${compressionRatio}% reduction)`
+              `[ImageCompression] Compressed: ${(fileToProcess.size / 1024).toFixed(0)}KB → ${(compressedFile.size / 1024).toFixed(0)}KB (${compressionRatio}% reduction)`
             );
 
             resolve(compressedFile);
@@ -120,8 +171,8 @@ export async function compressImage(file: File): Promise<File> {
       URL.revokeObjectURL(img.src);
     };
 
-    // Load image
-    img.src = URL.createObjectURL(file);
+    // Load image (use fileToProcess which may be converted from HEIC)
+    img.src = URL.createObjectURL(fileToProcess);
   });
 }
 
