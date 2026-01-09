@@ -72,7 +72,7 @@ export type FileValidationResult = { isValid: true } | { isValid: false; error: 
  */
 export function validateFile(file: File | null | undefined): FileValidationResult {
   if (!file) {
-    return { isValid: false, error: "No file selected" };
+    return { isValid: false, error: "Nie wybrano pliku" };
   }
 
   if (!(file instanceof File)) {
@@ -80,13 +80,13 @@ export function validateFile(file: File | null | undefined): FileValidationResul
   }
 
   if (file.size === 0) {
-    return { isValid: false, error: "File is empty" };
+    return { isValid: false, error: "Plik jest pusty" };
   }
 
   if (file.size > MAX_FILE_SIZE_BYTES) {
     return {
       isValid: false,
-      error: `File size exceeds limit of ${MAX_FILE_SIZE_MB}MB`,
+      error: `Rozmiar pliku przekracza limit ${MAX_FILE_SIZE_MB}MB`,
     };
   }
 
@@ -97,7 +97,7 @@ export function validateFile(file: File | null | undefined): FileValidationResul
   if (!hasMimeType && !hasExtension) {
     return {
       isValid: false,
-      error: "Invalid file type. Upload only JPEG, PNG or HEIC images.",
+      error: "Nieprawidłowy typ pliku. Prześlij tylko obrazy JPEG, PNG lub HEIC.",
     };
   }
 

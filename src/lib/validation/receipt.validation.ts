@@ -26,10 +26,10 @@ function hasValidFileExtension(fileName: string): boolean {
 export const uploadReceiptSchema = z.object({
   file: z
     .instanceof(File)
-    .refine((file) => file.size > 0, "No file provided")
+    .refine((file) => file.size > 0, "Nie podano pliku")
     .refine(
       (file) => ALLOWED_FILE_TYPES.includes(file.type) || hasValidFileExtension(file.name),
-      "Invalid file type. Upload only JPEG, PNG or HEIC images."
+      "Nieprawidłowy typ pliku. Prześlij tylko obrazy JPEG, PNG lub HEIC."
     ),
 });
 
