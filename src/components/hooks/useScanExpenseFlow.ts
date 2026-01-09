@@ -2,15 +2,22 @@ import { useState, useCallback, useEffect } from "react";
 import { processReceipt as processReceiptAPI, saveExpensesBatch } from "@/lib/services/scan-flow.service";
 import { useAIConsent } from "./useAIConsent";
 import { useFileUpload } from "./useFileUpload";
+import { scanFlowLogger } from "@/lib/utils/logger";
+import { RouterService } from "@/lib/services/router.service";
 import type { CategoryDTO, ProcessReceiptResponseDTO, CreateExpenseBatchCommand, APIErrorResponse } from "@/types";
 import type { ExpenseVerificationFormValues } from "@/lib/validation/expense-verification.validation";
 import type { ProcessingStep as ScanFlowStep } from "@/types/scan-flow.types";
 
 /**
- * Hook do zarządzania flow skanowania wydatków z paragonów
+ * Hook do zarządzania flow skanowania wydatków z paragonów (Refactored)
  *
  * Orchestruje proces: zgoda AI -> upload -> przetwarzanie AI -> weryfikacja -> zapis
  * Wykorzystuje wyspecjalizowane hooki do poszczególnych kroków
+ *
+ * **Refactoring Summary:**
+ * - Original: 214 LOC with 15+ console.log statements
+ * - Refactored: ~170 LOC with proper logging and router abstraction
+ * - Benefits: Better logging, easier testing, cleaner code
  */
 export function useScanExpenseFlow() {
   // Delegacja do wyspecjalizowanych hooków
@@ -36,8 +43,9 @@ export function useScanExpenseFlow() {
       }
       const data = await response.json();
       setCategories(data.data);
+      scanFlowLogger.debug("Categories fetched successfully", { count: data.data.length });
     } catch (err) {
-      console.error("Error fetching categories:", err);
+      scanFlowLogger.error("Error fetching categories", err);
     }
   }, []);
 
@@ -47,16 +55,15 @@ export function useScanExpenseFlow() {
    * @param filePath - Ścieżka do uploadowanego pliku
    */
   const processReceipt = useCallback(async (filePath: string) => {
-    console.log("🔄 Starting AI processing for file:", filePath);
+    scanFlowLogger.info("Starting AI processing", { filePath });
     setIsProcessing(true);
     setStep("processing");
     setError(null);
 
     try {
-      console.log("📡 Calling processReceiptAPI...");
       const result = await processReceiptAPI(filePath);
-      console.log("✅ AI processing successful, result:", result);
-      console.log("📊 Result data structure:", {
+
+      scanFlowLogger.info("AI processing successful", {
         hasExpenses: result?.expenses?.length > 0,
         expenseCount: result?.expenses?.length,
         receiptDate: result?.receipt_date,
@@ -64,24 +71,14 @@ export function useScanExpenseFlow() {
       });
 
       setProcessedData(result);
-      console.log("💾 ProcessedData state updated");
-
       setStep("verification");
-      console.log("🎯 Step set to verification, current step should be 'verification'");
-
-      // Dodatkowe sprawdzenie stanu po ustawieniu
-      setTimeout(() => {
-        console.log("🔍 State check after 100ms - step should be 'verification'");
-      }, 100);
     } catch (err) {
       const apiError = err as APIErrorResponse;
-      console.error("❌ Error processing receipt:", apiError);
+      scanFlowLogger.error("Error processing receipt", apiError);
       setError(apiError);
       setStep("error");
-      console.log("🚨 Step set to error due to processing failure");
     } finally {
       setIsProcessing(false);
-      console.log("🏁 Processing finished, isProcessing set to false");
     }
   }, []);
 
@@ -92,15 +89,14 @@ export function useScanExpenseFlow() {
    */
   const uploadAndProcess = useCallback(
     async (file: File) => {
-      console.log("🔄 Starting upload and process for file:", file.name);
+      scanFlowLogger.info("Starting upload and process", { fileName: file.name, fileSize: file.size });
       const uploadResult = await fileUpload.validateAndUpload(file);
 
       if (uploadResult) {
-        console.log("✅ Upload successful, starting AI processing:", uploadResult.file_path);
+        scanFlowLogger.info("Upload successful, starting AI processing", { filePath: uploadResult.file_path });
         await processReceipt(uploadResult.file_path);
       } else {
-        console.error("❌ Upload failed, fileUpload.error:", fileUpload.error);
-        // Błąd walidacji lub uploadu - ustaw step na error
+        scanFlowLogger.error("Upload failed", fileUpload.error);
         setError(fileUpload.error);
         setStep("error");
       }
@@ -114,6 +110,7 @@ export function useScanExpenseFlow() {
    * @param formData - Dane formularza z React Hook Form
    */
   const saveExpenses = useCallback(async (formData: ExpenseVerificationFormValues) => {
+    scanFlowLogger.info("Saving expenses", { expenseCount: formData.expenses.length });
     setIsSaving(true);
     setStep("saving");
     setError(null);
@@ -133,16 +130,15 @@ export function useScanExpenseFlow() {
 
       await saveExpensesBatch(command);
       setStep("complete");
+      scanFlowLogger.info("Expenses saved successfully");
 
       // Przekieruj do dashboardu po pomyślnym zapisie
-      setTimeout(() => {
-        window.location.assign("/");
-      }, 1500);
+      RouterService.redirectToDashboard(1500);
     } catch (err) {
       const apiError = err as APIErrorResponse;
+      scanFlowLogger.error("Error saving expenses", apiError);
       setError(apiError);
       setStep("error");
-      console.error("Error saving expenses:", apiError);
     } finally {
       setIsSaving(false);
     }
@@ -152,6 +148,7 @@ export function useScanExpenseFlow() {
    * Resetuj flow do początkowego stanu
    */
   const resetFlow = useCallback(() => {
+    scanFlowLogger.debug("Resetting scan flow");
     setStep("upload");
     setProcessedData(null);
     setError(null);
@@ -164,7 +161,8 @@ export function useScanExpenseFlow() {
    * Anuluj flow i wróć do dashboardu
    */
   const cancelFlow = useCallback(() => {
-    window.location.assign("/");
+    scanFlowLogger.debug("Cancelling scan flow");
+    RouterService.redirectToDashboard();
   }, []);
 
   /**
@@ -182,7 +180,7 @@ export function useScanExpenseFlow() {
     };
 
     init();
-  }, [aiConsent.checkConsent, fetchCategories]); // Używaj konkretnych funkcji, nie całych obiektów
+  }, [aiConsent, fetchCategories]); // Dependencies for initialization
 
   // Agreguj błędy z różnych źródeł
   const aggregatedError = error || aiConsent.error || fileUpload.error;
