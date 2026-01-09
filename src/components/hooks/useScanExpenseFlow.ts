@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { processReceipt as processReceiptAPI, saveExpensesBatch } from "@/lib/services/scan-flow.service";
 import { useAIConsent } from "./useAIConsent";
 import { useFileUpload } from "./useFileUpload";
@@ -24,6 +24,9 @@ export function useScanExpenseFlow() {
   const aiConsent = useAIConsent();
   const fileUpload = useFileUpload();
 
+  // Initialization tracking
+  const initialized = useRef(false);
+
   // State flow
   const [step, setStep] = useState<ScanFlowStep>("upload");
   const [processedData, setProcessedData] = useState<ProcessReceiptResponseDTO | null>(null);
@@ -31,6 +34,7 @@ export function useScanExpenseFlow() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<APIErrorResponse | null>(null);
+  const [processingStartTime, setProcessingStartTime] = useState<number | null>(null);
 
   /**
    * Pobierz dostępne kategorie wydatków
@@ -59,6 +63,7 @@ export function useScanExpenseFlow() {
     setIsProcessing(true);
     setStep("processing");
     setError(null);
+    setProcessingStartTime(Date.now());
 
     try {
       const result = await processReceiptAPI(filePath);
@@ -154,6 +159,7 @@ export function useScanExpenseFlow() {
     setError(null);
     setIsProcessing(false);
     setIsSaving(false);
+    setProcessingStartTime(null);
     fileUpload.reset();
   }, [fileUpload]);
 
@@ -169,6 +175,9 @@ export function useScanExpenseFlow() {
    * Inicjalizacja: sprawdź zgodę AI i pobierz kategorie
    */
   useEffect(() => {
+    if (initialized.current) return;
+    initialized.current = true;
+
     const init = async () => {
       const hasConsent = await aiConsent.checkConsent();
 
@@ -180,7 +189,7 @@ export function useScanExpenseFlow() {
     };
 
     init();
-  }, [aiConsent, fetchCategories]); // Dependencies for initialization
+  }, [aiConsent, fetchCategories]);
 
   // Agreguj błędy z różnych źródeł
   const aggregatedError = error || aiConsent.error || fileUpload.error;
@@ -193,6 +202,7 @@ export function useScanExpenseFlow() {
     isProcessing,
     isSaving,
     error: aggregatedError,
+    processingStartTime,
 
     // AI Consent
     hasAIConsent: aiConsent.hasConsent,
