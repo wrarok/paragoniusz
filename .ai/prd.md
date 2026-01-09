@@ -1,6 +1,3 @@
-Jasne, oto przeformatowany tekst do formatu Markdown (.MD).
-
----
 
 # Dokument wymagań produktu (PRD) - Paragoniusz
 

@@ -3,9 +3,9 @@ import { checkAIConsent, grantAIConsent } from "@/lib/services/scan-flow.service
 import type { APIErrorResponse } from "@/types";
 
 /**
- * Hook do zarządzania zgodą AI użytkownika
+ * Hook for managing user AI consent
  *
- * Obsługuje sprawdzanie i udzielanie zgody na przetwarzanie AI
+ * Handles checking and granting AI consent
  */
 export function useAIConsent() {
   const [hasConsent, setHasConsent] = useState<boolean | null>(null);
@@ -13,9 +13,9 @@ export function useAIConsent() {
   const [error, setError] = useState<APIErrorResponse | null>(null);
 
   /**
-   * Sprawdź czy użytkownik ma udzieloną zgodę AI
+   * Check if user has granted AI consent
    *
-   * @returns true jeśli zgoda została udzielona, false w przeciwnym razie
+   * @returns true if consent granted, false otherwise
    */
   const checkConsent = useCallback(async () => {
     setIsLoading(true);
@@ -36,9 +36,9 @@ export function useAIConsent() {
   }, []);
 
   /**
-   * Udziel zgody AI
+   * Grant AI consent
    *
-   * @returns true jeśli zgoda została pomyślnie udzielona, false w przypadku błędu
+   * @returns true if consent granted successfully, false on error
    */
   const grantConsent = useCallback(async () => {
     setIsLoading(true);
@@ -59,24 +59,24 @@ export function useAIConsent() {
   }, []);
 
   /**
-   * Resetuj błąd (opcjonalne, do obsługi retry)
+   * Reset error for retry
    */
   const resetError = useCallback(() => {
     setError(null);
   }, []);
 
   return {
-    /** Czy użytkownik ma udzieloną zgodę AI (null = nie sprawdzono jeszcze) */
+    /** User has granted AI consent (null = not checked yet) */
     hasConsent,
-    /** Czy operacja jest w trakcie wykonywania */
+    /** Operation in progress */
     isLoading,
-    /** Błąd API (jeśli wystąpił) */
+    /** API error (if occurred) */
     error,
-    /** Sprawdź status zgody */
+    /** Check consent status */
     checkConsent,
-    /** Udziel zgody AI */
+    /** Grant AI consent */
     grantConsent,
-    /** Resetuj błąd */
+    /** Reset error */
     resetError,
   };
 }
