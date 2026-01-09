@@ -18,9 +18,10 @@ export type SupabaseClient = typeof supabaseClient;
  */
 let _supabaseAdmin: ReturnType<typeof createClient<Database>> | null = null;
 
-export const getSupabaseAdmin = () => {
+export const getSupabaseAdmin = (runtimeEnv?: Record<string, string | undefined>) => {
   if (!_supabaseAdmin) {
-    const supabaseServiceRoleKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+    // Try runtime env first (Cloudflare Pages), then fallback to import.meta.env (local dev)
+    const supabaseServiceRoleKey = runtimeEnv?.SUPABASE_SERVICE_ROLE_KEY || import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (!supabaseServiceRoleKey || supabaseServiceRoleKey === "###") {
       throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured. This is required for admin operations.");

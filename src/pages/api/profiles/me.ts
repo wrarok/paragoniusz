@@ -60,7 +60,8 @@ export const GET: APIRoute = async ({ locals }) => {
     const userId = locals.user.id;
 
     // Retrieve profile using service layer
-    const profileService = new ProfileService(locals.supabase);
+    const runtimeEnv = locals.runtime?.env as Record<string, string | undefined> | undefined;
+    const profileService = new ProfileService(locals.supabase, runtimeEnv);
     const profile = await profileService.getProfile(userId);
 
     // Handle profile not found
@@ -154,6 +155,7 @@ export const PATCH: APIRoute = async ({ request, locals }) => {
     }
 
     const userId = locals.user.id;
+    const runtimeEnv = locals.runtime?.env as Record<string, string | undefined> | undefined;
 
     // Parse and validate request body
     let body: unknown;
@@ -197,7 +199,7 @@ export const PATCH: APIRoute = async ({ request, locals }) => {
     const updateData: UpdateProfileCommand = validationResult.data;
 
     // Update profile using service layer
-    const profileService = new ProfileService(locals.supabase);
+    const profileService = new ProfileService(locals.supabase, runtimeEnv);
     const updatedProfile = await profileService.updateProfile(userId, updateData);
 
     // Return successful response
@@ -284,9 +286,10 @@ export const DELETE: APIRoute = async ({ locals }) => {
     }
 
     const userId = locals.user.id;
+    const runtimeEnv = locals.runtime?.env as Record<string, string | undefined> | undefined;
 
     // Delete the user account using service layer
-    const profileService = new ProfileService(locals.supabase);
+    const profileService = new ProfileService(locals.supabase, runtimeEnv);
     await profileService.deleteProfile(userId);
 
     // Sign out the user to clear session cookies

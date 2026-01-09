@@ -10,7 +10,10 @@ import type { ProfileDTO, UpdateProfileCommand } from "../../types";
  * that ensure users can only access their own profile data.
  */
 export class ProfileService {
-  constructor(private supabase: SupabaseClient) {}
+  constructor(
+    private supabase: SupabaseClient,
+    private runtimeEnv?: Record<string, string | undefined>
+  ) {}
 
   /**
    * Retrieves a user's profile by their user ID
@@ -91,7 +94,8 @@ export class ProfileService {
   async deleteProfile(userId: string): Promise<void> {
     // Get the admin client (lazy-loaded)
     // This will throw an error if SUPABASE_SERVICE_ROLE_KEY is not configured
-    const adminClient = getSupabaseAdmin();
+    // Pass runtimeEnv for Cloudflare Pages compatibility
+    const adminClient = getSupabaseAdmin(this.runtimeEnv);
 
     // Use Supabase Admin API to delete the auth user
     // This requires the service role key with elevated permissions
