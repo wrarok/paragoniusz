@@ -43,6 +43,9 @@ export function CategorySelect({ value, onChange, categories, error, disabled = 
       <Select value={value} onValueChange={onChange} disabled={disabled}>
         <SelectTrigger
           id="category-select"
+          data-testid="expense-category-select"
+          data-categories-loaded={categories.length > 0 ? "true" : "false"}
+          data-category-count={categories.length}
           className={`
             w-full
             ${error ? "border-red-500 focus:border-red-500 focus:ring-red-500 dark:border-red-400" : ""}

@@ -133,7 +133,12 @@ export function FileUploadSection({ onUpload, isUploading, error }: FileUploadSe
 
         {selectedFile && (
           <div className="flex gap-2">
-            <Button onClick={handleUploadClick} disabled={isUploading} className="flex-1">
+            <Button
+              onClick={handleUploadClick}
+              disabled={isUploading}
+              className="flex-1"
+              data-testid="upload-process-button"
+            >
               {isUploading ? "Przesyłanie..." : "Prześlij i przetwórz"}
             </Button>
             <Button

@@ -109,10 +109,17 @@ export function ExpenseVerificationForm({
 
       {/* Action Buttons */}
       <div className="flex gap-3 pt-4 border-t">
-        <Button type="submit" disabled={isSubmitting} className="flex-1">
+        <Button type="submit" disabled={isSubmitting} className="flex-1" data-testid="verify-save-button">
           {isSubmitting ? "Saving..." : "Verify and save"}
         </Button>
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting} className="flex-1">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={isSubmitting}
+          className="flex-1"
+          data-testid="cancel-verification-button"
+        >
           Cancel
         </Button>
       </div>

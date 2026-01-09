@@ -19,6 +19,23 @@ const { title = "10x Astro Starter" } = Astro.props;
   </head>
   <body>
     <slot />
+
+    <script is:inline>
+      /* eslint-disable */
+      (function () {
+        if (document.readyState === "complete") {
+          setTimeout(function () {
+            document.documentElement.setAttribute("data-hydrated", "true");
+          }, 100);
+        } else {
+          window.addEventListener("load", function () {
+            setTimeout(function () {
+              document.documentElement.setAttribute("data-hydrated", "true");
+            }, 100);
+          });
+        }
+      })();
+    </script>
   </body>
 </html>
 
