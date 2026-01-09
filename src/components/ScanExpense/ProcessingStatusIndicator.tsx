@@ -61,7 +61,7 @@ export function ProcessingStatusIndicator({ step, startTime, onTimeout }: Proces
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card data-testid="processing-indicator" className="w-full max-w-2xl mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Loader2 className="h-5 w-5 animate-spin" />
