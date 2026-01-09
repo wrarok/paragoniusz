@@ -1,22 +1,22 @@
 import { z } from "zod";
 
 /**
- * Maksymalny rozmiar pliku w MB
+ * Max file size in MB
  */
 export const MAX_FILE_SIZE_MB = 10;
 
 /**
- * Maksymalny rozmiar pliku w bajtach
+ * Max file size in bytes
  */
 export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 /**
- * Dozwolone typy plików
+ * Allowed file types
  */
 export const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/heic"] as const;
 
 /**
- * Sprawdza czy rozszerzenie pliku jest dozwolone
+ * Checks if file extension is allowed
  */
 function hasValidExtension(fileName: string): boolean {
   const extension = fileName.toLowerCase().split(".").pop();
@@ -24,13 +24,13 @@ function hasValidExtension(fileName: string): boolean {
 }
 
 /**
- * Schema walidacji dla uploadowanych plików paragonów
+ * Validation schema for uploaded receipt files
  *
- * Sprawdza:
- * - Czy plik jest instancją File
- * - Czy plik nie jest pusty (size > 0)
- * - Czy rozmiar nie przekracza MAX_FILE_SIZE_BYTES
- * - Czy typ pliku (MIME lub rozszerzenie) jest dozwolony
+ * Checks:
+ * - File is a File instance
+ * - File is not empty (size > 0)
+ * - Size doesn't exceed MAX_FILE_SIZE_BYTES
+ * - File type (MIME or extension) is allowed
  */
 export const fileUploadSchema = z.custom<File>(
   (file) => {
@@ -46,8 +46,7 @@ export const fileUploadSchema = z.custom<File>(
       return false;
     }
 
-    // Sprawdź zarówno MIME type jak i rozszerzenie
-    // Niektóre przeglądarki (szczególnie na iOS) nie ustawiają poprawnego MIME type dla HEIC
+    // Check both MIME type and extension (iOS browsers may not set correct MIME for HEIC)
     const hasMimeType = ALLOWED_FILE_TYPES.includes(file.type as (typeof ALLOWED_FILE_TYPES)[number]);
     const hasExtension = hasValidExtension(file.name);
 
@@ -58,20 +57,18 @@ export const fileUploadSchema = z.custom<File>(
     return true;
   },
   {
-    message: `Plik musi być w formacie ${ALLOWED_FILE_TYPES.join(", ")} i nie przekraczać ${MAX_FILE_SIZE_MB}MB`,
+    message: `File must be in format ${ALLOWED_FILE_TYPES.join(", ")} and not exceed ${MAX_FILE_SIZE_MB}MB`,
   }
 );
 
 /**
- * Typ wyniku walidacji pliku
+ * File validation result type
  */
 export type FileValidationResult = { isValid: true } | { isValid: false; error: string };
 
 /**
- * Funkcja pomocnicza do walidacji pliku z bardziej szczegółowymi komunikatami błędów
- *
- * Sprawdza zarówno MIME type jak i rozszerzenie pliku, ponieważ niektóre przeglądarki
- * (szczególnie na iOS) mogą nie ustawić poprawnego MIME type dla plików HEIC
+ * Helper function to validate files with detailed error messages
+ * Checks both MIME type and extension (iOS browsers may not set correct MIME for HEIC)
  */
 export function validateFile(file: File | null | undefined): FileValidationResult {
   if (!file) {
@@ -79,7 +76,7 @@ export function validateFile(file: File | null | undefined): FileValidationResul
   }
 
   if (!(file instanceof File)) {
-    return { isValid: false, error: "Nieprawidłowy obiekt pliku" };
+    return { isValid: false, error: "Invalid file object" };
   }
 
   if (file.size === 0) {
@@ -93,8 +90,7 @@ export function validateFile(file: File | null | undefined): FileValidationResul
     };
   }
 
-  // Sprawdź zarówno MIME type jak i rozszerzenie pliku
-  // Niektóre przeglądarki (szczególnie na iOS) nie ustawiają poprawnego MIME type dla HEIC
+  // Check both MIME type and extension (iOS browsers may not set correct MIME for HEIC)
   const hasMimeType = ALLOWED_FILE_TYPES.includes(file.type as (typeof ALLOWED_FILE_TYPES)[number]);
   const hasExtension = hasValidExtension(file.name);
 

@@ -25,21 +25,21 @@ import { ExpenseVerificationItem } from "./ExpenseVerificationItem";
 import { useExpenseFieldArray } from "../hooks/useExpenseFieldArray";
 
 interface ExpenseVerificationFormProps {
-  /** Domyślne wartości formularza (dane z AI) */
+  /** Default form values (data from AI) */
   defaultValues: ExpenseVerificationFormValues;
-  /** Lista dostępnych kategorii */
+  /** List of available categories */
   categories: CategoryDTO[];
-  /** Callback wywoływany po submit */
+  /** Callback called on submit */
   onSubmit: (data: ExpenseVerificationFormValues) => Promise<void>;
-  /** Callback wywoływany po kliknięciu Anuluj */
+  /** Callback called on Cancel click */
   onCancel: () => void;
 }
 
 /**
- * Formularz weryfikacji wydatków z paragonu
+ * Receipt expense verification form
  *
- * Używa React Hook Form z custom komponentami do zarządzania stanem.
- * Pozwala użytkownikowi edytować sugerowane przez AI wydatki przed zapisaniem.
+ * Uses React Hook Form with custom components for state management.
+ * Allows user to edit AI-suggested expenses before saving.
  */
 export function ExpenseVerificationForm({
   defaultValues,
@@ -64,16 +64,16 @@ export function ExpenseVerificationForm({
   return (
     <form onSubmit={handleSubmit(onSubmit as SubmitHandler<ExpenseVerificationFormValues>)} className="space-y-6">
       {/* Receipt Date */}
-      <ControlledDateInput control={control} name="receipt_date" label="Data paragonu" />
+      <ControlledDateInput control={control} name="receipt_date" label="Receipt date" />
 
       {/* Expense Items List */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <Label className="text-base font-semibold">
-            Wydatki z paragonu (<span data-testid="expense-count">{fields.length}</span>)
+            Expenses from receipt (<span data-testid="expense-count">{fields.length}</span>)
           </Label>
           <div className="text-right">
-            <Label className="text-sm text-muted-foreground">Łączna kwota:</Label>
+            <Label className="text-sm text-muted-foreground">Total amount:</Label>
             <div className="text-lg font-semibold" data-testid="total-amount">
               {fields.reduce((sum, field) => sum + (field.amount || 0), 0).toFixed(2)} PLN
             </div>
@@ -83,7 +83,7 @@ export function ExpenseVerificationForm({
         {/* Empty State */}
         {fields.length === 0 && (
           <Card>
-            <CardContent className="py-8 text-center text-muted-foreground">Brak wydatków do wyświetlenia</CardContent>
+            <CardContent className="py-8 text-center text-muted-foreground">No expenses to display</CardContent>
           </Card>
         )}
 
@@ -110,16 +110,16 @@ export function ExpenseVerificationForm({
       {/* Action Buttons */}
       <div className="flex gap-3 pt-4 border-t">
         <Button type="submit" disabled={isSubmitting} className="flex-1">
-          {isSubmitting ? "Zapisywanie..." : "Zweryfikuj i zapisz"}
+          {isSubmitting ? "Saving..." : "Verify and save"}
         </Button>
         <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting} className="flex-1">
-          Anuluj
+          Cancel
         </Button>
       </div>
 
       {/* Dirty State Indicator */}
       {isDirty && !isSubmitting && (
-        <p className="text-sm text-muted-foreground text-center">Masz niezapisane zmiany w formularzu</p>
+        <p className="text-sm text-muted-foreground text-center">You have unsaved changes in the form</p>
       )}
     </form>
   );

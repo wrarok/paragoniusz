@@ -1,27 +1,27 @@
 import { z } from "zod";
 
 /**
- * Schema walidacji dla pojedynczego wydatku w procesie weryfikacji
+ * Validation schema for single expense in verification process
  */
 export const expenseItemSchema = z.object({
   id: z.string(),
-  category_id: z.string().uuid("Nieprawidłowy identyfikator kategorii"),
+  category_id: z.string().uuid("Invalid category identifier"),
   category_name: z.string().optional(),
   amount: z
     .number({
-      required_error: "Kwota jest wymagana",
-      invalid_type_error: "Kwota musi być liczbą",
+      required_error: "Amount is required",
+      invalid_type_error: "Amount must be a number",
     })
-    .positive("Kwota musi być dodatnia")
-    .max(999999.99, "Kwota nie może przekraczać 999,999.99")
+    .positive("Amount must be positive")
+    .max(999999.99, "Amount cannot exceed 999,999.99")
     .refine(
       (val) => {
-        // Sprawdź czy kwota ma maksymalnie 2 miejsca po przecinku
+        // Check max 2 decimal places
         const decimalPart = val.toString().split(".")[1];
         return !decimalPart || decimalPart.length <= 2;
       },
       {
-        message: "Kwota może mieć maksymalnie 2 miejsca po przecinku",
+        message: "Amount can have at most 2 decimal places",
       }
     ),
   items: z.array(z.string()).default([]),
@@ -29,12 +29,12 @@ export const expenseItemSchema = z.object({
 });
 
 /**
- * Schema walidacji dla całego formularza weryfikacji wydatków
+ * Validation schema for expense verification form
  */
 export const expenseVerificationFormSchema = z.object({
   receipt_date: z
     .string({
-      required_error: "Data paragonu jest wymagana",
+      required_error: "Receipt date is required",
     })
     .refine(
       (date) => {
@@ -47,20 +47,19 @@ export const expenseVerificationFormSchema = z.object({
         }
       },
       {
-        message: "Data nie może być z przyszłości",
+        message: "Date cannot be in the future",
       }
     ),
   currency: z.string().default("PLN"),
-  expenses: z.array(expenseItemSchema).min(1, "Musisz mieć przynajmniej jeden wydatek do zapisania"),
+  expenses: z.array(expenseItemSchema).min(1, "You must have at least one expense to save"),
 });
 
 /**
- * Typ wartości formularza weryfikacji wydatków (output z schema po walidacji)
- * Używamy z.output aby uzyskać typ z wartościami domyślnymi
+ * Expense verification form values type (schema output with defaults)
  */
 export type ExpenseVerificationFormValues = z.output<typeof expenseVerificationFormSchema>;
 
 /**
- * Typ pojedynczego wydatku (output z schema po walidacji)
+ * Single expense type (schema output)
  */
 export type ExpenseItemFormValues = z.output<typeof expenseItemSchema>;

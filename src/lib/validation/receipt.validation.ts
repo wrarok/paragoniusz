@@ -11,7 +11,7 @@ export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/heic"];
 
 /**
- * Sprawdza czy rozszerzenie pliku jest dozwolone
+ * Checks if file extension is allowed
  */
 function hasValidFileExtension(fileName: string): boolean {
   const extension = fileName.toLowerCase().split(".").pop();

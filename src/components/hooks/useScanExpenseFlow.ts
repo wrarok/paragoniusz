@@ -9,10 +9,10 @@ import type { ExpenseVerificationFormValues } from "@/lib/validation/expense-ver
 import type { ProcessingStep as ScanFlowStep } from "@/types/scan-flow.types";
 
 /**
- * Hook do zarządzania flow skanowania wydatków z paragonów (Refactored)
+ * Hook for managing receipt expense scanning flow
  *
- * Orchestruje proces: zgoda AI -> upload -> przetwarzanie AI -> weryfikacja -> zapis
- * Wykorzystuje wyspecjalizowane hooki do poszczególnych kroków
+ * Orchestrates: AI consent -> upload -> AI processing -> verification -> save
+ * Uses specialized hooks for each step
  *
  * **Refactoring Summary:**
  * - Original: 214 LOC with 15+ console.log statements
@@ -20,7 +20,7 @@ import type { ProcessingStep as ScanFlowStep } from "@/types/scan-flow.types";
  * - Benefits: Better logging, easier testing, cleaner code
  */
 export function useScanExpenseFlow() {
-  // Delegacja do wyspecjalizowanych hooków
+  // Delegate to specialized hooks
   const aiConsent = useAIConsent();
   const fileUpload = useFileUpload();
 
@@ -37,13 +37,13 @@ export function useScanExpenseFlow() {
   const [processingStartTime, setProcessingStartTime] = useState<number | null>(null);
 
   /**
-   * Pobierz dostępne kategorie wydatków
+   * Fetch available expense categories
    */
   const fetchCategories = useCallback(async () => {
     try {
       const response = await fetch("/api/categories");
       if (!response.ok) {
-        throw new Error("Nie udało się pobrać kategorii");
+        throw new Error("Failed to fetch categories");
       }
       const data = await response.json();
       setCategories(data.data);
@@ -54,9 +54,9 @@ export function useScanExpenseFlow() {
   }, []);
 
   /**
-   * Przetwórz paragon używając AI
+   * Process receipt using AI
    *
-   * @param filePath - Ścieżka do uploadowanego pliku
+   * @param filePath - Path to uploaded file
    */
   const processReceipt = useCallback(async (filePath: string) => {
     scanFlowLogger.info("Starting AI processing", { filePath });
@@ -88,9 +88,9 @@ export function useScanExpenseFlow() {
   }, []);
 
   /**
-   * Upload pliku i automatycznie rozpocznij przetwarzanie
+   * Upload file and automatically start processing
    *
-   * @param file - Plik do uploadu
+   * @param file - File to upload
    */
   const uploadAndProcess = useCallback(
     async (file: File) => {
@@ -110,9 +110,9 @@ export function useScanExpenseFlow() {
   );
 
   /**
-   * Zapisz zweryfikowane wydatki (dane z React Hook Form)
+   * Save verified expenses
    *
-   * @param formData - Dane formularza z React Hook Form
+   * @param formData - Form data from React Hook Form
    */
   const saveExpenses = useCallback(async (formData: ExpenseVerificationFormValues) => {
     scanFlowLogger.info("Saving expenses", { expenseCount: formData.expenses.length });
@@ -121,7 +121,7 @@ export function useScanExpenseFlow() {
     setError(null);
 
     try {
-      // Konwersja danych z formularza do komendy API
+      // Convert form data to API command
       const command: CreateExpenseBatchCommand = {
         expenses: formData.expenses.map((expense) => ({
           category_id: expense.category_id,
@@ -137,7 +137,7 @@ export function useScanExpenseFlow() {
       setStep("complete");
       scanFlowLogger.info("Expenses saved successfully");
 
-      // Przekieruj do dashboardu po pomyślnym zapisie
+      // Redirect to dashboard after save
       RouterService.redirectToDashboard(1500);
     } catch (err) {
       const apiError = err as APIErrorResponse;
@@ -150,7 +150,7 @@ export function useScanExpenseFlow() {
   }, []);
 
   /**
-   * Resetuj flow do początkowego stanu
+   * Reset flow to initial state
    */
   const resetFlow = useCallback(() => {
     scanFlowLogger.debug("Resetting scan flow");
@@ -164,7 +164,7 @@ export function useScanExpenseFlow() {
   }, [fileUpload]);
 
   /**
-   * Anuluj flow i wróć do dashboardu
+   * Cancel flow and return to dashboard
    */
   const cancelFlow = useCallback(() => {
     scanFlowLogger.debug("Cancelling scan flow");
@@ -172,7 +172,7 @@ export function useScanExpenseFlow() {
   }, []);
 
   /**
-   * Inicjalizacja: sprawdź zgodę AI i pobierz kategorie
+   * Initialize: check AI consent and fetch categories
    */
   useEffect(() => {
     if (initialized.current) return;
@@ -191,7 +191,7 @@ export function useScanExpenseFlow() {
     init();
   }, [aiConsent, fetchCategories]);
 
-  // Agreguj błędy z różnych źródeł
+  // Aggregate errors from different sources
   const aggregatedError = error || aiConsent.error || fileUpload.error;
 
   return {

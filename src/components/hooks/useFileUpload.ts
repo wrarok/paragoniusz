@@ -5,9 +5,9 @@ import { compressImage, isCompressionSupported } from "@/lib/utils/image-compres
 import type { UploadReceiptResponseDTO, APIErrorResponse } from "@/types";
 
 /**
- * Hook do zarządzania uploadem plików paragonów
+ * Hook for managing receipt file uploads
  *
- * Obsługuje walidację, kompresję i upload plików na serwer
+ * Handles validation, compression and upload to server
  */
 export function useFileUpload() {
   const [uploadedFile, setUploadedFile] = useState<UploadReceiptResponseDTO | null>(null);
@@ -15,13 +15,13 @@ export function useFileUpload() {
   const [error, setError] = useState<APIErrorResponse | null>(null);
 
   /**
-   * Waliduj i upload pliku
+   * Validate and upload file
    *
-   * @param file - Plik do uploadu
-   * @returns Rezultat uploadu lub null w przypadku błędu
+   * @param file - File to upload
+   * @returns Upload result or null on error
    */
   const validateAndUpload = useCallback(async (file: File) => {
-    // Walidacja pliku
+    // Validate file
     const validation = validateFile(file);
     if (!validation.isValid) {
       // Type assertion needed because TypeScript discriminated unions don't narrow well
@@ -36,7 +36,6 @@ export function useFileUpload() {
       return null;
     }
 
-    // Upload pliku
     setIsUploading(true);
     setError(null);
 
@@ -66,7 +65,7 @@ export function useFileUpload() {
   }, []);
 
   /**
-   * Resetuj stan (do ponownego uploadu)
+   * Reset state for new upload
    */
   const reset = useCallback(() => {
     setUploadedFile(null);
@@ -75,24 +74,24 @@ export function useFileUpload() {
   }, []);
 
   /**
-   * Resetuj tylko błąd (do obsługi retry)
+   * Reset only error for retry
    */
   const resetError = useCallback(() => {
     setError(null);
   }, []);
 
   return {
-    /** Uploadowany plik (jeśli upload był pomyślny) */
+    /** Uploaded file (if successful) */
     uploadedFile,
-    /** Czy upload jest w trakcie */
+    /** Upload in progress */
     isUploading,
-    /** Błąd walidacji lub API (jeśli wystąpił) */
+    /** Validation or API error (if occurred) */
     error,
-    /** Waliduj i uploaduj plik */
+    /** Validate and upload file */
     validateAndUpload,
-    /** Resetuj cały stan */
+    /** Reset entire state */
     reset,
-    /** Resetuj tylko błąd */
+    /** Reset only error */
     resetError,
   };
 }

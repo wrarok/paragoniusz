@@ -8,15 +8,15 @@ import type {
 } from "@/types";
 
 /**
- * Timeout dla przetwarzania AI w milisekundach (20 sekund)
+ * AI processing timeout in milliseconds (20 seconds)
  */
 const PROCESSING_TIMEOUT_MS = 20000;
 
 /**
- * Sprawdź czy użytkownik udzielił zgody na przetwarzanie AI
+ * Check if user granted AI consent
  *
- * @returns Profil użytkownika z informacją o zgodzie AI
- * @throws {APIErrorResponse} W przypadku błędu API
+ * @returns User profile with AI consent information
+ * @throws {APIErrorResponse} On API error
  */
 export async function checkAIConsent(): Promise<ProfileDTO> {
   const response = await fetch("/api/profiles/me");
@@ -30,10 +30,10 @@ export async function checkAIConsent(): Promise<ProfileDTO> {
 }
 
 /**
- * Udziel zgody na przetwarzanie AI
+ * Grant AI consent
  *
- * @returns Zaktualizowany profil użytkownika
- * @throws {APIErrorResponse} W przypadku błędu API
+ * @returns Updated user profile
+ * @throws {APIErrorResponse} On API error
  */
 export async function grantAIConsent(): Promise<ProfileDTO> {
   const response = await fetch("/api/profiles/me", {
@@ -51,11 +51,11 @@ export async function grantAIConsent(): Promise<ProfileDTO> {
 }
 
 /**
- * Upload pliku paragonu na serwer
+ * Upload receipt file to server
  *
- * @param file - Plik do uploadu (obraz paragonu)
- * @returns Informacje o uploadowanym pliku (ścieżka, rozmiar, etc.)
- * @throws {APIErrorResponse} W przypadku błędu API
+ * @param file - Receipt image file to upload
+ * @returns Uploaded file information (path, size, etc.)
+ * @throws {APIErrorResponse} On API error
  */
 export async function uploadReceipt(file: File): Promise<UploadReceiptResponseDTO> {
   const formData = new FormData();
@@ -75,11 +75,11 @@ export async function uploadReceipt(file: File): Promise<UploadReceiptResponseDT
 }
 
 /**
- * Przetwórz paragon używając AI (z timeoutem 20 sekund)
+ * Process receipt using AI (with 20 second timeout)
  *
- * @param filePath - Ścieżka do pliku na serwerze (zwrócona z uploadReceipt)
- * @returns Przetworzone dane z paragonu (wydatki, data, waluta)
- * @throws {APIErrorResponse} W przypadku błędu API lub timeout
+ * @param filePath - File path on server (returned from uploadReceipt)
+ * @returns Processed receipt data (expenses, date, currency)
+ * @throws {APIErrorResponse} On API error or timeout
  */
 export async function processReceipt(filePath: string): Promise<ProcessReceiptResponseDTO> {
   const controller = new AbortController();
@@ -104,27 +104,25 @@ export async function processReceipt(filePath: string): Promise<ProcessReceiptRe
   } catch (error) {
     clearTimeout(timeoutId);
 
-    // Obsługa timeout
     if (error instanceof Error && error.name === "AbortError") {
       throw {
         error: {
           code: "PROCESSING_TIMEOUT",
-          message: "Przetwarzanie AI trwało zbyt długo (przekroczono limit 20s)",
+          message: "AI processing took too long (exceeded 20s limit)",
         },
       } as APIErrorResponse;
     }
 
-    // Inne błędy
     throw error;
   }
 }
 
 /**
- * Zapisz wydatki wsadowo (batch)
+ * Save expenses in batch
  *
- * @param command - Komenda z listą wydatków do zapisania
- * @returns Rezultat operacji z liczbą zapisanych wydatków
- * @throws {APIErrorResponse} W przypadku błędu API
+ * @param command - Command with list of expenses to save
+ * @returns Operation result with number of saved expenses
+ * @throws {APIErrorResponse} On API error
  */
 export async function saveExpensesBatch(command: CreateExpenseBatchCommand): Promise<BatchExpenseResponseDTO> {
   const response = await fetch("/api/expenses/batch", {
