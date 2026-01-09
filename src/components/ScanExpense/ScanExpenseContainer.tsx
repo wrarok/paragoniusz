@@ -12,6 +12,7 @@ export function ScanExpenseContainer() {
     isSaving,
     isUploading,
     error,
+    processingStartTime,
     grantAIConsent,
     uploadAndProcess,
     saveExpenses,
@@ -41,7 +42,7 @@ export function ScanExpenseContainer() {
       error: error?.error.message || null,
     },
     processing: {
-      startTime: Date.now(),
+      startTime: processingStartTime || Date.now(),
       onTimeout: () => {
         // Timeout is handled in the hook
       },
