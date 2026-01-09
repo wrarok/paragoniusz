@@ -26,7 +26,9 @@ export default defineConfig({
     define: {
       "import.meta.env.SUPABASE_URL": JSON.stringify(env.SUPABASE_URL || process.env.SUPABASE_URL),
       "import.meta.env.SUPABASE_ANON_KEY": JSON.stringify(env.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY),
-      "import.meta.env.SUPABASE_SERVICE_ROLE_KEY": JSON.stringify(env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY),
+      "import.meta.env.SUPABASE_SERVICE_ROLE_KEY": JSON.stringify(
+        env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
+      ),
       "import.meta.env.PUBLIC_SUPABASE_URL": JSON.stringify(env.PUBLIC_SUPABASE_URL || process.env.PUBLIC_SUPABASE_URL),
       "import.meta.env.PUBLIC_SUPABASE_ANON_KEY": JSON.stringify(
         env.PUBLIC_SUPABASE_ANON_KEY || process.env.PUBLIC_SUPABASE_ANON_KEY
