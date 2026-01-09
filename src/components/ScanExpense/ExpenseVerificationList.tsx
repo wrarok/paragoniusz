@@ -172,7 +172,7 @@ export function ExpenseVerificationList({
               <DollarSign className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="text-xs text-muted-foreground">Suma oryginalna</p>
-                <p className="text-sm font-medium">{formatCurrency(parseFloat(totalAmount), currency)}</p>
+                <p className="text-sm font-medium" data-testid="total-amount">{formatCurrency(parseFloat(totalAmount), currency)}</p>
               </div>
             </div>
           </div>
@@ -207,7 +207,7 @@ export function ExpenseVerificationList({
       {/* Expense Items */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Wydatki ({expenses.length})</h3>
+          <h3 className="text-lg font-semibold">Wydatki (<span data-testid="expense-count">{expenses.length}</span>)</h3>
           {expenses.length > 0 && (
             <p className="text-sm text-muted-foreground">Obliczona suma: {formatCurrency(calculatedTotal, currency)}</p>
           )}

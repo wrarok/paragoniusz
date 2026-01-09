@@ -21,144 +21,77 @@ test.describe("User Onboarding - MVP Critical Tests", () => {
   test("Complete flow from registration to adding first expense", async ({ page }) => {
     // 1. Visit homepage
     await page.goto("/");
-
-    // Check if we're redirected to login (not authenticated)
-    if (page.url().includes("/login")) {
-      // We're not logged in, which is expected for this test
-      expect(page.url()).toContain("/login");
-    } else {
-      // If we're on dashboard, check the actual h1 content
-      const h1Text = await page.textContent("h1");
-      expect(h1Text).toContain("Panel główny");
-    }
-
-    // 2. Click register link
+    
+    // 2. Should redirect to login (or already be there)
+    await page.waitForURL(/\/login/, { timeout: 10000 });
+    
+    // 3. Navigate to registration
     await page.click('a:has-text("Zarejestruj się")');
-    await page.waitForURL("/register");
-    await page.waitForLoadState("domcontentloaded");
-
-    // 3. Fill registration form with unique email
+    await page.waitForURL("/register", { timeout: 10000 });
+    
+    // 4. Fill registration form with unique email
     const email = `test-${Date.now()}${Math.random().toString(36).substring(7)}@test.pl`;
     console.log(`Registering new user: ${email}`);
-
-    // Use more specific selectors and wait for elements to be ready
-    await page.waitForSelector('input[name="email"]', { timeout: 5000 });
-    await page.fill('input[name="email"]', email);
-    await page.waitForTimeout(1000);
-
-    await page.waitForSelector('input[name="password"]', { timeout: 5000 });
-    await page.fill('input[name="password"]', "SecurePass123!");
-    await page.waitForTimeout(1000);
-
-    await page.waitForSelector('input[name="confirmPassword"]', { timeout: 5000 });
-    await page.fill('input[name="confirmPassword"]', "SecurePass123!");
-    await page.waitForTimeout(1000);
-
-    // 4. Submit registration
+    
+    // Fill email field and verify
+    const emailInput = page.locator('input[name="email"]');
+    await emailInput.waitFor({ state: 'visible', timeout: 5000 });
+    await emailInput.fill(email);
+    await expect(emailInput).toHaveValue(email);
+    
+    // Fill password field and verify
+    const passwordInput = page.locator('input[name="password"]');
+    await passwordInput.waitFor({ state: 'visible', timeout: 5000 });
+    await passwordInput.fill("SecurePass123!");
+    await expect(passwordInput).toHaveValue("SecurePass123!");
+    
+    // Fill confirm password field and verify
+    const confirmInput = page.locator('input[name="confirmPassword"]');
+    await confirmInput.waitFor({ state: 'visible', timeout: 5000 });
+    await confirmInput.fill("SecurePass123!");
+    await expect(confirmInput).toHaveValue("SecurePass123!");
+    
+    // 5. Submit registration and wait for redirect to login
     await page.click('button[type="submit"]');
-
-    // Wait for submission to process
-    await page.waitForTimeout(1000);
-
-    // Should redirect to login
-    try {
-      await page.waitForURL("/login", { timeout: 15000 });
-    } catch (error) {
-      console.log(`Registration redirect timeout: ${error}`);
-      // Check if we're already on login page or need to navigate
-      const currentUrl = page.url();
-      console.log(`Current URL after registration: ${currentUrl}`);
-      
-      if (!currentUrl.includes('/login')) {
-        console.log('Forcing navigation to login page...');
-        await page.goto('/login');
-        await page.waitForLoadState('domcontentloaded');
-      }
-    }
-
+    await page.waitForURL("/login", {
+      timeout: 30000,
+      waitUntil: 'networkidle'
+    });
+    
     // 6. Login with new credentials
-    await page.fill('input[name="email"]', email);
-    await page.fill('input[name="password"]', "SecurePass123!");
+    await page.locator('input[name="email"]').fill(email);
+    await page.locator('input[name="password"]').fill("SecurePass123!");
     await page.click('button[type="submit"]');
-
-    // 7. Should see empty dashboard
-    try {
-      await page.waitForURL("/", { timeout: 15000 });
-    } catch (error) {
-      console.log(`Login redirect timeout: ${error}`);
-      // Check if we're on dashboard
-      const currentUrl = page.url();
-      if (!currentUrl.endsWith('/')) {
-        await page.goto('/');
-        await page.waitForLoadState('domcontentloaded');
-      }
-    }
-
-    // Wait for page to fully load and check for empty state
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(3000); // Extra wait for React components to render
     
-    // Check for empty state - use more specific selectors based on actual DOM structure
-    const hasEmptyStateHeading = await page.locator('h3:has-text("Nie znaleziono wydatków")').isVisible().catch(() => false);
-    const hasEmptyStateMessage = await page.locator('text=Zacznij śledzić swoje wydatki, dodając pierwszy').isVisible().catch(() => false);
-    const hasEmptyStateButton = await page.locator('button:has-text("Dodaj pierwszy wydatek")').isVisible().catch(() => false);
+    // 7. Wait for dashboard to load
+    await page.waitForURL("/", { timeout: 30000 });
+    await expect(page.locator('[data-testid="dashboard-content"]')).toBeVisible({ timeout: 10000 });
     
-    const hasEmptyState = hasEmptyStateHeading || hasEmptyStateMessage || hasEmptyStateButton;
-
-    if (!hasEmptyState) {
-      console.log("⚠️  Empty state not detected - taking screenshot for debugging");
-      await page.screenshot({ path: `test-results/empty-state-debug-${Date.now()}.png` }).catch(() => {});
-      const pageContent = await page.textContent('body');
-      console.log(`Page content includes: ${pageContent?.substring(0, 200)}...`);
-    }
-
-    expect(hasEmptyState).toBe(true);
-
-    // 8. Add first expense manually - Click the actual button from RecentExpensesList EmptyState
-    await page.locator('button:has-text("Dodaj pierwszy wydatek")').click({ timeout: 15000 });
-
-    // Wait for form to open
-    await page.waitForSelector("text=Kwota", { timeout: 10000 });
-
-    // Fill expense form
-    await page.locator('input[placeholder="0.00"]').fill("25.50");
-
-    // Select first available category
-    // Select category - Shadcn Select component
-    await page.click('[role="combobox"]').catch(() => page.click('button:has-text("Wybierz kategorię")'));
-    await page.waitForSelector('[role="option"]', { timeout: 3000 });
+    // 8. Verify empty state is displayed
+    await expect(page.locator('button:has-text("Dodaj pierwszy wydatek")')).toBeVisible({ timeout: 10000 });
+    
+    // 9. Click button to add first expense
+    await page.locator('button:has-text("Dodaj pierwszy wydatek")').click();
+    
+    // 10. Wait for expense form to be ready
+    const amountInput = page.locator('input[placeholder="0.00"]');
+    await expect(amountInput).toBeVisible({ timeout: 10000 });
+    await expect(amountInput).toBeEditable();
+    await amountInput.fill("25.50");
+    
+    // 11. Select category
+    await page.click('[role="combobox"]');
+    await page.waitForSelector('[role="option"]', { state: 'visible', timeout: 5000 });
     await page.getByRole("option").first().click();
-
-    // Submit (create mode uses "Dodaj wydatek")
+    
+    // 12. Submit expense form
     await page.click('button:has-text("Dodaj wydatek")');
-
-    // 9. Verify expense appears - wait for redirect and expense card
-    try {
-      await page.waitForURL("/", { timeout: 15000 });
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(3000); // Wait for API calls to complete
-      
-      // Try to find expense card with more flexible selectors
-      await page.waitForSelector('[data-testid="expense-card"]', { timeout: 15000 });
-    } catch (error) {
-      console.log(`Expense card not found: ${error}`);
-      // Force refresh to see if expense was created
-      await page.reload();
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(2000);
-    }
-
-    // Verify expense is visible with multiple approaches
-    const hasAmount = await page.locator('text=25.50').isVisible().catch(() => false);
-    const hasExpenseCard = await page.locator('[data-testid="expense-card"]').isVisible().catch(() => false);
-    const hasPLN = await page.locator('text=PLN').isVisible().catch(() => false);
-    const hasExpenseInList = await page.locator('.space-y-3').isVisible().catch(() => false); // RecentExpensesList container
     
-    // Check if we're no longer in empty state (expense was added)
-    const noLongerEmpty = !(await page.locator('h3:has-text("Nie znaleziono wydatków")').isVisible().catch(() => false));
-    
-    // At least one verification should pass
-    expect(hasAmount || hasExpenseCard || hasPLN || hasExpenseInList || noLongerEmpty).toBe(true);
+    // 13. Verify expense was created and appears on dashboard
+    await page.waitForURL("/", { timeout: 15000 });
+    await expect(page.locator('[data-testid="dashboard-content"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="expense-card"]')).toBeVisible({ timeout: 20000 });
+    await expect(page.locator('[data-testid="expense-card"]').first()).toContainText('25.50');
   });
 
   test("Should guide user through first expense creation", async ({ page }) => {

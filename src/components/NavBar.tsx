@@ -36,6 +36,7 @@ export function NavBar({ userEmail }: NavBarProps) {
 
   return (
     <nav
+      data-testid="mobile-menu"
       className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50"
       role="navigation"
       aria-label="Main navigation"
@@ -45,6 +46,7 @@ export function NavBar({ userEmail }: NavBarProps) {
           {/* User Info / Home Link */}
           <a
             href="/"
+            data-testid="user-menu"
             className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Strona główna"
             title={userEmail || "Strona główna"}
