@@ -20,7 +20,7 @@ interface AIConsentModalProps {
 export function AIConsentModal({ isOpen, onAccept, onCancel, isLoading }: AIConsentModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px]" data-testid="ai-consent-dialog">
         <DialogHeader>
           <DialogTitle>Skanowanie paragonów z wykorzystaniem AI</DialogTitle>
           <DialogDescription>
@@ -56,10 +56,16 @@ export function AIConsentModal({ isOpen, onAccept, onCancel, isLoading }: AICons
         </div>
 
         <DialogFooter className="flex-col sm:flex-row gap-2">
-          <Button variant="outline" onClick={onCancel} disabled={isLoading} className="w-full sm:w-auto">
+          <Button
+            variant="outline"
+            onClick={onCancel}
+            disabled={isLoading}
+            className="w-full sm:w-auto"
+            data-testid="ai-consent-cancel"
+          >
             Anuluj
           </Button>
-          <Button onClick={onAccept} disabled={isLoading} className="w-full sm:w-auto">
+          <Button onClick={onAccept} disabled={isLoading} className="w-full sm:w-auto" data-testid="ai-consent-accept">
             {isLoading ? "Włączanie..." : "Włącz funkcje AI"}
           </Button>
         </DialogFooter>

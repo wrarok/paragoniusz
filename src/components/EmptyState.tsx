@@ -20,7 +20,7 @@ export function EmptyState({
       <h3 className="text-lg font-semibold mb-2">Nie znaleziono wydatków</h3>
       <p className="text-muted-foreground mb-6 max-w-sm">{message}</p>
       {onCtaClick && (
-        <Button onClick={onCtaClick} size="lg">
+        <Button onClick={onCtaClick} size="lg" data-testid="add-first-expense-button">
           <PlusCircle className="mr-2 h-5 w-5" aria-hidden="true" />
           {ctaText}
         </Button>

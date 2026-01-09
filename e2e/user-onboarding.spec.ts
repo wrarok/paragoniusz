@@ -26,7 +26,7 @@ test.describe("User Onboarding - MVP Critical Tests", () => {
     await page.waitForURL(/\/login/, { timeout: 10000 });
     
     // 3. Navigate to registration
-    await page.click('a:has-text("Zarejestruj się")');
+    await page.click('[data-testid="register-link"]');
     await page.waitForURL("/register", { timeout: 10000 });
     
     // 4. Fill registration form with unique email
@@ -67,25 +67,31 @@ test.describe("User Onboarding - MVP Critical Tests", () => {
     await page.waitForURL("/", { timeout: 30000 });
     await expect(page.locator('[data-testid="dashboard-content"]')).toBeVisible({ timeout: 10000 });
     
-    // 8. Verify empty state is displayed
-    await expect(page.locator('button:has-text("Dodaj pierwszy wydatek")')).toBeVisible({ timeout: 10000 });
+    // 7.5. Wait for Astro hydration (React components become interactive)
+    await page.waitForSelector('[data-hydrated="true"]', { timeout: 5000 });
     
-    // 9. Click button to add first expense
-    await page.locator('button:has-text("Dodaj pierwszy wydatek")').click();
+    // 8. Verify empty state is displayed
+    await expect(page.locator('[data-testid="add-first-expense-button"]')).toBeVisible({ timeout: 10000 });
+    
+    // 9. Click button to add first expense and wait for form
+    await page.locator('[data-testid="add-first-expense-button"]').click();
+    
+    // Modal animation - wait for amount input to be visible (confirms modal opened)
+    await expect(page.locator('[data-testid="expense-amount-input"]')).toBeVisible({ timeout: 5000 });
     
     // 10. Wait for expense form to be ready
-    const amountInput = page.locator('input[placeholder="0.00"]');
+    const amountInput = page.locator('[data-testid="expense-amount-input"]');
     await expect(amountInput).toBeVisible({ timeout: 10000 });
     await expect(amountInput).toBeEditable();
     await amountInput.fill("25.50");
     
     // 11. Select category
-    await page.click('[role="combobox"]');
+    await page.click('[data-testid="expense-category-select"]');
     await page.waitForSelector('[role="option"]', { state: 'visible', timeout: 5000 });
     await page.getByRole("option").first().click();
     
     // 12. Submit expense form
-    await page.click('button:has-text("Dodaj wydatek")');
+    await page.click('[data-testid="expense-submit-button"]');
     
     // 13. Verify expense was created and appears on dashboard
     await page.waitForURL("/", { timeout: 15000 });
@@ -99,26 +105,31 @@ test.describe("User Onboarding - MVP Critical Tests", () => {
     const testUser = await registerUser(page);
     await loginUser(page, testUser.email, testUser.password);
 
-    // Wait for page to load and check for empty state button
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
+    // Wait for dashboard to load
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForURL('/', { timeout: 10000 });
     
-    // Dashboard should have "Add expense" CTA visible - check for actual button text from RecentExpensesList EmptyState
-    const hasAddButton = await page.locator('button:has-text("Dodaj pierwszy wydatek")').isVisible().catch(() => false);
+    // Wait for Astro hydration
+    await page.waitForSelector('[data-hydrated="true"]', { timeout: 5000 });
+    
+    // Wait for empty state button to be visible (locator auto-waits, but explicit check for clarity)
+    const addButton = page.locator('[data-testid="add-first-expense-button"]');
+    await expect(addButton).toBeVisible({ timeout: 10000 });
+    
+    // Dashboard should have "Add expense" CTA visible
+    const hasAddButton = await page.locator('[data-testid="add-first-expense-button"]').isVisible();
     expect(hasAddButton).toBe(true);
 
     // Click and verify form opens
-    await page.locator('button:has-text("Dodaj pierwszy wydatek")').click();
-    await page.waitForSelector("text=Kwota", { timeout: 5000 });
+    await page.locator('[data-testid="add-first-expense-button"]').click();
+    
+    // Wait for form to open with amount field visible
+    await page.waitForSelector('[data-testid="expense-amount-input"]', { state: 'visible', timeout: 5000 });
 
     // Form should be properly displayed
-    const hasAmountField = await page.locator('input[placeholder="0.00"]').isVisible();
-    const hasCategoryField = await page.locator('[role="combobox"]').isVisible();
-    const hasSaveButton = await page.isVisible('button:has-text("Dodaj wydatek")');
-
-    expect(hasAmountField).toBe(true);
-    expect(hasCategoryField).toBe(true);
-    expect(hasSaveButton).toBe(true);
+    await expect(page.locator('[data-testid="expense-amount-input"]')).toBeVisible();
+    await expect(page.locator('[data-testid="expense-category-select"]')).toBeVisible();
+    await expect(page.locator('[data-testid="expense-submit-button"]')).toBeVisible();
   });
 });
 

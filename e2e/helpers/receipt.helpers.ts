@@ -48,18 +48,18 @@ export async function uploadReceipt(page: Page, filePath: string): Promise<void>
 
   // Wait for upload button to appear (after file is selected)
   try {
-    await page.waitForSelector('button:has-text("Prześlij i przetwórz"):not([disabled])', { timeout: 5000 });
-    await page.click('button:has-text("Prześlij i przetwórz")');
+    await page.waitForSelector('[data-testid="upload-process-button"]:not([disabled])', { timeout: 5000 });
+    await page.click('[data-testid="upload-process-button"]');
     console.log("Clicked upload and process button");
   } catch (error) {
-    // Try alternative selectors
+    // Fallback to text selector for backward compatibility
     const uploadButton = await page
       .locator("button")
       .filter({ hasText: /Prześlij|Przetwórz/ })
       .first();
     if (await uploadButton.isVisible()) {
       await uploadButton.click();
-      console.log("Clicked upload button (alternative selector)");
+      console.log("Clicked upload button (fallback selector)");
     } else {
       throw new Error("Upload button not found or not clickable");
     }
@@ -88,21 +88,16 @@ export async function waitForAIProcessing(page: Page, timeout = 25000): Promise<
   try {
     // Wait for verification screen, timeout error, or general error
     await Promise.race([
-      page.waitForSelector("text=Zweryfikuj i zapisz", { timeout }),
+      page.waitForSelector('[data-testid="verify-save-button"]', { timeout }),
       page.waitForSelector("text=Przekroczono limit czasu przetwarzania", { timeout }),
       page.waitForSelector("text=Wystąpił błąd", { timeout }),
       page.waitForSelector("text=Failed to upload", { timeout }),
-      page.waitForSelector("text=timeout", { timeout }),
-      page.waitForSelector("text=error", { timeout }),
-      // Add more specific error selectors
       page.waitForSelector("[data-testid='error-display']", { timeout }),
       page.waitForSelector(".alert-destructive", { timeout }),
-      page.waitForSelector("text=nie udało się", { timeout }),
-      page.waitForSelector("text=błąd", { timeout }),
     ]);
 
     // Check which state we're in
-    const hasVerificationScreen = await page.isVisible("text=Zweryfikuj i zapisz");
+    const hasVerificationScreen = await page.isVisible('[data-testid="verify-save-button"]');
     if (hasVerificationScreen) {
       console.log("✅ AI processing completed successfully - verification screen visible");
       return true;
@@ -284,8 +279,8 @@ export async function editReceiptDate(page: Page, newDate: string): Promise<void
  * ```
  */
 export async function saveAllExpenses(page: Page): Promise<void> {
-  // Click save button (try multiple possible texts)
-  const saveButton = page.locator('button[type="submit"]').filter({ hasText: /Zweryfikuj i zapisz|Zapisz wszystkie|Zapisz/ });
+  // Click save button using data-testid
+  const saveButton = page.locator('[data-testid="verify-save-button"]');
   
   await saveButton.click();
 
@@ -304,11 +299,11 @@ export async function saveAllExpenses(page: Page): Promise<void> {
  * ```
  */
 export async function cancelScanning(page: Page): Promise<void> {
-  // Try multiple selectors for cancel button
+  // Try data-testid first, fallback to text selector
   try {
-    await page.click('button:has-text("Anuluj")', { timeout: 5000 });
+    await page.click('[data-testid="cancel-verification-button"]', { timeout: 5000 });
   } catch {
-    // Try alternative selectors
+    // Try alternative text selectors
     const cancelButton = await page.locator("button").filter({ hasText: /Anuluj|Cancel|Wróć/ }).first();
     if (await cancelButton.isVisible()) {
       await cancelButton.click();
@@ -343,8 +338,8 @@ export async function hasAIConsent(page: Page): Promise<boolean> {
   // Wait a moment for dialog to appear if needed
   await page.waitForTimeout(1000);
 
-  // Check if consent dialog is visible
-  const consentRequired = await page.isVisible("text=Wymagana zgoda na przetwarzanie AI");
+  // Check if consent dialog is visible using data-testid
+  const consentRequired = await page.isVisible('[data-testid="ai-consent-dialog"]');
   return !consentRequired;
 }
 

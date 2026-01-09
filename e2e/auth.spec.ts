@@ -17,7 +17,7 @@ test.describe("Authentication Flow - MVP Critical Tests", () => {
     await page.waitForLoadState("networkidle");
 
     // Click on register link
-    await page.locator('a:has-text("Zarejestruj"), a:has-text("zarejestruj")').first().click();
+    await page.locator('[data-testid="register-link"]').click();
 
     // Should be on register page with confirmPassword field (unique to registration)
     await expect(page).toHaveURL(/\/register/);

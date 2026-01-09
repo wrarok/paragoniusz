@@ -82,6 +82,7 @@ export function AmountInput({ value, onChange, onBlur, error, disabled = false }
           placeholder="0.00"
           aria-invalid={!!error}
           aria-describedby={error ? errorId : undefined}
+          data-testid="expense-amount-input"
           className={`
             w-full rounded-md border px-3 py-2 pr-12 text-sm
             transition-colors

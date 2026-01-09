@@ -89,11 +89,23 @@ function AlertDialogDescription({
 }
 
 function AlertDialogAction({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Action>) {
-  return <AlertDialogPrimitive.Action className={cn(buttonVariants(), className)} {...props} />;
+  return (
+    <AlertDialogPrimitive.Action
+      data-testid="alert-dialog-action"
+      className={cn(buttonVariants(), className)}
+      {...props}
+    />
+  );
 }
 
 function AlertDialogCancel({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Cancel>) {
-  return <AlertDialogPrimitive.Cancel className={cn(buttonVariants({ variant: "outline" }), className)} {...props} />;
+  return (
+    <AlertDialogPrimitive.Cancel
+      data-testid="alert-dialog-cancel"
+      className={cn(buttonVariants({ variant: "outline" }), className)}
+      {...props}
+    />
+  );
 }
 
 export {

@@ -14,6 +14,7 @@ export function AIAddButton({ onClick, disabled = false }: AIAddButtonProps) {
       disabled={disabled}
       className="w-full h-auto py-4 px-6 flex flex-col items-center gap-2 hover:bg-accent"
       variant="outline"
+      data-testid="scan-receipt-button"
     >
       <div className="flex items-center gap-3 w-full">
         <div className="rounded-full bg-primary/10 p-2">

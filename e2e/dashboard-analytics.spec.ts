@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import { loginUser } from "./helpers/auth.helpers";
 import { createMultipleExpenses, deleteAllExpenses, getTotalSpent } from "./helpers/expense.helpers";
 import { setupCleanEnvironment, getCurrentMonthDate } from "./helpers/setup.helpers";
+import { waitForAPI } from "./helpers/api.helpers";
 
 // Increase timeout for dashboard analytics tests (they involve multiple operations)
 test.describe.configure({ timeout: 60000 });
@@ -25,6 +26,7 @@ test.describe("Dashboard Analytics - MVP Critical Tests", () => {
     // Setup: Create test expenses with dates in current month (for dashboard visibility)
     console.log("Creating 3 test expenses in current month...");
     try {
+      // createMultipleExpenses now waits for each API response
       await createMultipleExpenses(page, [
         { amount: "100.00", category: "żywność", date: getCurrentMonthDate(-3) },
         { amount: "50.00", category: "transport", date: getCurrentMonthDate(-2) },
@@ -36,63 +38,47 @@ test.describe("Dashboard Analytics - MVP Critical Tests", () => {
       throw error;
     }
 
-    // INCREASED: Extended wait for database commits and UI updates
-    await page.waitForTimeout(4000);
-
-    // 1. Navigate to dashboard and verify expenses were created
+    // 1. Navigate to dashboard and wait for data to load
     console.log("Navigating to dashboard...");
-    await page.goto("/", { waitUntil: "networkidle", timeout: 15000 });
-    await page.waitForTimeout(2000);
-
-    // SMART WAITING: Wait for expense cards to appear with retry logic
-    let expenseCards = await page.$$('[data-testid="expense-card"]');
-    let attempts = 0;
-    const maxAttempts = 5;
+    await page.goto("/", { waitUntil: "domcontentloaded", timeout: 15000 });
     
-    while (expenseCards.length < 3 && attempts < maxAttempts) {
-      attempts++;
-      console.log(`Attempt ${attempts}/${maxAttempts}: Found ${expenseCards.length} cards, waiting for at least 3...`);
-      await page.waitForTimeout(2000);
-      await page.reload({ waitUntil: "networkidle" });
-      await page.waitForTimeout(1000);
-      expenseCards = await page.$$('[data-testid="expense-card"]');
-    }
+    // Wait for dashboard API to load
+    await waitForAPI(page, '/api/dashboard/summary', 'GET', 200, 10000).catch(() => {
+      console.log("Dashboard summary API not detected");
+    });
 
-    console.log(`Found ${expenseCards.length} expense cards on dashboard`);
+    // Wait for expense cards to appear (we created 3, so expect 3)
+    await expect(page.locator('[data-testid="expense-card"]')).toHaveCount(3, { timeout: 10000 });
+    
+    console.log("✅ All 3 expense cards are visible on dashboard");
 
-    // Verify that expenses were actually created
-    if (expenseCards.length === 0) {
-      console.error("❌ No expense cards found! Expenses may not have been created properly.");
-      
-      // Check if we're in empty state
-      const emptyState = await page.isVisible("text=Nie znaleziono wydatków").catch(() => false);
-      if (emptyState) {
-        console.error("❌ Dashboard shows empty state - expenses not visible");
-      }
-      
-      // Take screenshot for debugging
-      await page.screenshot({ path: `test-results/no-expenses-${Date.now()}.png` }).catch(() => {});
-      throw new Error("No expenses found on dashboard after creation");
-    }
-
-    // 2. Verify total spent includes our expenses (may include previous test data)
+    // 2. Verify total spent equals exactly our expenses
     const totalSpent = await getTotalSpent(page);
-    console.log(`Total spent: ${totalSpent} PLN (expected: at least 225.00)`);
-    expect(totalSpent).toBeGreaterThanOrEqual(225.0); // At least our 225
+    console.log(`Total spent: ${totalSpent} PLN (expected: exactly 225.00)`);
+    expect(totalSpent).toBe(225.0); // Exact match now possible!
 
     // 3. Verify chart is rendered (ExpensePieChart exists but lacks data-testid)
     const hasChart = await page.isVisible("canvas").catch(() => false);
     if (hasChart) {
       expect(hasChart).toBe(true);
+      console.log("✅ Chart is rendered");
     }
 
-    // 4. Verify expense count (at least our 3)
-    expect(expenseCards.length).toBeGreaterThanOrEqual(3);
     console.log("✅ Test completed successfully");
   });
 
   test("Should show dashboard with expenses or empty state", async ({ page }) => {
     await page.goto("/");
+    await page.waitForLoadState("domcontentloaded");
+
+    // Wait for either expenses or empty state to appear
+    await Promise.race([
+      page.waitForSelector('[data-testid="expense-card"]', { timeout: 5000 }),
+      page.waitForSelector('text=Nie znaleziono wydatków', { timeout: 5000 }),
+      page.waitForSelector('text=Dodaj pierwszy wydatek', { timeout: 5000 })
+    ]).catch(() => {
+      console.log("Neither expenses nor empty state found quickly");
+    });
 
     // Either has expenses or empty state
     const hasExpenses = await page.isVisible('[data-testid="expense-card"]');

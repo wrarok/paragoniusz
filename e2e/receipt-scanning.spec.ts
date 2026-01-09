@@ -31,31 +31,74 @@ test.describe("Receipt Scanning - MVP Critical Tests", () => {
   test("User scans receipt, verifies data, saves expenses", async ({ page }) => {
     // 1. Navigate to dashboard and open expense modal
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("domcontentloaded");
+    
+    // CRITICAL: Wait for Astro hydration (React components need time to become interactive)
+    console.log(`⏳ Waiting for Astro hydration before opening modal...`);
+    await page.waitForSelector('[data-hydrated="true"]', { timeout: 5000 });
+    console.log(`✅ Hydration confirmed`);
 
-    // Click middle button in nav (+ icon) to open choice modal
-    try {
-      await page.locator("nav").locator("button, a").nth(1).click({ timeout: 5000 });
-    } catch {
-      // Fallback: try empty state button
-      await page.click("text=Dodaj pierwszy wydatek", { timeout: 3000 });
+    // Click middle button in nav (+ icon) to open choice modal - with retry logic
+    let modalOpened = false;
+    const maxAttempts = 3;
+    
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        console.log(`📍 Opening expense modal (attempt ${attempt}/${maxAttempts})...`);
+        await page.locator("nav").locator("button, a").nth(1).click({ timeout: 5000 });
+        
+        // Verify modal opened
+        const scanButtonVisible = await page.waitForSelector('[data-testid="scan-receipt-button"]', {
+          state: 'visible',
+          timeout: 2000
+        }).then(() => true).catch(() => false);
+        
+        if (scanButtonVisible) {
+          modalOpened = true;
+          console.log(`✅ Modal opened successfully on attempt ${attempt}`);
+          break;
+        } else {
+          console.log(`⚠️ Modal did not open on attempt ${attempt}, retrying...`);
+          if (attempt < maxAttempts) {
+            await page.waitForTimeout(1000); // Wait for hydration
+          }
+        }
+      } catch (error) {
+        console.log(`⚠️ Click failed on attempt ${attempt}: ${error}`);
+        if (attempt === maxAttempts) {
+          // Last attempt - try fallback
+          console.log("⚠️ Trying empty state button as fallback...");
+          await page.click('[data-testid="add-first-expense-button"]', { timeout: 3000 });
+          modalOpened = true;
+        } else {
+          await page.waitForTimeout(1000);
+        }
+      }
     }
-    await page.waitForTimeout(800);
+    
+    if (!modalOpened) {
+      throw new Error("Failed to open expense modal after 3 attempts");
+    }
+    
+    // Wait for modal animation
+    await page.waitForTimeout(500);
 
     // Click "Zeskanuj paragon (AI)" button in modal
     try {
-      await page.click("text=Zeskanuj paragon (AI)", { timeout: 10000 });
+      await page.click('[data-testid="scan-receipt-button"]', { timeout: 10000 });
     } catch (error) {
       // If AI button not found, check if consent is needed
-      const hasConsentMessage = await page.isVisible("text=Wymagana zgoda").catch(() => false);
-      if (hasConsentMessage) {
+      const hasConsentDialog = await page.isVisible('[data-testid="ai-consent-dialog"]').catch(() => false);
+      if (hasConsentDialog) {
         console.log("AI consent required - giving consent first");
         await giveAIConsent(page);
-        // Try again after giving consent
+        // Try again after giving consent - with hydration wait
         await page.goto("/");
+        await page.waitForLoadState("domcontentloaded");
+        await page.waitForSelector('[data-hydrated="true"]', { timeout: 5000 });
         await page.locator("nav").locator("button, a").nth(1).click();
-        await page.waitForTimeout(500);
-        await page.click("text=Zeskanuj paragon (AI)", { timeout: 10000 });
+        await page.waitForSelector('[data-testid="scan-receipt-button"]', { state: 'visible', timeout: 5000 });
+        await page.click('[data-testid="scan-receipt-button"]', { timeout: 10000 });
       } else {
         throw new Error(
           `AI scanning button not found. Available buttons: ${await page.$$eval("button", (btns) => btns.map((b) => b.textContent?.trim()).filter(Boolean))}`
@@ -111,22 +154,12 @@ test.describe("Receipt Scanning - MVP Critical Tests", () => {
     // 7. Verify redirect to dashboard
     expect(page.url()).toContain("/");
 
-    // 8. Verify expenses appear in dashboard (flexible verification)
-    // Wait for expenses to load
-    await page.waitForTimeout(2000);
+    // 8. Verify expenses appear in dashboard
+    await page.waitForLoadState("domcontentloaded");
     
-    // Check if expenses are visible on dashboard (try multiple selectors)
-    const expenseElements = await page.$$('[data-testid*="expense"]');
-    const hasExpenses = expenseElements.length > 0;
-    
-    if (hasExpenses) {
-      console.log(`Found ${expenseElements.length} expense elements on dashboard`);
-    } else {
-      // Alternative: check if any amount is visible on the page
-      const pageContent = await page.textContent('body');
-      const hasAmount = pageContent?.includes('50.00') || pageContent?.includes('PLN');
-      console.log(`No expense elements found, but amounts visible: ${hasAmount}`);
-    }
+    // Wait for at least one expense to be visible
+    await expect(page.locator('[data-testid="expense-card"]')).toHaveCount(3, { timeout: 10000 });
+    console.log("✅ All expenses are visible on dashboard");
 
     // 9. Verify dashboard summary updated (should show some total > 0)
     const totalSpent = await getTotalSpent(page);
@@ -190,19 +223,19 @@ test.describe("Receipt Scanning - MVP Critical Tests", () => {
 
     // Check if consent dialog appears (depends on user profile)
     const hasConsentDialog = await page
-      .isVisible("text=Wymagana zgoda na przetwarzanie AI", { timeout: 2000 })
+      .isVisible('[data-testid="ai-consent-dialog"]', { timeout: 2000 })
       .catch(() => false);
 
     if (hasConsentDialog) {
-      // Verify consent button is present
-      expect(await page.isVisible('button:has-text("Wyraź zgodę")')).toBe(true);
+      // Verify consent accept button is present
+      const acceptButton = page.locator('[data-testid="ai-consent-accept"]');
+      await expect(acceptButton).toBeVisible();
 
       // Give consent
-      await page.click('button:has-text("Wyraź zgodę")');
+      await acceptButton.click();
 
-      // Dialog should close
-      await page.waitForTimeout(1000);
-      expect(await page.isVisible("text=Wyragana zgoda")).toBe(false);
+      // Wait for dialog to close
+      await expect(page.locator('[data-testid="ai-consent-dialog"]')).not.toBeVisible({ timeout: 3000 });
     } else {
       // Consent already given (from beforeEach) - test passes
       expect(true).toBe(true);

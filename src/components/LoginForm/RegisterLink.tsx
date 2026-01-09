@@ -9,6 +9,7 @@ export function RegisterLink({ className = "" }: RegisterLinkProps) {
       <span className="text-gray-600">Nie masz konta? </span>
       <a
         href="/register"
+        data-testid="register-link"
         className="font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
         Zarejestruj się

@@ -29,7 +29,7 @@ export function AddExpenseModal({
 }) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md" aria-describedby="add-expense-description">
+      <DialogContent className="sm:max-w-md" data-testid="expense-modal" aria-describedby="add-expense-description">
         <DialogHeader>
           <DialogTitle>Dodaj wydatek</DialogTitle>
           <p id="add-expense-description" className="sr-only">
@@ -38,8 +38,8 @@ export function AddExpenseModal({
         </DialogHeader>
 
         <div className="py-4">
-          {/* Loading State */}
-          {isLoading && <LoadingState message="Ładowanie profilu..." />}
+          {/* Loading State - show when loading OR when profile not yet loaded */}
+          {(isLoading || (!error && !profile)) && <LoadingState message="Ładowanie profilu..." />}
 
           {/* Error State */}
           {!isLoading && error && <ErrorState error={error} onRetry={onRetry} onClose={onClose} />}

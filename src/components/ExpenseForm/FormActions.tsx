@@ -28,7 +28,7 @@ export function FormActions({ mode, isSubmitting, onCancel }: FormActionsProps) 
         Anuluj
       </Button>
 
-      <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
+      <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto" data-testid="expense-submit-button">
         {isSubmitting ? (
           <span className="flex items-center gap-2">
             <svg
