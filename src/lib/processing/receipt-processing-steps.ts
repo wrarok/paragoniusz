@@ -171,10 +171,8 @@ export class AIProcessingStep implements ProcessingStep {
       // Log detailed error information for debugging
       console.error("[AIProcessingStep] Edge Function error:", {
         message: error.message,
-        context: error.context,
         status: error.context?.status,
         statusText: error.context?.statusText,
-        body: error.context?.body,
       });
 
       if (error.message?.includes("Rate limit")) {
@@ -184,10 +182,22 @@ export class AIProcessingStep implements ProcessingStep {
         throw new Error("PROCESSING_TIMEOUT");
       }
 
-      // Check if we have more detailed error information
-      const errorDetails = error.context?.body;
+      // Try to read error details from the response body
+      let errorDetails = null;
+      try {
+        // The error.context is the Response object
+        if (error.context && typeof error.context.json === 'function') {
+          errorDetails = await error.context.json();
+          console.error("[AIProcessingStep] Edge Function error details:", errorDetails);
+        }
+      } catch (parseError) {
+        console.error("[AIProcessingStep] Failed to parse error response:", parseError);
+      }
+
+      // Build error message with details if available
       if (errorDetails) {
-        throw new Error(`Przetwarzanie AI nie powiodło się: ${JSON.stringify(errorDetails)}`);
+        const detailMessage = errorDetails.message || errorDetails.error || JSON.stringify(errorDetails);
+        throw new Error(`Przetwarzanie AI nie powiodło się: ${detailMessage}`);
       }
 
       throw new Error(`Przetwarzanie AI nie powiodło się: ${error.message}`);
