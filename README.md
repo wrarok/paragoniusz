@@ -187,7 +187,7 @@ Configure these variables in your Cloudflare Pages project:
    | `SUPABASE_URL` | `https://your-project.supabase.co` | Supabase project URL |
    | `SUPABASE_ANON_KEY` | `eyJhbG...` | Supabase anon/public key |
    | `OPENROUTER_API_KEY` | `sk-or-v1-...` | OpenRouter API key (optional) |
-   | `OPENROUTER_MODEL` | `anthropic/claude-3.5-sonnet` | AI model for receipt scanning (optional) |
+   | `OPENROUTER_MODEL` | `google/gemini-2.0-flash-exp:free` | AI model for receipt scanning (optional) |
    | `ENV_NAME` | `prod` | Environment name for feature flags |
 
 3. **Get Supabase Credentials**

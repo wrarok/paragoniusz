@@ -64,16 +64,16 @@ export function ExpenseVerificationForm({
   return (
     <form onSubmit={handleSubmit(onSubmit as SubmitHandler<ExpenseVerificationFormValues>)} className="space-y-6">
       {/* Receipt Date */}
-      <ControlledDateInput control={control} name="receipt_date" label="Receipt date" />
+      <ControlledDateInput control={control} name="receipt_date" label="Data paragonu" />
 
       {/* Expense Items List */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <Label className="text-base font-semibold">
-            Expenses from receipt (<span data-testid="expense-count">{fields.length}</span>)
+            Wydatki z paragonu (<span data-testid="expense-count">{fields.length}</span>)
           </Label>
           <div className="text-right">
-            <Label className="text-sm text-muted-foreground">Total amount:</Label>
+            <Label className="text-sm text-muted-foreground">Łączna kwota:</Label>
             <div className="text-lg font-semibold" data-testid="total-amount">
               {fields.reduce((sum, field) => sum + (field.amount || 0), 0).toFixed(2)} PLN
             </div>
@@ -83,7 +83,7 @@ export function ExpenseVerificationForm({
         {/* Empty State */}
         {fields.length === 0 && (
           <Card>
-            <CardContent className="py-8 text-center text-muted-foreground">No expenses to display</CardContent>
+            <CardContent className="py-8 text-center text-muted-foreground">Brak wydatków do wyświetlenia</CardContent>
           </Card>
         )}
 
@@ -110,7 +110,7 @@ export function ExpenseVerificationForm({
       {/* Action Buttons */}
       <div className="flex gap-3 pt-4 border-t">
         <Button type="submit" disabled={isSubmitting} className="flex-1" data-testid="verify-save-button">
-          {isSubmitting ? "Saving..." : "Verify and save"}
+          {isSubmitting ? "Zapisywanie..." : "Zweryfikuj i zapisz"}
         </Button>
         <Button
           type="button"
@@ -120,13 +120,13 @@ export function ExpenseVerificationForm({
           className="flex-1"
           data-testid="cancel-verification-button"
         >
-          Cancel
+          Anuluj
         </Button>
       </div>
 
       {/* Dirty State Indicator */}
       {isDirty && !isSubmitting && (
-        <p className="text-sm text-muted-foreground text-center">You have unsaved changes in the form</p>
+        <p className="text-sm text-muted-foreground text-center">Masz niezapisane zmiany w formularzu</p>
       )}
     </form>
   );
