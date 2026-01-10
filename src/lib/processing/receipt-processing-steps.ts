@@ -186,7 +186,7 @@ export class AIProcessingStep implements ProcessingStep {
       let errorDetails = null;
       try {
         // The error.context is the Response object
-        if (error.context && typeof error.context.json === 'function') {
+        if (error.context && typeof error.context.json === "function") {
           errorDetails = await error.context.json();
           console.error("[AIProcessingStep] Edge Function error details:", errorDetails);
         }
