@@ -5,7 +5,7 @@
  * Encapsulates field array logic, edit tracking, and removal validation.
  */
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useFieldArray, type Control } from "react-hook-form";
 import type { ExpenseVerificationFormValues } from "@/lib/validation/expense-verification.validation";
 
@@ -20,8 +20,10 @@ interface UseExpenseFieldArrayProps {
  * Return type for useExpenseFieldArray hook
  */
 interface UseExpenseFieldArrayReturn {
-  /** Field array items */
-  fields: ReturnType<typeof useFieldArray<ExpenseVerificationFormValues, "expenses">>["fields"];
+  /** Field array items with edited flag */
+  fields: (ReturnType<typeof useFieldArray<ExpenseVerificationFormValues, "expenses">>["fields"][number] & {
+    isEdited: boolean;
+  })[];
   /** Mark expense as edited */
   markAsEdited: (index: number) => void;
   /** Remove expense from array */
@@ -34,6 +36,7 @@ interface UseExpenseFieldArrayReturn {
  * Custom hook for managing expense field array
  *
  * Provides simplified API for field array operations with built-in validation.
+ * Tracks edited state separately from form state to avoid interference.
  *
  * @example
  * ```tsx
@@ -52,22 +55,21 @@ interface UseExpenseFieldArrayReturn {
  * ```
  */
 export function useExpenseFieldArray({ control }: UseExpenseFieldArrayProps): UseExpenseFieldArrayReturn {
-  const { fields, remove, update } = useFieldArray({
+  const { fields, remove } = useFieldArray({
     control,
     name: "expenses",
   });
 
+  // Track edited state separately (not in form state)
+  const [editedIndices, setEditedIndices] = useState<Set<number>>(new Set());
+
   /**
    * Mark expense as edited
-   * Updates the isEdited flag for the specified expense
+   * Tracks editing in separate state to avoid interfering with form values
    */
-  const markAsEdited = useCallback(
-    (index: number) => {
-      const currentExpense = fields[index];
-      update(index, { ...currentExpense, isEdited: true });
-    },
-    [fields, update]
-  );
+  const markAsEdited = useCallback((index: number) => {
+    setEditedIndices((prev) => new Set(prev).add(index));
+  }, []);
 
   /**
    * Remove expense from array
@@ -77,6 +79,18 @@ export function useExpenseFieldArray({ control }: UseExpenseFieldArrayProps): Us
     (index: number) => {
       if (fields.length > 1) {
         remove(index);
+        // Update edited indices after removal
+        setEditedIndices((prev) => {
+          const newSet = new Set<number>();
+          prev.forEach((idx) => {
+            if (idx < index) {
+              newSet.add(idx);
+            } else if (idx > index) {
+              newSet.add(idx - 1);
+            }
+          });
+          return newSet;
+        });
       }
     },
     [fields.length, remove]
@@ -88,8 +102,14 @@ export function useExpenseFieldArray({ control }: UseExpenseFieldArrayProps): Us
    */
   const canRemoveExpense = fields.length > 1;
 
+  // Merge edited state with fields
+  const fieldsWithEditedFlag = fields.map((field, index) => ({
+    ...field,
+    isEdited: editedIndices.has(index),
+  }));
+
   return {
-    fields,
+    fields: fieldsWithEditedFlag,
     markAsEdited,
     removeExpense,
     canRemoveExpense,

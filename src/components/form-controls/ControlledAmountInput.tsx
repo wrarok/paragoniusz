@@ -56,23 +56,28 @@ function AmountInput<T extends FieldValues>({ field, error, label, name, disable
         type="number"
         step="0.01"
         min="0"
-        value={isFocused ? displayValue : (field.value ?? "")}
+        value={isFocused ? displayValue : String(field.value ?? "")}
         onChange={(e) => {
           const inputValue = e.target.value;
           setDisplayValue(inputValue);
 
           // Parse and update field value
           const numValue = parseFloat(inputValue);
-          field.onChange(inputValue === "" ? 0 : isNaN(numValue) ? 0 : numValue);
-          onEdit?.();
+          field.onChange(inputValue === "" ? "" : isNaN(numValue) ? "" : numValue);
         }}
         onFocus={() => {
           setIsFocused(true);
-          setDisplayValue(field.value ? String(field.value) : "");
+          setDisplayValue(field.value !== null && field.value !== undefined ? String(field.value) : "");
         }}
         onBlur={() => {
           setIsFocused(false);
+          // Ensure we have a valid number on blur
+          if (field.value === "" || field.value === null || field.value === undefined) {
+            field.onChange(0);
+          }
           field.onBlur();
+          // Mark as edited after the value is finalized
+          onEdit?.();
         }}
         aria-invalid={!!error}
         className="w-full"
